@@ -34,7 +34,7 @@
 #include <string.h>
 #include "lwjson/lwjson.h"
 
-lwjson_token_t*
+static lwjson_token_t*
 prv_alloc_token(lwjson_t* lw) {
     if (lw->next_free_token_pos < lw->tokens_len) {
         return &lw->tokens[lw->next_free_token_pos++];
@@ -42,12 +42,53 @@ prv_alloc_token(lwjson_t* lw) {
     return NULL;
 }
 
+static lwjsonr_t
+prv_skip_blank(const char** p) {
+    const char* s = *p;
+    while (s != NULL && *s != '\0') {
+        if (*s == ' ' || *s == '\t' || *s == '\r' || *s == '\n' || *s == '\f') {
+            ++s;
+            continue;
+        }
+        *p = s;
+        return lwjsonOK;
+    }
+    return lwjsonERR;
+}
+
+static lwjsonr_t
+prv_parse_property_name(const char** p, lwjson_token_t* t) {
+    const char* s = *p;
+
+    if (*s++ != '"') {
+        return lwjsonERRJSON;
+    }
+    t->token_name = s;
+    for (;; ++s) {
+        if (s == NULL || *s == '\0') {
+            return lwjsonERRJSON;
+        } else if (*s == '"') {
+            ++s;
+            break;
+        }
+        ++t->token_name_len;
+    }
+    prv_skip_blank(&s);
+    if (*s == ':') {
+        ++s;
+    }
+    prv_skip_blank(&s);
+    *p = s;
+    return lwjsonOK;
+}
+
 lwjsonr_t
 lwjson_init(lwjson_t* lw, lwjson_token_t* tokens, size_t tokens_len) {
     memset(lw, 0x00, sizeof(*lw));
-
+    memset(tokens, 0x00, sizeof(*tokens) * tokens_len);
     lw->tokens = tokens;
     lw->tokens_len = tokens_len;
+    lw->first_token.type = LWJSON_TYPE_OBJECT;
     return lwjsonOK;
 }
 
@@ -55,13 +96,45 @@ lwjsonr_t
 lwjson_parse(lwjson_t* lw, const char* json_str) {
     lwjsonr_t res = lwjsonOK;
     const char* p = json_str;
-    lwjson_token_t* t;
+    lwjson_token_t* t, *to = &lw->first_token;
+    uint8_t first_check = 0;
 
     /* Process all characters */
     while (p != NULL && *p != '\0') {
         /* Filter out blanks */
-        if (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n' || *p == '\f') {
+        if ((res = prv_skip_blank(&p)) != lwjsonOK) {
+            goto ret;
+        }
+        if (!first_check) {
+            first_check = 1;
+            if (*p == '{') {
+                to->type = LWJSON_TYPE_OBJECT;
+            } else if (*p == '[') {
+                to->type = LWJSON_TYPE_ARRAY;
+            } else {
+                res = lwjsonERRMEM;
+                goto ret;
+            }
             ++p;
+            continue;
+        }
+        if (*p == ',') {
+            ++p;
+            continue;
+        }
+
+        /* Check if end of object or array*/
+        if (*p == (to->type == LWJSON_TYPE_OBJECT ? '}' : ']')) {
+            lwjson_token_t* parent = to->next;
+            to->next = NULL;
+            to = parent;
+            ++p;
+
+            /* End of string, check if properly terminated*/
+            if (to == NULL) {
+                res = (p == NULL || *p == '\0') ? lwjsonOK : lwjsonERR;
+                goto ret;
+            }
             continue;
         }
 
@@ -69,7 +142,27 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
         t = prv_alloc_token(lw);
         if (t == NULL) {
             res = lwjsonERRMEM;
-            break;
+            goto ret;
+        }
+
+        /* If object type is not array, first thing is property that starts with quotes */
+        if (to->type != LWJSON_TYPE_ARRAY) {
+            if (*p != '"') {
+                res = lwjsonERRJSON;
+                goto ret;
+            }
+            if ((res = prv_parse_property_name(&p, t)) != lwjsonOK) {
+                goto ret;
+            }
+        }
+        
+        /* Add element to linked list */
+        if (to->u.first_child == NULL) {
+            to->u.first_child = t;
+        } else {
+            lwjson_token_t* c;
+            for (c = to->u.first_child; c->next != NULL; c = c->next) {}
+            c->next = t;
         }
 
         /* Check next character to process */
@@ -77,8 +170,49 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
             case '{':
             case '[':
                 t->type = *p == '{' ? LWJSON_TYPE_OBJECT : LWJSON_TYPE_ARRAY;
+                t->next = to;           /* Temporary saved as parent object */
+                to = t;
+                ++p;
+                break;
+#if 0
+            case 't':
+            case 'T':
+            case 'f':
+            case 'F':
+                break;
+#endif
+            default:
+#if 0
+                if (*p == '-' || (*p >= '0' && *p <= 9)) {
+                    /* Valid number */
+                } else {
+                    res = lwjsonERRJSON;
+                    goto ret;
+                }
+#endif
+                t->type = LWJSON_TYPE_STRING;
+                t->u.v.token_value = "test";
+                t->u.v.token_value_len = 4;
+                /* Remove start of string */
+                if (*p == '"') {
+                    ++p;
+                }
+                while (*p != '"' && *p != '}' && *p != ']' && *p != ',') {
+                    ++p;
+                }
+                if (*p == '"') {
+                    ++p;
+                }
+                break;
         }
     }
+
+    if (to != NULL) {
+        to->token_name = NULL;
+        to->token_name_len = 0;
+    }
+
+ret:
     return res;
 }
 

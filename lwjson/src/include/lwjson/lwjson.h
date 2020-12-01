@@ -90,6 +90,8 @@ typedef struct lwjson_token {
  */
 typedef enum {
     lwjsonOK = 0x00,                            /*!< Function returns successfully */
+    lwjsonERR,
+    lwjsonERRJSON,                              /*!< Error JSON format */
     lwjsonERRMEM,                               /*!< Memory error */
 } lwjsonr_t;
 
@@ -100,7 +102,7 @@ typedef struct {
     lwjson_token_t* tokens;                     /*!< Pointer to array of tokens */
     size_t tokens_len;                          /*!< Size of all tokens */
     size_t next_free_token_pos;                 /*!< Position of next free token instance */
-    lwjson_token_t* first_token;                /*!< First token on a list */
+    lwjson_token_t first_token;                 /*!< First token on a list */
 } lwjson_t;
 
 lwjsonr_t   lwjson_init(lwjson_t* lw, lwjson_token_t* tokens, size_t tokens_len);
