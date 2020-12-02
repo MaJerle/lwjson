@@ -4,6 +4,8 @@
 
 const char* json_input_text_simple = "{\"name\":\"Tilen\",\"last_name\":\"Madjerle\",\"age\":27,\"pass\":true,\"children_ages\":[1,2,3,4,5,6,7,8,9,0]}";
 
+const char* json_input_weather_ljubljana = "{\"coord\":{\"lon\":14.51,\"lat\":46.05},\"weather\":[{\"id\":600,\"main\":\"Snow\",\"description\":\"light snow\",\"icon\":\"13d\"},{\"id\":600,\"main\":\"Snow\",\"description\":\"light snow\",\"icon\":\"13d\"},{\"id\":600,\"main\":\"Snow\",\"description\":\"light snow\",\"icon\":\"13d\"},{\"id\":600,\"main\":\"Snow\",\"description\":\"light snow\",\"icon\":\"13d\"}],\"base\":\"stations\",\"main\":{\"temp\":-0.85,\"feels_like\":-4.05,\"temp_min\":-2,\"temp_max\":0,\"pressure\":1018,\"humidity\":79},\"visibility\":10000,\"wind\":{\"speed\":1,\"deg\":0},\"snow\":{\"1h\":0.31},\"clouds\":{\"all\":90},\"dt\":1606892861,\"sys\":{\"type\":1,\"id\":6815,\"country\":\"SI\",\"sunrise\":1606890313,\"sunset\":1606922289},\"timezone\":3600,\"id\":3196359,\"name\":\"Ljubljana\",\"cod\":200}";
+
 const char* json_input_text_advanced = ""
 "{\n"
 "\t\"_id\": \"5fc567f48d6bf08d4c29a664\",\n"
@@ -27,24 +29,6 @@ const char* json_input_text_advanced = ""
 "\t\t}\n"
 "\t]\n"
 "}\n";
-
-const char* json_generated = ""
-"{\n"
-"\t\"name\":\"Tilen\",\n"
-"\t\"surname\":\"Majerle\",\n"
-"\t\"ages\":[\n"
-"\t\t\"25\",\n"
-"\t\t87342,\n"
-"\t\ttrue,\n"
-"\t\tfalse,\n"
-"\t\tNULL\n"
-"\t],\n"
-"\t\"sub_objects\":{\n"
-"\t\t\"name\":\"Tilen\",\n"
-"\t\t\"test\":\"value\"\n"
-"\t}\n"
-"}\n"
-;
 
 lwjson_token_t tokens[128];
 lwjson_t lwjson;
@@ -102,8 +86,6 @@ main() {
     //lwjson_parse(&lwjson, json_generated);
     lwjson_parse(&lwjson, json_input_text_simple);
     dump(&lwjson.first_token);
-
-
 #else 
     /* Reset tokens for demo purpose */
     memset(tokens, 0x00, sizeof(tokens));

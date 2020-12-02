@@ -63,7 +63,8 @@ typedef enum {
     LWJSON_TYPE_NUMBER,                         /*!< Number type */
     LWJSON_TYPE_OBJECT,
     LWJSON_TYPE_ARRAY,
-    LWJSON_TYPE_BOOLEAN,
+    LWJSON_TYPE_TRUE,
+    LWJSON_TYPE_FALSE,
     LWJSON_TYPE_NULL,
 } lwjson_type_t;
 

@@ -174,13 +174,69 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
                 to = t;
                 ++p;
                 break;
-#if 0
             case 't':
             case 'T':
+                /* RFC is lower-case only */
+                if ((p[0] == 't' || p[0] == 'T') && (p[1] == 'r' || p[1] == 'R')
+                    && (p[2] == 'u' || p[2] == 'U') && (p[3] == 'e' || p[3] == 'E')) {
+                    p += 4;
+                    t->type = LWJSON_TYPE_TRUE;
+                } else {
+                    res = lwjsonERRJSON;
+                    goto ret;
+                }
+                
+                /* Check what are values afterwards */
+                if ((res = prv_skip_blank(&p)) != lwjsonOK) {
+                    goto ret;
+                }
+                if (p == NULL || *p == '\0' || (*p != ',' && *p != ']' && *p != '}')) {
+                    res = lwjsonERRJSON;
+                    goto ret;
+                }
+                break;
             case 'f':
             case 'F':
+                /* RFC is lower-case only */
+                if ((p[0] == 'f' || p[0] == 'F') && (p[1] == 'a' || p[1] == 'A')
+                    && (p[2] == 'l' || p[2] == 'L') && (p[3] == 's' || p[3] == 'S') && (p[4] == 'e' || p[4] == 'E')) {
+                    p += 5;
+                    t->type = LWJSON_TYPE_FALSE;
+                } else {
+                    res = lwjsonERRJSON;
+                    goto ret;
+                }
+                
+                /* Check what are values afterwards */
+                if ((res = prv_skip_blank(&p)) != lwjsonOK) {
+                    goto ret;
+                }
+                if (p == NULL || *p == '\0' || (*p != ',' && *p != ']' && *p != '}')) {
+                    res = lwjsonERRJSON;
+                    goto ret;
+                }
                 break;
-#endif
+            case 'n':
+            case 'N':
+                /* RFC is lower-case only */
+                if ((p[0] == 'n' || p[0] == 'N') && (p[1] == 'u' || p[1] == 'U')
+                    && (p[2] == 'l' || p[2] == 'L') && (p[3] == 'l' || p[3] == 'L')) {
+                    p += 4;
+                    t->type = LWJSON_TYPE_NULL;
+                } else {
+                    res = lwjsonERRJSON;
+                    goto ret;
+                }
+                
+                /* Check what are values afterwards */
+                if ((res = prv_skip_blank(&p)) != lwjsonOK) {
+                    goto ret;
+                }
+                if (p == NULL || *p == '\0' || (*p != ',' && *p != ']' && *p != '}')) {
+                    res = lwjsonERRJSON;
+                    goto ret;
+                }
+                break;
             default:
 #if 0
                 if (*p == '-' || (*p >= '0' && *p <= 9)) {
@@ -206,7 +262,6 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
                 break;
         }
     }
-
     if (to != NULL) {
         to->token_name = NULL;
         to->token_name_len = 0;
