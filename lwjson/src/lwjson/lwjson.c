@@ -174,78 +174,7 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
                 to = t;
                 ++p;
                 break;
-            case 't':
-            case 'T':
-                /* RFC is lower-case only */
-                if ((p[0] == 't' || p[0] == 'T') && (p[1] == 'r' || p[1] == 'R')
-                    && (p[2] == 'u' || p[2] == 'U') && (p[3] == 'e' || p[3] == 'E')) {
-                    p += 4;
-                    t->type = LWJSON_TYPE_TRUE;
-                } else {
-                    res = lwjsonERRJSON;
-                    goto ret;
-                }
-                
-                /* Check what are values afterwards */
-                if ((res = prv_skip_blank(&p)) != lwjsonOK) {
-                    goto ret;
-                }
-                if (p == NULL || *p == '\0' || (*p != ',' && *p != ']' && *p != '}')) {
-                    res = lwjsonERRJSON;
-                    goto ret;
-                }
-                break;
-            case 'f':
-            case 'F':
-                /* RFC is lower-case only */
-                if ((p[0] == 'f' || p[0] == 'F') && (p[1] == 'a' || p[1] == 'A')
-                    && (p[2] == 'l' || p[2] == 'L') && (p[3] == 's' || p[3] == 'S') && (p[4] == 'e' || p[4] == 'E')) {
-                    p += 5;
-                    t->type = LWJSON_TYPE_FALSE;
-                } else {
-                    res = lwjsonERRJSON;
-                    goto ret;
-                }
-                
-                /* Check what are values afterwards */
-                if ((res = prv_skip_blank(&p)) != lwjsonOK) {
-                    goto ret;
-                }
-                if (p == NULL || *p == '\0' || (*p != ',' && *p != ']' && *p != '}')) {
-                    res = lwjsonERRJSON;
-                    goto ret;
-                }
-                break;
-            case 'n':
-            case 'N':
-                /* RFC is lower-case only */
-                if ((p[0] == 'n' || p[0] == 'N') && (p[1] == 'u' || p[1] == 'U')
-                    && (p[2] == 'l' || p[2] == 'L') && (p[3] == 'l' || p[3] == 'L')) {
-                    p += 4;
-                    t->type = LWJSON_TYPE_NULL;
-                } else {
-                    res = lwjsonERRJSON;
-                    goto ret;
-                }
-                
-                /* Check what are values afterwards */
-                if ((res = prv_skip_blank(&p)) != lwjsonOK) {
-                    goto ret;
-                }
-                if (p == NULL || *p == '\0' || (*p != ',' && *p != ']' && *p != '}')) {
-                    res = lwjsonERRJSON;
-                    goto ret;
-                }
-                break;
-            default:
-#if 0
-                if (*p == '-' || (*p >= '0' && *p <= 9)) {
-                    /* Valid number */
-                } else {
-                    res = lwjsonERRJSON;
-                    goto ret;
-                }
-#endif
+            case '"':
                 t->type = LWJSON_TYPE_STRING;
                 t->u.v.token_value = "test";
                 t->u.v.token_value_len = 4;
@@ -260,13 +189,78 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
                     ++p;
                 }
                 break;
+            case 't':
+                /* RFC is lower-case only */
+                if (strncmp(p, "true", 4) == 0) {
+                    t->type = LWJSON_TYPE_TRUE;
+                    p += 4;
+                } else {
+                    res = lwjsonERRJSON;
+                    goto ret;
+                }
+                break;
+            case 'f':
+                /* RFC is lower-case only */
+                if (strncmp(p, "false", 5) == 0) {
+                    t->type = LWJSON_TYPE_FALSE;
+                    p += 5;
+                } else {
+                    res = lwjsonERRJSON;
+                    goto ret;
+                }
+                break;
+            case 'n':
+                /* RFC is lower-case only */
+                if (strncmp(p, "null", 4) == 0) {
+                    t->type = LWJSON_TYPE_NULL;
+                    p += 4;
+                } else {
+                    res = lwjsonERRJSON;
+                    goto ret;
+                }
+                break;
+            default:
+                if (*p == '-' || (*p >= '0' && *p <= '9')) {
+                    /* Valid number */
+                    while (p != NULL && *p != '\0' && (*p != ',' && *p != ']' && *p != '}')) {
+                        ++p;
+                    }
+                } else {
+                    res = lwjsonERRJSON;
+                    goto ret;
+                }
+                break;
+        }
+
+        /* Below code is used to check characters after valid tokens */
+        if (t->type == LWJSON_TYPE_ARRAY || t->type == LWJSON_TYPE_OBJECT) {
+            continue;
+        }
+
+        /*
+         * Check what are values after the token value
+         *
+         * As per RFC, every token value may have one or more
+         *  blank characters, followed by one of below options:
+         *  - Comma separator for next token
+         *  - End of array indication
+         *  - End of object indication
+         */
+        if ((res = prv_skip_blank(&p)) != lwjsonOK) {
+            goto ret;
+        }
+        /* Check if valid string is availabe after */
+        if (p == NULL || *p == '\0' || (*p != ',' && *p != ']' && *p != '}')) {
+            res = lwjsonERRJSON;
+            goto ret;
+        } else if (*p == ',') {                 /* Check to advance to next token immediatey */
+            ++p;
         }
     }
     if (to != NULL) {
         to->token_name = NULL;
         to->token_name_len = 0;
     }
-
 ret:
     return res;
 }

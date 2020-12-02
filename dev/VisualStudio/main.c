@@ -65,8 +65,10 @@ dump(lwjson_token_t* token) {
         printf("\"%.*s\"", (int)token->u.v.token_value_len, token->u.v.token_value);
     } else if (token->type == LWJSON_TYPE_NUMBER) {
         printf("%.*s", (int)token->u.v.token_value_len, token->u.v.token_value);
-    } else if (token->type == LWJSON_TYPE_BOOLEAN) {
-        printf("%.*s", (int)token->u.v.token_value_len, token->u.v.token_value);
+    } else if (token->type == LWJSON_TYPE_TRUE) {
+        printf("true");
+    } else if (token->type == LWJSON_TYPE_FALSE) {
+        printf("false");
     } else if (token->type == LWJSON_TYPE_NULL) {
         printf("NULL");
     }
@@ -84,8 +86,12 @@ main() {
 #if 1
     lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
     //lwjson_parse(&lwjson, json_generated);
-    lwjson_parse(&lwjson, json_input_text_simple);
-    dump(&lwjson.first_token);
+    if (lwjson_parse(&lwjson, json_input_text_simple) == lwjsonOK) {
+        dump(&lwjson.first_token);
+    } else {
+        printf("Could not parse input json\r\n");
+    }
+    
 #else 
     /* Reset tokens for demo purpose */
     memset(tokens, 0x00, sizeof(tokens));
