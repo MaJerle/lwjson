@@ -60,7 +60,8 @@ extern "C" {
  */
 typedef enum {
     LWJSON_TYPE_STRING,                         /*!< String/Text format. Everything that has beginning and ending quote character */
-    LWJSON_TYPE_NUMBER,                         /*!< Number type */
+    LWJSON_TYPE_NUM_INT,                        /*!< Number type for integer */
+    LWJSON_TYPE_NUM_REAL,                       /*!< Number type for real number */
     LWJSON_TYPE_OBJECT,
     LWJSON_TYPE_ARRAY,
     LWJSON_TYPE_TRUE,
@@ -81,9 +82,11 @@ typedef struct lwjson_token {
         struct {
             const char* token_value;            /*!< Value if type is not \ref LWJSON_TYPE_OBJECT or \ref LWJSON_TYPE_ARRAY */
             size_t token_value_len;             /*!< Length of token value (this is needed to support const input strings to parse) */
-        } v;
+        } str;                                  /*!< String data */
+        float num_real;                         /*!< Real number format */
+        long num_int;                           /*!< Int number format */
         struct lwjson_token* first_child;       /*!< First children object */
-    } u;
+    } u;                                        /*!< Union with different data types */
 } lwjson_token_t;
 
 /**

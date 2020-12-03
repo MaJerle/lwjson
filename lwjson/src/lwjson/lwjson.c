@@ -35,6 +35,11 @@
 #include <stdio.h>
 #include "lwjson/lwjson.h"
 
+/**
+ * \brief           Allocate new token for JSON block
+ * \param[in]       lw: LwJSON instance
+ * \return          Pointer to new token
+ */
 static lwjson_token_t*
 prv_alloc_token(lwjson_t* lw) {
     if (lw->next_free_token_pos < lw->tokens_len) {
@@ -43,6 +48,11 @@ prv_alloc_token(lwjson_t* lw) {
     return NULL;
 }
 
+/**
+ * \brief           Skip all characters that are considered *blank* as per RFC4627
+ * \param[in,out]   p: Pointer to text that is modified on success
+ * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
+ */
 static lwjsonr_t
 prv_skip_blank(const char** p) {
     const char* s = *p;
@@ -54,9 +64,20 @@ prv_skip_blank(const char** p) {
         *p = s;
         return lwjsonOK;
     }
+    if (*s != NULL && *s == '\0') {
+        return lwjsonOK;
+    }
     return lwjsonERR;
 }
 
+/**
+ * \brief           Parse JSON string that must start end end with double quotes `"` character
+ * It just parses length of characters and does not perform any decode operation
+ * \param[in,out]   p: Pointer to text that is modified on success
+ * \param[out]      pout: Pointer to pointer to string that is set where string starts
+ * \param[out]      poutlen: Length of string in units of characters is stored here
+ * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
+ */
 static lwjsonr_t
 prv_parse_string(const char** p, const char** pout, size_t* poutlen) {
     const char* s;
@@ -96,6 +117,13 @@ prv_parse_string(const char** p, const char** pout, size_t* poutlen) {
     return res;
 }
 
+/**
+ * \brief           Parse property name that must comply with JSON string format as in RFC4627
+ * Property string must be followed by colon character ":"
+ * \param[in,out]   p: Pointer to text that is modified on success
+ * \param[out]      t: Token instance to write property name to
+ * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
+ */
 static lwjsonr_t
 prv_parse_property_name(const char** p, lwjson_token_t* t) {
     const char* s = *p;
@@ -114,12 +142,21 @@ prv_parse_property_name(const char** p, lwjson_token_t* t) {
     return lwjsonOK;
 }
 
+/**
+ * \brief           Parse number as described in RFC4627
+ * \param[in,out]   p: Pointer to text that is modified on success
+ * \param[out]      tout: Pointer to output number format
+ * \param[out]      fout: Pointer to output real-type variable. Used if type is REAL.
+ * \param[out]      iout: Pointer to output int-type variable. Used if type is INT.
+ * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
+ */
 static lwjsonr_t
-prv_parse_number(const char** p, float* fout) {
+prv_parse_number(const char** p, lwjson_type_t* tout, float* fout, long* iout) {
     const char* s = *p;
     lwjsonr_t res;
     uint8_t is_minus;
     float num;
+    lwjson_type_t type = LWJSON_TYPE_NUM_INT;
 
     if ((res = prv_skip_blank(p)) != lwjsonOK) {
         return res;
@@ -129,30 +166,78 @@ prv_parse_number(const char** p, float* fout) {
         return lwjsonERRJSON;
     }
     is_minus = *s == '-' ? (++s, 1) : 0;
-    if (s == NULL || *s == '\0') {
+    if (s == NULL || *s == '\0'                 /* Invalid string */
+        || *s < '0' || *s > '9'                 /* Character outside number range */
+        || (*s == '0' && (*(s + 1) < '0' && *(s + 1) > '9'))) { /* Number starts with 0 but not followed by dot */
         return lwjsonERRJSON;
     }
-    if (*s < '0' || *s > '9') {
-        return lwjsonERRJSON;
-    }
-    /* If zero is first number, it must follow by . */
-    if (*s == '0' && *(s + 1) != '.') {
-        return lwjsonERRJSON;
-    }
+    /* Parse number */
     for (num = 0; *s >= '0' && *s <= '9'; ++s) {
         num = num * 10 + (*s - '0');
     }
-	/* TODO: Parse decimal and exponent parts */
-    if (*s == '.') {
-        printf("Decimal number...\r\n");
+    if (s != NULL && *s == '.') {               /* Number has exponent */
+        float exp, dec_num;
+
+        type = LWJSON_TYPE_NUM_REAL;            /* Format is real */
+        ++s;                                    /* Ignore comma character */
+        if (*s < '0' || *s > '9') {             /* Must be followed by number characters */
+            return lwjsonERRJSON;
+        }
+        /* Get number after decimal point */
+        for (exp = 1, dec_num = 0; *s >= '0' && *s <= '9'; ++s, exp *= 10) {
+            dec_num = dec_num * 10 + (*s - '0');
+        }
+        num += dec_num / exp;                   /* Add decimal part to number */
+    }
+    if (s != NULL && (*s == 'e' || *s == 'E')) {/* Engineering mode */
+        uint8_t is_minus_exp;
+        int exp_cnt;
+
+        type = LWJSON_TYPE_NUM_REAL;            /* Format is real */
+        ++s;                                    /* Ignore enginnering sing part */
+        is_minus_exp = *s == '-' ? (++s, 1) : 0;/* Check if negative */
+        if (*s == '+') {                        /* Optional '+' is possible too */
+            ++s;
+        }
+        if (*s < '0' || *s > '9') {             /* Must be followed by number characters */
+            return lwjsonERRJSON;
+        }
+
+        /* Parse exponent number */
+        for (exp_cnt = 0; *s >= '0' && *s <= '9'; ++s) {
+            exp_cnt = exp_cnt * 10 + (*s - '0');
+        }
+        /* Calculate new value for exponent 10^exponent */
+        if (is_minus_exp) {
+            for (; exp_cnt > 0; num /= 10, --exp_cnt) {}
+        } else {
+            for (; exp_cnt > 0; num *= 10, --exp_cnt) {}
+        }
     }
 	if (is_minus) {
         num = -num;
 	}
-    *fout = num;
+    *p = s;
+
+    /* Write output values */
+    if (tout != NULL) {
+        *tout = type;
+    }
+    if (type == LWJSON_TYPE_NUM_INT) {
+        *iout = (long)num;
+    } else {
+        *fout = num;
+    }
 	return lwjsonOK;
 }
 
+/**
+ * \brief           Setup LwJSON instance for parsing JSON strings
+ * \param[in,out]   lw: LwJSON instance
+ * \param[in]       tokens: Pointer to array of tokens used for parsing
+ * \param[in]       tokens_len: Number of tokens
+ * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
+ */
 lwjsonr_t
 lwjson_init(lwjson_t* lw, lwjson_token_t* tokens, size_t tokens_len) {
     memset(lw, 0x00, sizeof(*lw));
@@ -163,12 +248,19 @@ lwjson_init(lwjson_t* lw, lwjson_token_t* tokens, size_t tokens_len) {
     return lwjsonOK;
 }
 
+/**
+ * \brief           Parse input JSON format
+ * JSON format must be complete and must comply with RFC4627
+ * \param[in,out]   lw: LwJSON instance
+ * \param[in]       json_str: JSON string to parse
+ * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
+ */
 lwjsonr_t
 lwjson_parse(lwjson_t* lw, const char* json_str) {
     lwjsonr_t res = lwjsonOK;
     const char* p = json_str;
     lwjson_token_t* t, *to = &lw->first_token;
-    uint8_t first_check = 0;
+    uint8_t first_check = 1;
 
     /* Process all characters */
     while (p != NULL && *p != '\0') {
@@ -176,8 +268,8 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
         if ((res = prv_skip_blank(&p)) != lwjsonOK) {
             goto ret;
         }
-        if (!first_check) {
-            first_check = 1;
+        if (first_check) {
+            first_check = 0;
             if (*p == '{') {
                 to->type = LWJSON_TYPE_OBJECT;
             } else if (*p == '[') {
@@ -201,8 +293,9 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
             to = parent;
             ++p;
 
-            /* End of string, check if properly terminated*/
+            /* End of string, check if properly terminated */
             if (to == NULL) {
+                prv_skip_blank(&p);
                 res = (p == NULL || *p == '\0') ? lwjsonOK : lwjsonERR;
                 goto ret;
             }
@@ -246,12 +339,12 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
                 ++p;
                 break;
             case '"':
-                if (prv_parse_string(&p, &t->u.v.token_value, &t->u.v.token_value_len) == lwjsonOK) {
+                if (prv_parse_string(&p, &t->u.str.token_value, &t->u.str.token_value_len) == lwjsonOK) {
                     t->type = LWJSON_TYPE_STRING;
                 }
                 break;
             case 't':
-                /* RFC is lower-case only */
+                /* RFC4627 is lower-case only */
                 if (strncmp(p, "true", 4) == 0) {
                     t->type = LWJSON_TYPE_TRUE;
                     p += 4;
@@ -261,7 +354,7 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
                 }
                 break;
             case 'f':
-                /* RFC is lower-case only */
+                /* RFC4627 is lower-case only */
                 if (strncmp(p, "false", 5) == 0) {
                     t->type = LWJSON_TYPE_FALSE;
                     p += 5;
@@ -271,7 +364,7 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
                 }
                 break;
             case 'n':
-                /* RFC is lower-case only */
+                /* RFC4627 is lower-case only */
                 if (strncmp(p, "null", 4) == 0) {
                     t->type = LWJSON_TYPE_NULL;
                     p += 4;
@@ -282,9 +375,9 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
                 break;
             default:
                 if (*p == '-' || (*p >= '0' && *p <= '9')) {
-                    /* Valid number */
-                    while (p != NULL && *p != '\0' && (*p != ',' && *p != ']' && *p != '}')) {
-                        ++p;
+                    if (prv_parse_number(&p, &t->type, &t->u.num_real, &t->u.num_int) != lwjsonOK) {
+                        res = lwjsonERRJSON;
+                        goto ret;
                     }
                 } else {
                     res = lwjsonERRJSON;
@@ -326,12 +419,13 @@ ret:
     return res;
 }
 
+/**
+ * \brief           Reset token instances and prepare for new parsing
+ * \param[in,out]   lw: LwJSON instance
+ * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
+ */
 lwjsonr_t
 lwjson_reset(lwjson_t* lw) {
-    return lwjsonOK;
-}
-
-lwjsonr_t
-lwjson_free(lwjson_t* lw) {
+    memset(lw->tokens, 0x00, sizeof(*lw->tokens) * lw->tokens_len);
     return lwjsonOK;
 }
