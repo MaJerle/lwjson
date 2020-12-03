@@ -60,7 +60,7 @@ prv_skip_blank(const char** p) {
 static lwjsonr_t
 prv_parse_string(const char** p, const char** pout, size_t* poutlen) {
     const char* s;
-    lwjsonr_t res = lwjsonOK;
+    lwjsonr_t res;
     size_t len = 0;
 
     if ((res = prv_skip_blank(p)) != lwjsonOK) {
@@ -112,6 +112,45 @@ prv_parse_property_name(const char** p, lwjson_token_t* t) {
     prv_skip_blank(&s);
     *p = s;
     return lwjsonOK;
+}
+
+static lwjsonr_t
+prv_parse_number(const char** p, float* fout) {
+    const char* s = *p;
+    lwjsonr_t res;
+    uint8_t is_minus;
+    float num;
+
+    if ((res = prv_skip_blank(p)) != lwjsonOK) {
+        return res;
+    }
+    s = *p;
+    if (s == NULL || *s == '\0') {
+        return lwjsonERRJSON;
+    }
+    is_minus = *s == '-' ? (++s, 1) : 0;
+    if (s == NULL || *s == '\0') {
+        return lwjsonERRJSON;
+    }
+    if (*s < '0' || *s > '9') {
+        return lwjsonERRJSON;
+    }
+    /* If zero is first number, it must follow by . */
+    if (*s == '0' && *(s + 1) != '.') {
+        return lwjsonERRJSON;
+    }
+    for (num = 0; *s >= '0' && *s <= '9'; ++s) {
+        num = num * 10 + (*s - '0');
+    }
+	/* TODO: Parse decimal and exponent parts */
+    if (*s == '.') {
+        printf("Decimal number...\r\n");
+    }
+	if (is_minus) {
+        num = -num;
+	}
+    *fout = num;
+	return lwjsonOK;
 }
 
 lwjsonr_t
