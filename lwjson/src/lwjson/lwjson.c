@@ -32,6 +32,7 @@
  * Version:         $_version_$
  */
 #include <string.h>
+#include <stdio.h>
 #include "lwjson/lwjson.h"
 
 static lwjson_token_t*
@@ -57,26 +58,57 @@ prv_skip_blank(const char** p) {
 }
 
 static lwjsonr_t
-prv_parse_property_name(const char** p, lwjson_token_t* t) {
-    const char* s = *p;
+prv_parse_string(const char** p, const char** pout, size_t* poutlen) {
+    const char* s;
+    lwjsonr_t res = lwjsonOK;
+    size_t len = 0;
 
+    if ((res = prv_skip_blank(p)) != lwjsonOK) {
+        return res;
+    }
+    s = *p;
     if (*s++ != '"') {
         return lwjsonERRJSON;
     }
-    t->token_name = s;
-    for (;; ++s) {
+    *pout = s;
+    /* Parse string but take care of escape characters */
+    for (char prev_ch = '\0';; ++s, ++len) {
         if (s == NULL || *s == '\0') {
             return lwjsonERRJSON;
-        } else if (*s == '"') {
-            ++s;
-            break;
         }
-        ++t->token_name_len;
+        /* Check end of string */
+        if (*s == '"') {
+            if (prev_ch != '\\') {
+                ++s;
+                break;
+            }
+        }
+        prev_ch = *s;
     }
-    prv_skip_blank(&s);
-    if (*s == ':') {
+    *poutlen = len;
+    if (*s == '"') {
         ++s;
     }
+    if ((res = prv_skip_blank(&s)) != lwjsonOK) {
+        return res;
+    }
+    *p = s;
+    return res;
+}
+
+static lwjsonr_t
+prv_parse_property_name(const char** p, lwjson_token_t* t) {
+    const char* s = *p;
+    lwjsonr_t res;
+
+    if ((res = prv_parse_string(p, &t->token_name, &t->token_name_len)) != lwjsonOK) {
+        return res;
+    }
+    s = *p;
+    if (*s != ':') {
+        return lwjsonERRJSON;
+    }
+    ++s;
     prv_skip_blank(&s);
     *p = s;
     return lwjsonOK;
@@ -175,18 +207,8 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
                 ++p;
                 break;
             case '"':
-                t->type = LWJSON_TYPE_STRING;
-                t->u.v.token_value = "test";
-                t->u.v.token_value_len = 4;
-                /* Remove start of string */
-                if (*p == '"') {
-                    ++p;
-                }
-                while (*p != '"' && *p != '}' && *p != ']' && *p != ',') {
-                    ++p;
-                }
-                if (*p == '"') {
-                    ++p;
+                if (prv_parse_string(&p, &t->u.v.token_value, &t->u.v.token_value_len) == lwjsonOK) {
+                    t->type = LWJSON_TYPE_STRING;
                 }
                 break;
             case 't':
