@@ -62,11 +62,11 @@ typedef enum {
     LWJSON_TYPE_STRING,                         /*!< String/Text format. Everything that has beginning and ending quote character */
     LWJSON_TYPE_NUM_INT,                        /*!< Number type for integer */
     LWJSON_TYPE_NUM_REAL,                       /*!< Number type for real number */
-    LWJSON_TYPE_OBJECT,
-    LWJSON_TYPE_ARRAY,
-    LWJSON_TYPE_TRUE,
-    LWJSON_TYPE_FALSE,
-    LWJSON_TYPE_NULL,
+    LWJSON_TYPE_OBJECT,                         /*!< Object data type */
+    LWJSON_TYPE_ARRAY,                          /*!< Array data type */
+    LWJSON_TYPE_TRUE,                           /*!< True boolean value */
+    LWJSON_TYPE_FALSE,                          /*!< False boolean value */
+    LWJSON_TYPE_NULL,                           /*!< Null value */
 } lwjson_type_t;
 
 /**

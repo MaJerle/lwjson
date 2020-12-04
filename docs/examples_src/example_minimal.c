@@ -1,19 +1,20 @@
-#include "lwrb/lwrb.h"
+#include "lwjson/lwjson.h"
 
-/* Declare rb instance & raw data */
-lwrb_t buff;
-uint8_t buff_data[8];
+/* LwJSON instance and tokens */
+static lwjson_token_t tokens[128];
+static lwjson_t lwjson;
 
-/* Application variables */
-uint8_t data[2];     /* Application working data */
+/* Parse JSON function */
+static void
+parse_json(void) {
+    lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
+    if (lwjson_parse(&lwjson, "{\"mykey\":\"myvalue\"}")) {
+        const lwjson_token_t* t;
+        printf("JSON parsed..\r\n");
 
-/* Application code ... */
-lwrb_init(&buff, buff_data, sizeof(buff_data)); /* Initialize buffer */
-
-/* Write 4 bytes of data */
-lwrb_write(&buff, "0123", 4);
-
-/* Print number of bytes in buffer */
-printf("Bytes in buffer: %d\r\n", (int)lwrb_get_full(&buff));
-
-/* Will print "4" */
+        /* Find custom key in JSON */
+        if ((t = lwjson_find(&lwjson, "mykey")) != NULL) {
+            printf("Key found with data type: %d\r\n", (int)t->type);
+        }
+    }
+}
