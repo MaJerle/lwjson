@@ -1,0 +1,41 @@
+{
+  "_id": "5fca9f3cadc60859163cc029",
+  "index": 0,
+  "guid": "cecb1e33-1535-49e8-9b46-bee02af5a5a2",
+  "isActive": false,
+  "latitude": 39.70001,
+  "tags": [
+    "duis",
+    "esse",
+    "esse"
+  ],
+  "friends": [
+    {
+      "id": 0,
+      "name": "Nona Walls",
+      "surname": "test 123"
+    },
+    {
+      "id": 1,
+      "name": "Shelia Gordon",
+      "sur_name": "test 1234"
+    }
+  ],
+  "multi_array": [
+  	[
+  		{"key1": "value1"},
+  		{"key2": "value2"},
+  		{"key3": "value3"}
+  	],
+  	[
+  		{"key4": "value4"},
+  		{"key5": "value5"},
+  		{"key6": "value6"}
+  	],
+  	[
+  		{"key7": "value7"},
+  		{"key8": "value8"},
+  		{"key9": "value9"}
+  	]
+  ]
+}

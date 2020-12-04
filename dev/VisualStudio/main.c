@@ -60,11 +60,12 @@ main() {
     DWORD file_size;
     size_t token_cnt = 0;
     char* json_text = NULL;
+    const lwjson_token_t* tkn;
 
     /* Init JSON */
     lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
 
-    f = CreateFile(TEXT("..\\..\\test\\json\\weather_onecall.json"),
+    f = CreateFile(TEXT("..\\..\\test\\json\\custom.json"),
         GENERIC_READ,             // open for reading
         0,                        // do not share
         NULL,                     // no security
@@ -95,13 +96,21 @@ main() {
     }
 
     /* Start parsing */
-    if (lwjson_parse(&lwjson, json_text) == lwjsonOK) {
-        dump(&lwjson.first_token);
-    } else {
+    if (lwjson_parse(&lwjson, json_text) != lwjsonOK) {
         printf("Could not parse input json\r\n");
         goto exit;
     }
 
+    /* Dump result */
+    dump(&lwjson.first_token);
+
+    /* Find token if exists */
+    if ((tkn = lwjson_find(&lwjson, "multi_array.#.#.key6")) != NULL) {
+        printf("Found requested token path\r\n");
+        dump(tkn);
+    } else {
+        printf("Could not find requested token path..\r\n");
+    }
 exit:
     if (json_text != NULL) {
         free(json_text);

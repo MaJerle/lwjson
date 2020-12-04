@@ -107,12 +107,16 @@ typedef struct {
     size_t tokens_len;                          /*!< Size of all tokens */
     size_t next_free_token_pos;                 /*!< Position of next free token instance */
     lwjson_token_t first_token;                 /*!< First token on a list */
+    struct {
+        uint8_t parsed : 1;                     /*!< Flag indicating JSON parsing has finished successfully */
+    } flags;                                    /*!< List of flags */
 } lwjson_t;
 
-lwjsonr_t   lwjson_init(lwjson_t* lw, lwjson_token_t* tokens, size_t tokens_len);
-lwjsonr_t   lwjson_parse(lwjson_t* lw, const char* json_str);
-lwjsonr_t   lwjson_reset(lwjson_t* lw);
-lwjsonr_t   lwjson_free(lwjson_t* lw);
+lwjsonr_t       lwjson_init(lwjson_t* lw, lwjson_token_t* tokens, size_t tokens_len);
+lwjsonr_t       lwjson_parse(lwjson_t* lw, const char* json_str);
+lwjsonr_t       lwjson_reset(lwjson_t* lw);
+const lwjson_token_t* lwjson_find(lwjson_t* lw, const char* path);
+lwjsonr_t       lwjson_free(lwjson_t* lw);
 
 /**
  * \}

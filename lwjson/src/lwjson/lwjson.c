@@ -64,7 +64,7 @@ prv_skip_blank(const char** p) {
         *p = s;
         return lwjsonOK;
     }
-    if (*s != NULL && *s == '\0') {
+    if (s != NULL && *s == '\0') {
         return lwjsonOK;
     }
     return lwjsonERR;
@@ -232,6 +232,95 @@ prv_parse_number(const char** p, lwjson_type_t* tout, float* fout, long* iout) {
 }
 
 /**
+ * \brief           Create path segment from input path for search operation
+ * \param[in,out]   p: Pointer to pointer to input path. Pointer is modified
+ * \param[out]      opath: Pointer to pointer to write path segment
+ * \param[out]      olen: Pointer to variable to write length of segment
+ * \param[out]      is_last: Pointer to write if this is last segment
+ * \return          `1` on success, `0` otherwise
+ */
+static uint8_t
+prv_create_path_segment(const char** p, const char** opath, size_t* olen, uint8_t* is_last) {
+    const char* s = *p;
+
+    *is_last = 0;
+    *opath = NULL;
+    *olen = 0;
+
+    /* Check input path */
+    if (s == NULL || *s == '\0') {
+        return 0;
+    }
+
+    /* 
+     * Path must be one of:
+     * - literal text
+     * - "#" followed by dot "."
+     */
+    if (*s == '#') {
+        if (*(s + 1) != '.') {
+            return 0;
+        }
+        *opath = s;
+        *olen = 1;
+        *p = s + *olen + 1;
+    } else {
+        *opath = s;
+        for (*olen = 0; *s != '\0' && *s != '.'; ++(*olen), ++s) {}
+        *p = s + 1;
+    }
+    if (*s == '\0') {
+        *is_last = 1;
+    }
+    return 1;
+}
+
+/**
+ * \brief           Input recursive function for find operation
+ * \param[in]       parent: Parent token of type \ref LWJSON_TYPE_ARRAY or LWJSON_TYPE_OBJECT
+ * \param[in]       path: Path to search for starting this token further
+ * \return          Found token on success, `NULL` otherwise
+ */
+static const lwjson_token_t*
+prv_find(const lwjson_token_t* parent, const char* path) {
+    lwjson_token_t* token = NULL;
+    const char* segment;
+    size_t segment_len;
+    uint8_t is_last, result;
+
+    /* Get path segments */
+    if ((result = prv_create_path_segment(&path, &segment, &segment_len, &is_last)) != 0) {
+        /* Check if detected an array request */
+        if (*segment == '#' && segment_len == 1) {
+            if (parent->type != LWJSON_TYPE_ARRAY) {
+                return NULL;
+            }
+            for (const lwjson_token_t* tmp_t, *t = parent->u.first_child; t != NULL; t = t->next) {
+                if ((tmp_t = prv_find(t, path)) != NULL) {
+                    return tmp_t;
+                }
+            }
+        } else {
+            if (parent->type != LWJSON_TYPE_OBJECT) {
+                return NULL;
+            }
+            for (const lwjson_token_t* t = parent->u.first_child; t != NULL; t = t->next) {
+                if (t->token_name_len == segment_len && !strncmp(t->token_name, segment, segment_len)) {
+                    const lwjson_token_t* tmp_t;
+                    if (is_last) {
+                        return t;
+                    }
+                    if ((tmp_t = prv_find(t, path)) != NULL) {
+                        return tmp_t;
+                    }
+                }
+            }
+        }
+    }
+    return NULL;
+}
+
+/**
  * \brief           Setup LwJSON instance for parsing JSON strings
  * \param[in,out]   lw: LwJSON instance
  * \param[in]       tokens: Pointer to array of tokens used for parsing
@@ -261,6 +350,9 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
     const char* p = json_str;
     lwjson_token_t* t, *to = &lw->first_token;
     uint8_t first_check = 1;
+
+    /* Reset flags */
+    lw->flags.parsed = 0;
 
     /* Process all characters */
     while (p != NULL && *p != '\0') {
@@ -394,7 +486,7 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
         /*
          * Check what are values after the token value
          *
-         * As per RFC, every token value may have one or more
+         * As per RFC4627, every token value may have one or more
          *  blank characters, followed by one of below options:
          *  - Comma separator for next token
          *  - End of array indication
@@ -416,6 +508,9 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
         to->token_name_len = 0;
     }
 ret:
+    if (res == lwjsonOK) {
+        lw->flags.parsed = 1;
+    }
     return res;
 }
 
@@ -428,4 +523,19 @@ lwjsonr_t
 lwjson_reset(lwjson_t* lw) {
     memset(lw->tokens, 0x00, sizeof(*lw->tokens) * lw->tokens_len);
     return lwjsonOK;
+}
+
+/**
+ * \brief           Find first match in the given path for JSON entry
+ * JSON must be valid and parsed with \ref lwjson_parse function
+ * \param[in]       lw: JSON instance with parsed JSON string
+ * \param[in]       path: Path with dot-separated entries to search for the JSON key to return
+ * \return          Pointer to found token on success, `NULL` if token cannot be found
+ */
+const lwjson_token_t*
+lwjson_find(lwjson_t* lw, const char* path) {
+    if (lw == NULL || !lw->flags.parsed || path == NULL) {
+        return NULL;
+    }
+    return prv_find(&lw->first_token, path);
 }
