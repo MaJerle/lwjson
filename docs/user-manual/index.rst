@@ -7,3 +7,5 @@ User manual
     :maxdepth: 2
 
     how-it-works
+    token-design
+    data-access

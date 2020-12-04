@@ -358,7 +358,7 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
     memset(to, 0x00, sizeof(*to));
 
     /* Check input data first */
-    if (*p == NULL || *p == '\0') {
+    if (p == NULL || *p == '\0') {
         return lwjsonERRJSON;
     }
 
@@ -545,5 +545,5 @@ lwjson_find(lwjson_t* lw, const char* path) {
     if (lw == NULL || !lw->flags.parsed || path == NULL) {
         return NULL;
     }
-    return prv_find(&lw->first_token, path);
+    return prv_find(lwjson_get_first_token(lw), path);
 }

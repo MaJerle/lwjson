@@ -119,6 +119,20 @@ const lwjson_token_t* lwjson_find(lwjson_t* lw, const char* path);
 lwjsonr_t       lwjson_free(lwjson_t* lw);
 
 /**
+ * \brief           Get number of tokens used to parse JSON
+ * \param[in]       lw: Pointer to LwJSON instance
+ * \return          Number of tokens used to parse JSON
+ */
+#define         lwjson_get_tokens_used(lw)      (((lw) != NULL) ? ((lw)->next_free_token_pos + 1) : 0)
+
+/**
+ * \brief           Get top token on a list
+ * \param[in]       lw: Pointer to LwJSON instance
+ * \return          Pointer to first token
+ */
+#define         lwjson_get_first_token(lw)      (((lw) != NULL) ? (&(lw)->first_token) : NULL)
+
+/**
  * \}
  */
 
