@@ -43,6 +43,7 @@
 static lwjson_token_t*
 prv_alloc_token(lwjson_t* lw) {
     if (lw->next_free_token_pos < lw->tokens_len) {
+        memset(&lw->tokens[lw->next_free_token_pos], 0x00, sizeof(*lw->tokens));
         return &lw->tokens[lw->next_free_token_pos++];
     }
     return NULL;
@@ -351,8 +352,15 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
     lwjson_token_t* t, *to = &lw->first_token;
     uint8_t first_check = 1;
 
-    /* Reset flags */
+    /* values from very beginning */
     lw->flags.parsed = 0;
+    lw->next_free_token_pos = 0;
+    memset(to, 0x00, sizeof(*to));
+
+    /* Check input data first */
+    if (*p == NULL || *p == '\0') {
+        return lwjsonERRJSON;
+    }
 
     /* Process all characters */
     while (p != NULL && *p != '\0') {

@@ -7,7 +7,7 @@
 #define print_indent(indent_level)          printf("%.*s", (int)((indent_level) * 4), "                                                  ");
 
 void
-dump(lwjson_token_t* token) {
+dump(const lwjson_token_t* token) {
     static size_t indent = 0;
 
     if (token->token_name != NULL) {
@@ -51,8 +51,10 @@ dump(lwjson_token_t* token) {
     printf("\n");
 }
 
-lwjson_token_t tokens[4096];
-lwjson_t lwjson;
+static lwjson_token_t tokens[4096];
+static lwjson_t lwjson;
+
+extern void test_run(void);
 
 int
 main() {
@@ -61,6 +63,9 @@ main() {
     size_t token_cnt = 0;
     char* json_text = NULL;
     const lwjson_token_t* tkn;
+
+    test_run();
+    return 0;
 
     /* Init JSON */
     lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));

@@ -24,5 +24,8 @@
     <ClCompile Include="..\..\lwjson\src\lwjson\lwjson.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\test\json\test.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
