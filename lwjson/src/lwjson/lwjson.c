@@ -439,8 +439,10 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
                 ++p;
                 break;
             case '"':
-                if (prv_parse_string(&p, &t->u.str.token_value, &t->u.str.token_value_len) == lwjsonOK) {
+                if ((res = prv_parse_string(&p, &t->u.str.token_value, &t->u.str.token_value_len)) == lwjsonOK) {
                     t->type = LWJSON_TYPE_STRING;
+                } else {
+                    goto ret;
                 }
                 break;
             case 't':

@@ -9,7 +9,8 @@ Library provides generic JSON text parser.
 * Written in ANSI C99, compatible with ``size_t`` for size data types
 * RFC 4627 compliant
 * Based on static token allocation with optional application dynamic pre-allocation
-* No recursion durin parse operation
+* No recursion during parse operation
+* Re-entrant functions
 * Zero-copy, no ``malloc`` or ``free`` functions used
 * Advanced find algorithm for tokens
 * Testscoverage is available
