@@ -128,6 +128,9 @@ lwjsonr_t       lwjson_reset(lwjson_t* lw);
 const lwjson_token_t* lwjson_find(lwjson_t* lw, const char* path);
 lwjsonr_t       lwjson_free(lwjson_t* lw);
 
+void            lwjson_print_token(const lwjson_token_t* token);
+void            lwjson_print_json(const lwjson_t* lw);
+
 /**
  * \brief           Get number of tokens used to parse JSON
  * \param[in]       lw: Pointer to LwJSON instance

@@ -4,53 +4,6 @@
 #include "windows.h"
 #include "lwjson/lwjson.h"
 
-#define print_indent(indent_level)          printf("%.*s", (int)((indent_level) * 4), "                                                  ");
-
-void
-dump(const lwjson_token_t* token) {
-    static size_t indent = 0;
-
-    if (token->token_name != NULL) {
-        print_indent(indent); printf("\"%.*s\":", (int)token->token_name_len, token->token_name);
-    } else {
-        print_indent(indent);
-    }
-
-    if (token->type == LWJSON_TYPE_OBJECT) {
-        printf("{\n");
-        ++indent;
-        for (lwjson_token_t* t = token->u.first_child; t != NULL; t = t->next) {
-            dump(t);
-        }
-        --indent;
-        print_indent(indent); printf("}");
-    } else if (token->type == LWJSON_TYPE_ARRAY) {
-        printf("[\n");
-        ++indent;
-        for (lwjson_token_t* t = token->u.first_child; t != NULL; t = t->next) {
-            dump(t);
-        }
-        --indent;
-        print_indent(indent); printf("]");
-    } else if (token->type == LWJSON_TYPE_STRING) {
-        printf("\"%.*s\"", (int)token->u.str.token_value_len, token->u.str.token_value);
-    } else if (token->type == LWJSON_TYPE_NUM_INT) {
-        printf("%lld", (long long)token->u.num_int);
-    } else if (token->type == LWJSON_TYPE_NUM_REAL) {
-        printf("%f", (float)token->u.num_real);
-    } else if (token->type == LWJSON_TYPE_TRUE) {
-        printf("true");
-    } else if (token->type == LWJSON_TYPE_FALSE) {
-        printf("false");
-    } else if (token->type == LWJSON_TYPE_NULL) {
-        printf("NULL");
-    }
-    if (token->next != NULL) {
-        printf(",");
-    }
-    printf("\n");
-}
-
 static lwjson_token_t tokens[4096];
 static lwjson_t lwjson;
 
@@ -64,8 +17,8 @@ main() {
     char* json_text = NULL;
     const lwjson_token_t* tkn;
 
-    test_run();
-    return 0;
+    //test_run();
+    //return 0;
 
     /* Init JSON */
     lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
@@ -107,12 +60,12 @@ main() {
     }
 
     /* Dump result */
-    dump(&lwjson.first_token);
+    lwjson_print_json(&lwjson);
 
     /* Find token if exists */
     if ((tkn = lwjson_find(&lwjson, "multi_array.#.#.key6")) != NULL) {
         printf("Found requested token path\r\n");
-        dump(tkn);
+        lwjson_print_token(tkn);
     } else {
         printf("Could not find requested token path..\r\n");
     }
