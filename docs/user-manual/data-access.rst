@@ -18,7 +18,7 @@ Let's consider ``{"foo1":"bar1","foo2":{"foo3":"bar2"},"a":[{"c":"d"},{"c":"e","
 * ``foo2`` is object with sub tokens
 
   * ``foo3`` is string with value ``bar2`` and is part of ``foo2``
-* ``a`` is array of elements and holds ``2`` object elements
+* ``a`` is array of ``2`` objects
 
   * object 1
 
