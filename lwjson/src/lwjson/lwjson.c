@@ -32,7 +32,6 @@
  * Version:         $_version_$
  */
 #include <string.h>
-#include <stdio.h>
 #include "lwjson/lwjson.h"
 
 /**
@@ -152,22 +151,22 @@ prv_parse_property_name(const char** p, lwjson_token_t* t) {
  * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
  */
 static lwjsonr_t
-prv_parse_number(const char** p, lwjson_type_t* tout, float* fout, long* iout) {
+prv_parse_number(const char** p, lwjson_type_t* tout, lwjson_real_t* fout, lwjson_int_t* iout) {
     const char* s = *p;
     lwjsonr_t res;
     uint8_t is_minus;
-    float num;
+    lwjson_real_t num;
     lwjson_type_t type = LWJSON_TYPE_NUM_INT;
 
     if ((res = prv_skip_blank(p)) != lwjsonOK) {
         return res;
     }
     s = *p;
-    if (s == NULL || *s == '\0') {
+    if (*s == '\0') {
         return lwjsonERRJSON;
     }
     is_minus = *s == '-' ? (++s, 1) : 0;
-    if (s == NULL || *s == '\0'                 /* Invalid string */
+    if (*s == '\0'                              /* Invalid string */
         || *s < '0' || *s > '9'                 /* Character outside number range */
         || (*s == '0' && (*(s + 1) < '0' && *(s + 1) > '9'))) { /* Number starts with 0 but not followed by dot */
         return lwjsonERRJSON;
@@ -177,7 +176,7 @@ prv_parse_number(const char** p, lwjson_type_t* tout, float* fout, long* iout) {
         num = num * 10 + (*s - '0');
     }
     if (s != NULL && *s == '.') {               /* Number has exponent */
-        float exp, dec_num;
+        lwjson_real_t exp, dec_num;
 
         type = LWJSON_TYPE_NUM_REAL;            /* Format is real */
         ++s;                                    /* Ignore comma character */
@@ -225,7 +224,7 @@ prv_parse_number(const char** p, lwjson_type_t* tout, float* fout, long* iout) {
         *tout = type;
     }
     if (type == LWJSON_TYPE_NUM_INT) {
-        *iout = (long)num;
+        *iout = (lwjson_int_t)num;
     } else {
         *fout = num;
     }

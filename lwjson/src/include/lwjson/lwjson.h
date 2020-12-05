@@ -70,6 +70,16 @@ typedef enum {
 } lwjson_type_t;
 
 /**
+ * \brief           Real data type
+ */
+typedef LWJSON_CFG_REAL_TYPE lwjson_real_t;
+
+/**
+ * \brief           Integer data type
+ */
+typedef LWJSON_CFG_INT_TYPE lwjson_int_t;
+
+/**
  * \brief           JSON token
  */
 typedef struct lwjson_token {
@@ -83,8 +93,8 @@ typedef struct lwjson_token {
             const char* token_value;            /*!< Value if type is not \ref LWJSON_TYPE_OBJECT or \ref LWJSON_TYPE_ARRAY */
             size_t token_value_len;             /*!< Length of token value (this is needed to support const input strings to parse) */
         } str;                                  /*!< String data */
-        float num_real;                         /*!< Real number format */
-        long num_int;                           /*!< Int number format */
+        lwjson_real_t num_real;                 /*!< Real number format */
+        lwjson_int_t num_int;                   /*!< Int number format */
         struct lwjson_token* first_child;       /*!< First children object */
     } u;                                        /*!< Union with different data types */
 } lwjson_token_t;
@@ -131,6 +141,44 @@ lwjsonr_t       lwjson_free(lwjson_t* lw);
  * \return          Pointer to first token
  */
 #define         lwjson_get_first_token(lw)      (((lw) != NULL) ? (&(lw)->first_token) : NULL)
+
+/**
+ * \brief           Get token value for \ref LWJSON_TYPE_NUM_INT type
+ * \param[in]       token: token with integer type
+ * \return          Int number if type is integer, `0` otherwise
+ */
+#define         lwjson_get_val_int(token)       (((token) != NULL && (token)->type == LWJSON_TYPE_NUM_INT) ? (token)->u.num_int : 0)
+
+/**
+ * \brief           Get token value for \ref LWJSON_TYPE_NUM_REAL type
+ * \param[in]       token: token with real type
+ * \return          Real numbeer if type is real, `0` otherwise
+ */
+#define         lwjson_get_val_real(token)      (((token) != NULL && (token)->type == LWJSON_TYPE_NUM_REAL) ? (token)->u.num_real : 0)
+
+/**
+ * \brief           Get for child token for \ref LWJSON_TYPE_NUM_OBJECT or \ref LWJSON_TYPE_NUM_ARRAY types
+ * \param[in]       token: token with integer type
+ * \return          Pointer to first child
+ */
+#define         lwjson_get_first_child(token)   (const void *)(((token) != NULL && ((token)->type == LWJSON_TYPE_NUM_OBJECT || (token)->type == LWJSON_TYPE_NUM_ARRAY)) ? (token)->u.first_child : NULL)
+
+/**
+ * \brief           Get string value from JSON token
+ * \param[in]       token: Token with string type
+ * \param[out]      str_len: Pointer to variable holding length of string
+ * \return          Pointer to string
+ */
+static inline const char*
+lwjson_get_val_string(lwjson_token_t* token, size_t* str_len) {
+    if (token != NULL && token->type == LWJSON_TYPE_STRING) {
+        if (str_len != NULL) {
+            *str_len = token->u.str.token_value_len;
+        }
+        return token->u.str.token_value;
+    }
+    return NULL;
+}
 
 /**
  * \}
