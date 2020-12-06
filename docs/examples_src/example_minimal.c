@@ -8,7 +8,7 @@ static lwjson_t lwjson;
 static void
 parse_json(void) {
     lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
-    if (lwjson_parse(&lwjson, "{\"mykey\":\"myvalue\"}")) {
+    if (lwjson_parse(&lwjson, "{\"mykey\":\"myvalue\"}") == lwjsonOK) {
         const lwjson_token_t* t;
         printf("JSON parsed..\r\n");
 
