@@ -17,6 +17,13 @@ Features
 ^^^^^^^^
 
 * Written in ANSI C99, compatible with ``size_t`` for size data types
+* RFC 4627 compliant
+* Based on static token allocation with optional application dynamic pre-allocation
+* No recursion during parse operation
+* Re-entrant functions
+* Zero-copy, no ``malloc`` or ``free`` functions used
+* Advanced find algorithm for tokens
+* Testscoverage is available
 * User friendly MIT license
 
 Requirements
@@ -41,9 +48,7 @@ Alternatively you may:
 Example code
 ^^^^^^^^^^^^
 
-Minimalistic example code to read and write data to buffer
-
-.. literalinclude:: examples_src/example_index.c
+.. literalinclude:: ../examples/example_minimal.c
     :language: c
     :linenos:
     :caption: Example code

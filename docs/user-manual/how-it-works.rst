@@ -3,59 +3,27 @@
 How it works
 ============
 
-This section shows different buffer corner cases and provides basic understanding how data are managed internally.
+LwJSON fully complies with *RFC 4627* memo.
 
-.. figure:: ../static/images/buff_cases.svg
-    :align: center
-    :alt: Different buffer corner cases
-    
-    Different buffer corner cases
+LwJSON accepts input string formatted as JSON as per *RFC 4627*.
+Library parses each character and creates list of tokens that are
+understood by C language for easier further processing.
 
-Let's start with reference of abbreviations in picture:
+When JSON is successfully parsed, there are several tokens used, one for each JSON data type.
+Each token consists of:
 
-* ``R`` represents `Read` pointer. Read on read/write operations. Modified on read operation only
-* ``W`` represents `Write` pointer. Read on read/write operations. Modified on write operation only
-* ``S`` represents `Size` of buffer. Used on all operations, never modified (atomic value)
+* Token type
+* Token parameter name (*key*) and its length
+* Token value or pointer to first child (in case of *object* or *array* types)
 
-    * Valid number of ``W`` and ``R`` pointers are between ``0`` and ``S - 1``
+As an example, JSON text ``{"mykey":"myvalue"}`` will be parsed into ``2`` tokens:
 
-* Buffer size is ``S = 8``, thus valid number range for ``W`` and ``R`` pointers is ``0 - 7``.
-    
-    * ``R`` and ``W`` numbers overflow at ``S``, thus valid range is always ``0, 1, 2, 3, ..., S - 2, S - 1, 0, 1, 2, 3, ..., S - 2, S - 1, 0, ...``
-    * Example ``S = 4``: ``0, 1, 2, 3, 0, 1, 2, 3, 0, 1, ...``
+* First token is the opening bracket and has type *object* as it holds children tokens
+* Second token has name ``"mykey"``, its type is *string* and value is ``myvalue``
 
-* Maximal number of bytes buffer can hold is always ``S - 1``, thus example buffer can hold up to ``7`` bytes
-* ``R`` and ``W`` pointers always point to the next read/write operation
-* When ``W == R``, buffer is considered empty.
-* When ``W == R - 1``, buffer is considered full.
-    
-    * ``W == R - 1`` is valid only if ``W`` and ``R`` overflow at buffer size ``S``.
-    * Always add ``S`` to calculated number and then use modulus ``S`` to get final value
-        
-.. note::
-
-    Example 1, add ``2`` numbers: ``2 + 3 = (3 + 2 + S) % S = (3 + 2 + 4) % 4 = (5 + 4) % 4 = 1``
-
-    Example 2, subtract ``2`` numbers: ``2 - 3 = (2 - 3 + S) % S = (2 - 3 + 4) % 4 = (-1 + 4) % 4 = 3``
-
-
-.. figure:: ../static/images/buff_cases.svg
-    :align: center
-    :alt: Different buffer corner cases
-    
-    Different buffer corner cases
-
-Different image cases:
-
-* Case **A**: Buffer is empty as ``W == R = 0 == 0``
-* Case **B**: Buffer holds ``W - R = 4 - 0 = 4`` bytes as ``W > R``
-* Case **C**: Buffer is full as ``W == R - 1`` or ``7 == 0 - 1`` or ``7 = (0 - 1 + S) % S = (0 - 1 + 8) % 8 = (-1 + 8) % 8 = 7``
-
-    * ``R`` and ``W`` can hold ``S`` different values, from ``0`` to ``S - 1``, that is modulus of ``S``
-    * Buffer holds ``W - R = 7 - 0 = 7`` bytes as ``W > R``
-* Case **D**: Buffer holds ``S - (R - W) = 8 - (5 - 3) = 6`` bytes as ``R > W``
-* Case **E**: Buffer is full as ``W == R - 1`` (``4 = 5 - 1``) and holds ``S - (R - W) = 8 - (5 - 4) ) = 7`` bytes
-
+.. warning::
+    When JSON input string is parsed, create tokens use input string as a reference.
+    This means that until JSON parsed tokens are being used, original text must stay as-is.
 
 .. toctree::
     :maxdepth: 2

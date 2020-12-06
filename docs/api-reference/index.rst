@@ -9,3 +9,4 @@ List of all the modules:
 	:maxdepth: 2
 
 	lwjson
+	lwjson_opt

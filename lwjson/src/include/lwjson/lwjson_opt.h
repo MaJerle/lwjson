@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         $_version_$
+ * Version:         v1.0.0
  */
 #ifndef LWJSON_HDR_OPT_H
 #define LWJSON_HDR_OPT_H
@@ -52,7 +52,25 @@ extern "C" {
  * \{
  */
 
+/**
+ * \brief           Real data type used to parse numbers with floating point number
+ * \note            Data type must be signed, normally `float` or `double`
+ *
+ * This is used for numbers in \ref LWJSON_TYPE_NUM_REAL token data type.
+ */
+#ifndef LWJSON_CFG_REAL_TYPE
+#define LWJSON_CFG_REAL_TYPE                float
+#endif
 
+/**
+ * \brief           Integer type used to parse numbers
+ * \note            Data type must be signed integer
+ *
+ * This is used for numbers in \ref LWJSON_TYPE_NUM_INT token data type.
+ */
+#ifndef LWJSON_CFG_INT_TYPE
+#define LWJSON_CFG_INT_TYPE                 long long
+#endif
 
 /**
  * \}

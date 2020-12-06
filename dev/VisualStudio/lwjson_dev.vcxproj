@@ -143,7 +143,11 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\examples\example_minimal.c" />
+    <ClCompile Include="..\..\examples\example_traverse.c" />
     <ClCompile Include="..\..\lwjson\src\lwjson\lwjson.c" />
+    <ClCompile Include="..\..\lwjson\src\lwjson\lwjson_debug.c" />
+    <ClCompile Include="..\..\test\test.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
