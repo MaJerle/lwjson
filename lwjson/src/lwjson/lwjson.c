@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         $_version_$
+ * Version:         v1.0.0
  */
 #include <string.h>
 #include "lwjson/lwjson.h"
@@ -252,7 +252,7 @@ prv_create_path_segment(const char** p, const char** opath, size_t* olen, uint8_
         return 0;
     }
 
-    /* 
+    /*
      * Path must be one of:
      * - literal text
      * - "#" followed by dot "."
@@ -418,7 +418,7 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
                 goto ret;
             }
         }
-        
+
         /* Add element to linked list */
         if (to->u.first_child == NULL) {
             to->u.first_child = t;
