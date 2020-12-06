@@ -1,12 +1,13 @@
+#include <stdio.h>
 #include "lwjson/lwjson.h"
 
 /* LwJSON instance and tokens */
 static lwjson_token_t tokens[128];
 static lwjson_t lwjson;
 
-/* Parse JSON function */
-static void
-parse_json(void) {
+/* Parse JSON */
+void
+example_minimal_run(void) {
     lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
     if (lwjson_parse(&lwjson, "{\"mykey\":\"myvalue\"}") == lwjsonOK) {
         const lwjson_token_t* t;

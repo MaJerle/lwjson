@@ -1,6 +1,6 @@
 .. _token_design:
 
-Token Design
+Token design
 ============
 
 Every element of LwJSON is a token.
@@ -14,7 +14,7 @@ There are different set of token types:
 * *Boolean false*: Boolean type false, eg ``{"key":false}``
 * *Null*: Null indicator, eg ``{"key":null}``
 
-When parsed, input string is not copied to token, instead every token uses input strin as
+When parsed, input string is not copied to token, every token uses input string as
 a reference and points to the beginning of strings/values.
 This is valid for all string data types and for parameter names.
 

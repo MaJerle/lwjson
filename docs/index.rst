@@ -48,9 +48,7 @@ Alternatively you may:
 Example code
 ^^^^^^^^^^^^
 
-Minimalistic example code to read and write data to buffer
-
-.. literalinclude:: examples_src/example_index.c
+.. literalinclude:: ../examples/example_minimal.c
     :language: c
     :linenos:
     :caption: Example code

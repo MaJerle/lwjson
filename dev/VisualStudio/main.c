@@ -8,6 +8,8 @@ static lwjson_token_t tokens[4096];
 static lwjson_t lwjson;
 
 extern void test_run(void);
+extern void example_minimal_run(void);
+extern void example_traverse_run(void);
 
 int
 main() {
@@ -18,8 +20,11 @@ main() {
     const lwjson_token_t* tkn;
 
     //test_run();
-    //return 0;
+    //example_minimal_run();
+    example_traverse_run();
+    return 0;
 
+    printf("\n---\n");
     /* Init JSON */
     lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
 
@@ -63,7 +68,7 @@ main() {
     lwjson_print_json(&lwjson);
 
     /* Find token if exists */
-    if ((tkn = lwjson_find(&lwjson, "multi_array.#.#.key6")) != NULL) {
+    if ((tkn = lwjson_find(&lwjson, "obj.obj2.key1")) != NULL) {
         printf("Found requested token path\r\n");
         lwjson_print_token(tkn);
     } else {

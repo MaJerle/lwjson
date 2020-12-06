@@ -160,11 +160,11 @@ void            lwjson_print_json(const lwjson_t* lw);
 #define         lwjson_get_val_real(token)      (((token) != NULL && (token)->type == LWJSON_TYPE_NUM_REAL) ? (token)->u.num_real : 0)
 
 /**
- * \brief           Get for child token for \ref LWJSON_TYPE_NUM_OBJECT or \ref LWJSON_TYPE_NUM_ARRAY types
+ * \brief           Get for child token for \ref LWJSON_TYPE_OBJECT or \ref LWJSON_TYPE_ARRAY types
  * \param[in]       token: token with integer type
  * \return          Pointer to first child
  */
-#define         lwjson_get_first_child(token)   (const void *)(((token) != NULL && ((token)->type == LWJSON_TYPE_NUM_OBJECT || (token)->type == LWJSON_TYPE_NUM_ARRAY)) ? (token)->u.first_child : NULL)
+#define         lwjson_get_first_child(token)   (const void *)(((token) != NULL && ((token)->type == LWJSON_TYPE_OBJECT || (token)->type == LWJSON_TYPE_ARRAY)) ? (token)->u.first_child : NULL)
 
 /**
  * \brief           Get string value from JSON token

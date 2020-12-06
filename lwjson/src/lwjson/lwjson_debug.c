@@ -39,7 +39,7 @@
  * \brief           Token print instance
  */
 typedef struct {
-    size_t indent;
+    size_t indent;                              /*!< Indent level for token print */
 } lwjson_token_print_t;
 
 /**
@@ -99,7 +99,7 @@ prv_print_token(lwjson_token_print_t* p, const lwjson_token_t* token) {
             printf("NULL");
             break;
         }
-        default: 
+        default:
             break;
     }
     if (token->next != NULL) {
@@ -122,7 +122,7 @@ lwjson_print_token(const lwjson_token_t* token) {
 /**
  * \brief           Prints and outputs full parsed LwJSON instance
  * \note            This function is not re-entrant
- * \param[in]       token: Token to print
+ * \param[in]       lw: LwJSON instance to print
  */
 void
 lwjson_print_json(const lwjson_t* lw) {
