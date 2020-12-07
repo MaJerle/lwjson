@@ -19,9 +19,9 @@ main() {
     char* json_text = NULL;
     const lwjson_token_t* tkn;
 
-    //test_run();
+    test_run();
     //example_minimal_run();
-    example_traverse_run();
+    //example_traverse_run();
     return 0;
 
     printf("\n---\n");

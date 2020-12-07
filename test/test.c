@@ -132,7 +132,7 @@ test_parse(lwjsonr_t exp_result, const char* json_str) {
     if (lwjson_parse(&lwjson, json_str) == exp_result) {
         printf("Parse test passed..\r\n");
     } else {
-        printf("Parse test passed failed..\r\n");
+        printf("Parse test passed failed.. %s\r\n", json_str);
     }
 }
 
@@ -169,6 +169,8 @@ test_run(void) {
 
     /* Run JSON parse tests that must succeed */
     test_parse(lwjsonOK, "{}");
+    test_parse(lwjsonOK, "{ }");
+    test_parse(lwjsonOK, "[1,2,3,4]");
     test_parse(lwjsonOK, "{\"k\":[]}");
     test_parse(lwjsonOK, "{\"k\":[1]}");
     test_parse(lwjsonOK, "{\"k\":[1,2]}");
@@ -180,6 +182,34 @@ test_run(void) {
     test_parse(lwjsonOK, "{\"k\":\"Stringgg\"}");
     test_parse(lwjsonOK, "{\"k\":\"Stri\\\"nggg with quote inside\"}");
     test_parse(lwjsonOK, "{\"k\":{\"b\":1E5,\t\r\n\"c\":1.3E5\r\n}\r\n}");
+
+    /* Arrays */
+    test_parse(lwjsonOK, "[]");
+    test_parse(lwjsonOK, "[ ]");
+    test_parse(lwjsonOK, "[[],[]]");
+    test_parse(lwjsonOK, "[[],[],{}]");
+    test_parse(lwjsonERRJSON, "[");
+    test_parse(lwjsonERRJSON, "[\"abc\":\"test\"]");
+    test_parse(lwjsonERRJSON, "]");
+    test_parse(lwjsonERRJSON, "[[,[]]");
+    test_parse(lwjsonERRJSON, "[[],[,{}]");
+
+    /* Check specials */
+    test_parse(lwjsonOK, "{\"k\":\"\\t\"}");
+    test_parse(lwjsonOK, "{\"k\":\"\\b\"}");
+    test_parse(lwjsonOK, "{\"k\":\"\\r\"}");
+    test_parse(lwjsonOK, "{\"k\":\"\\n\"}");
+    test_parse(lwjsonOK, "{\"k\":\"\\f\"}");
+    test_parse(lwjsonOK, "{\"k\":\"\\\\\"}");
+    test_parse(lwjsonOK, "{\"k\":\"\\u1234\"}");
+    test_parse(lwjsonOK, "{\"k\":\"\\uabcd\"}");
+    test_parse(lwjsonOK, "{\"k\":\"\\uAbCd\"}");
+    test_parse(lwjsonERRJSON, "{\"k\":\"\\u\t\n\n\n\"}");
+    test_parse(lwjsonERRJSON, "{\"k\":\"\\u\"}");
+    test_parse(lwjsonERRJSON, "{\"k\":\"\\u1\"}");
+    test_parse(lwjsonERRJSON, "{\"k\":\"\\u12\"}");
+    test_parse(lwjsonERRJSON, "{\"k\":\"\\u123\"}");
+    test_parse(lwjsonERRJSON, "{\"k\":\"\\a\"}");
 
     /* Run JSON tests to fail */
     test_parse(lwjsonERRJSON, "");
