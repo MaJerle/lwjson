@@ -394,7 +394,7 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
     } else if (*p == '[') {
         to->type = LWJSON_TYPE_ARRAY;
     } else {
-        res = lwjsonERRMEM;
+        res = lwjsonERRJSON;
         goto ret;
     }
     ++p;
