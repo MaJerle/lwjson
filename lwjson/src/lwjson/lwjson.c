@@ -93,18 +93,43 @@ prv_parse_string(const char** p, const char** pout, size_t* poutlen) {
     }
     *pout = s;
     /* Parse string but take care of escape characters */
-    for (char prev_ch = '\0';; ++s, ++len) {
+    for (;; ++s, ++len) {
         if (s == NULL || *s == '\0') {
             return lwjsonERRJSON;
         }
-        /* Check end of string */
-        if (*s == '"') {
-            if (prev_ch != '\\') {
-                ++s;
-                break;
+        /* Check special characters */
+        if (*s == '\\') {
+            ++s;
+            ++len;
+            switch (*s) {
+                case '"':
+                case '\\':
+                case '/':
+                case 'b':
+                case 'f':
+                case 'n':
+                case 'r':
+                case 't':
+                    break;
+                case 'u':
+                    ++s;
+                    for (size_t i = 0; i < 4; ++i, ++len) {
+                        if (!((*s >= '0' && *s <= '9')
+                            || (*s >= 'a' && *s <= 'z')
+                            || (*s >= 'A' && *s <= 'Z'))) {
+                            return lwjsonERRJSON;
+                        }
+                        if (i < 3) {
+                            ++s;
+                        }
+                    }
+                    break;
+                default:
+                    return lwjsonERRJSON;
             }
+        } else if (*s == '"') {
+            break;
         }
-        prev_ch = *s;
     }
     *poutlen = len;
     if (*s == '"') {
