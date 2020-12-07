@@ -128,13 +128,11 @@ prv_parse_string(const char** p, const char** pout, size_t* poutlen) {
                     return lwjsonERRJSON;
             }
         } else if (*s == '"') {
+            ++s;
             break;
         }
     }
     *poutlen = len;
-    if (*s == '"') {
-        ++s;
-    }
     if ((res = prv_skip_blank(&s)) != lwjsonOK) {
         return res;
     }
@@ -239,7 +237,7 @@ prv_parse_number(const char** p, lwjson_type_t* tout, lwjson_real_t* fout, lwjso
             for (; exp_cnt > 0; num *= 10, --exp_cnt) {}
         }
     }
-	if (is_minus) {
+    if (is_minus) {
         num = -num;
 	}
     *p = s;
@@ -253,7 +251,7 @@ prv_parse_number(const char** p, lwjson_type_t* tout, lwjson_real_t* fout, lwjso
     } else {
         *fout = num;
     }
-	return lwjsonOK;
+    return lwjsonOK;
 }
 
 /**
@@ -536,6 +534,10 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
         } else if (*p == ',') {                 /* Check to advance to next token immediatey */
             ++p;
         }
+    }
+    if (to != &lw->first_token) {
+        res = lwjsonERRJSON;
+        to = NULL;
     }
     if (to != NULL) {
         to->token_name = NULL;
