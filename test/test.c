@@ -130,9 +130,9 @@ test_token_count(size_t exp_token_count, const char* json_str) {
 static void
 test_parse(lwjsonr_t exp_result, const char* json_str) {
     if (lwjson_parse(&lwjson, json_str) == exp_result) {
-        printf("Parse test passed..\r\n");
+        printf("Parse test passed..: \"%s\"\r\n", json_str);
     } else {
-        printf("Parse test passed failed..\r\n");
+        printf("Parse test passed failed..: \"%s\"\r\n", json_str);
     }
 }
 
@@ -188,6 +188,11 @@ test_run(void) {
     test_parse(lwjsonOK, "[ ]");
     test_parse(lwjsonOK, "[[],[]]");
     test_parse(lwjsonOK, "[[],[],{}]");
+    test_parse(lwjsonERRJSON, "[");
+    test_parse(lwjsonERRJSON, "]");
+    test_parse(lwjsonERRJSON, "[[,[]]");
+    test_parse(lwjsonERRJSON, "[[],[,{}]");
+    test_parse(lwjsonERRJSON, "]");
 
     /* Check specials */
     test_parse(lwjsonOK, "{\"k\":\"\\t\"}");
