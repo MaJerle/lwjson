@@ -68,7 +68,7 @@ prv_skip_blank(const char** p) {
     if (s != NULL && *s != '\0') {
         return lwjsonOK;
     }
-    return lwjsonERR;
+    return lwjsonERRJSON;
 }
 
 /**
@@ -345,6 +345,33 @@ prv_find(const lwjson_token_t* parent, const char* path) {
 }
 
 /**
+ * \brief           Check for character after opening bracket of array or object
+ * \param[in,out]   p: JSON string
+ * \param[in]       t: Token to check for type
+ * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
+ */
+static inline lwjsonr_t
+prv_check_valid_char_after_open_bracket(const char **p, lwjson_token_t* t) {
+    lwjsonr_t res;
+    const char* s = *p;
+
+    /* Check next character after object open */
+    if ((res = prv_skip_blank(&s)) != lwjsonOK) {
+        return res;
+    }
+    if (*s == '\0'
+        || (t->type == LWJSON_TYPE_OBJECT
+                && (*s != '"' && *s != '}'))
+        || (t->type == LWJSON_TYPE_ARRAY
+                && (*s != '"' && *s != ']' && *s != '[' && *s != '{' && *s != '-'
+                    && (*s < '0' || *s > '9') && *s != 't' && *s != 'n' && *s != 'f'))) {
+        res = lwjsonERRJSON;
+    }
+    *p = s;
+    return res;
+}
+
+/**
  * \brief           Setup LwJSON instance for parsing JSON strings
  * \param[in,out]   lw: LwJSON instance
  * \param[in]       tokens: Pointer to array of tokens used for parsing
@@ -397,9 +424,8 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
         goto ret;
     }
     ++p;
-    if (*p == '\0') {
-        res = lwjsonERRJSON;
-        goto ret;
+    if ((res = prv_check_valid_char_after_open_bracket(&p, to)) != lwjsonOK) {
+        return res;
     }
 
     /* Process all characters */
@@ -462,17 +488,8 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
             case '[':
                 t->type = *p == '{' ? LWJSON_TYPE_OBJECT : LWJSON_TYPE_ARRAY;
                 ++p;
-                /* Check next character after object open */
-                if ((res = prv_skip_blank(&p)) != lwjsonOK) {
+                if ((res = prv_check_valid_char_after_open_bracket(&p, t)) != lwjsonOK) {
                     return res;
-                }
-                if (*p == '\0'
-                    || (t->type == LWJSON_TYPE_OBJECT
-                            && (*p != '\0' && *p != '"' && *p != '}'))
-                    || (t->type == LWJSON_TYPE_ARRAY
-                            && (*p != '"' && *p != ']' && *p != '{' && *p != '-' && *p < '0' && *p > '9' && *p != 't' && *p != 'n' && *p != 'f'))) {
-                    res = lwjsonERRJSON;
-                    goto ret;
                 }
                 t->next = to;           /* Temporary saved as parent object */
                 to = t;
