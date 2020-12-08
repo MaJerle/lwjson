@@ -373,7 +373,6 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
     lwjsonr_t res = lwjsonOK;
     const char* p = json_str;
     lwjson_token_t* t, *to = &lw->first_token;
-    uint8_t first_check = 1;
 
     /* values from very beginning */
     lw->flags.parsed = 0;
@@ -469,9 +468,9 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
                 }
                 if (*p == '\0'
                     || (t->type == LWJSON_TYPE_OBJECT
-                            && (*p != '\0' && *p != '"' && *p != '}')
+                            && (*p != '\0' && *p != '"' && *p != '}'))
                     || (t->type == LWJSON_TYPE_ARRAY
-                            && (*p != '"' && *p != ']' && *p != '{' && *p != '-' && *p < '0' && *p > '9' && *p != 't' && *p != 'n' && *p != 'f')))) {
+                            && (*p != '"' && *p != ']' && *p != '{' && *p != '-' && *p < '0' && *p > '9' && *p != 't' && *p != 'n' && *p != 'f'))) {
                     res = lwjsonERRJSON;
                     goto ret;
                 }
