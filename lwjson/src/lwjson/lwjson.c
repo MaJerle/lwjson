@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.0.1
+ * Version:         v1.0.2
  */
 #include <string.h>
 #include "lwjson/lwjson.h"
@@ -68,7 +68,7 @@ prv_skip_blank(const char** p) {
     if (s != NULL && *s != '\0') {
         return lwjsonOK;
     }
-    return lwjsonERR;
+    return lwjsonERRJSON;
 }
 
 /**
@@ -116,8 +116,8 @@ prv_parse_string(const char** p, const char** pout, size_t* poutlen) {
                     ++s;
                     for (size_t i = 0; i < 4; ++i, ++len) {
                         if (!((*s >= '0' && *s <= '9')
-                            || (*s >= 'a' && *s <= 'z')
-                            || (*s >= 'A' && *s <= 'Z'))) {
+                            || (*s >= 'a' && *s <= 'f')
+                            || (*s >= 'A' && *s <= 'F'))) {
                             return lwjsonERRJSON;
                         }
                         if (i < 3) {
@@ -134,9 +134,6 @@ prv_parse_string(const char** p, const char** pout, size_t* poutlen) {
         }
     }
     *poutlen = len;
-    if ((res = prv_skip_blank(&s)) != lwjsonOK) {
-        return res;
-    }
     *p = s;
     return res;
 }
@@ -153,15 +150,23 @@ prv_parse_property_name(const char** p, lwjson_token_t* t) {
     const char* s = *p;
     lwjsonr_t res;
 
-    if ((res = prv_parse_string(p, &t->token_name, &t->token_name_len)) != lwjsonOK) {
+    /* Parse property string first */
+    if ((res = prv_parse_string(&s, &t->token_name, &t->token_name_len)) != lwjsonOK) {
         return res;
     }
-    s = *p;
+    /* Skip any spaces */
+    if ((res = prv_skip_blank(&s)) != lwjsonOK) {
+        return res;
+    }
+    /* Must continue with colon */
     if (*s != ':') {
         return lwjsonERRJSON;
     }
     ++s;
-    prv_skip_blank(&s);
+    /* Skip any spaces */
+    if ((res = prv_skip_blank(&s)) != lwjsonOK) {
+        return res;
+    }
     *p = s;
     return lwjsonOK;
 }
@@ -345,6 +350,33 @@ prv_find(const lwjson_token_t* parent, const char* path) {
 }
 
 /**
+ * \brief           Check for character after opening bracket of array or object
+ * \param[in,out]   p: JSON string
+ * \param[in]       t: Token to check for type
+ * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
+ */
+static inline lwjsonr_t
+prv_check_valid_char_after_open_bracket(const char **p, lwjson_token_t* t) {
+    lwjsonr_t res;
+    const char* s = *p;
+
+    /* Check next character after object open */
+    if ((res = prv_skip_blank(&s)) != lwjsonOK) {
+        return res;
+    }
+    if (*s == '\0'
+        || (t->type == LWJSON_TYPE_OBJECT
+                && (*s != '"' && *s != '}'))
+        || (t->type == LWJSON_TYPE_ARRAY
+                && (*s != '"' && *s != ']' && *s != '[' && *s != '{' && *s != '-'
+                    && (*s < '0' || *s > '9') && *s != 't' && *s != 'n' && *s != 'f'))) {
+        res = lwjsonERRJSON;
+    }
+    *p = s;
+    return res;
+}
+
+/**
  * \brief           Setup LwJSON instance for parsing JSON strings
  * \param[in,out]   lw: LwJSON instance
  * \param[in]       tokens: Pointer to array of tokens used for parsing
@@ -373,7 +405,6 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
     lwjsonr_t res = lwjsonOK;
     const char* p = json_str;
     lwjson_token_t* t, *to = &lw->first_token;
-    uint8_t first_check = 1;
 
     /* values from very beginning */
     lw->flags.parsed = 0;
@@ -398,9 +429,8 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
         goto ret;
     }
     ++p;
-    if (*p == '\0') {
-        res = lwjsonERRJSON;
-        goto ret;
+    if ((res = prv_check_valid_char_after_open_bracket(&p, to)) != lwjsonOK) {
+        return res;
     }
 
     /* Process all characters */
@@ -463,17 +493,8 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
             case '[':
                 t->type = *p == '{' ? LWJSON_TYPE_OBJECT : LWJSON_TYPE_ARRAY;
                 ++p;
-                /* Check next character after object open */
-                if ((res = prv_skip_blank(&p)) != lwjsonOK) {
+                if ((res = prv_check_valid_char_after_open_bracket(&p, t)) != lwjsonOK) {
                     return res;
-                }
-                if (*p == '\0'
-                    || (t->type == LWJSON_TYPE_OBJECT
-                            && (*p != '\0' && *p != '"' && *p != '}')
-                    || (t->type == LWJSON_TYPE_ARRAY
-                            && (*p != '"' && *p != ']' && *p != '{' && *p != '-' && *p < '0' && *p > '9' && *p != 't' && *p != 'n' && *p != 'f')))) {
-                    res = lwjsonERRJSON;
-                    goto ret;
                 }
                 t->next = to;           /* Temporary saved as parent object */
                 to = t;

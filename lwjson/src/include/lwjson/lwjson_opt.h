@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.0.1
+ * Version:         v1.0.2
  */
 #ifndef LWJSON_HDR_OPT_H
 #define LWJSON_HDR_OPT_H
