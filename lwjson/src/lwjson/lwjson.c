@@ -116,8 +116,8 @@ prv_parse_string(const char** p, const char** pout, size_t* poutlen) {
                     ++s;
                     for (size_t i = 0; i < 4; ++i, ++len) {
                         if (!((*s >= '0' && *s <= '9')
-                            || (*s >= 'a' && *s <= 'z')
-                            || (*s >= 'A' && *s <= 'Z'))) {
+                            || (*s >= 'a' && *s <= 'f')
+                            || (*s >= 'A' && *s <= 'F'))) {
                             return lwjsonERRJSON;
                         }
                         if (i < 3) {
