@@ -170,6 +170,10 @@ test_run(void) {
     /* Run JSON parse tests that must succeed */
     test_parse(lwjsonOK, "{}");
     test_parse(lwjsonOK, "{ }");
+    test_parse(lwjsonOK, "{}\r\n");
+    test_parse(lwjsonOK, "{ }\r\n");
+    test_parse(lwjsonOK, "{\t}\r\n");
+    test_parse(lwjsonOK, "{\t }\r\n");
     test_parse(lwjsonOK, "[1,2,3,4]");
     test_parse(lwjsonOK, "{\"k\":[]}");
     test_parse(lwjsonOK, "{\"k\":[1]}");
@@ -179,6 +183,10 @@ test_run(void) {
     test_parse(lwjsonOK, "{\"k\":false}");
     test_parse(lwjsonOK, "{\"k\":true}");
     test_parse(lwjsonOK, "{\"k\":null}");
+    test_parse(lwjsonOK, "{\"k\" :null}");
+    test_parse(lwjsonOK, "{\"k\" : null}");
+    test_parse(lwjsonOK, "{ \"k\": null }");
+    test_parse(lwjsonOK, "{ \"k\": null }");
     test_parse(lwjsonOK, "{\"k\":\"Stringgg\"}");
     test_parse(lwjsonOK, "{\"k\":\"Stri\\\"nggg with quote inside\"}");
     test_parse(lwjsonOK, "{\"k\":{\"b\":1E5,\t\r\n\"c\":1.3E5\r\n}\r\n}");
@@ -192,6 +200,7 @@ test_run(void) {
     test_parse(lwjsonERRJSON, "[\"abc\":\"test\"]");
     test_parse(lwjsonERRJSON, "]");
     test_parse(lwjsonERRJSON, "[[,[]]");
+    test_parse(lwjsonERRJSON, "[,[]]");
     test_parse(lwjsonERRJSON, "[[],[,{}]");
 
     /* Check specials */
@@ -204,6 +213,8 @@ test_run(void) {
     test_parse(lwjsonOK, "{\"k\":\"\\u1234\"}");
     test_parse(lwjsonOK, "{\"k\":\"\\uabcd\"}");
     test_parse(lwjsonOK, "{\"k\":\"\\uAbCd\"}");
+    test_parse(lwjsonOK, "{\"k\":\"\\u1abc\"}");
+    test_parse(lwjsonERRJSON, "{\"k\":\"\\u1aGc\"}");
     test_parse(lwjsonERRJSON, "{\"k\":\"\\u\t\n\n\n\"}");
     test_parse(lwjsonERRJSON, "{\"k\":\"\\u\"}");
     test_parse(lwjsonERRJSON, "{\"k\":\"\\u1\"}");

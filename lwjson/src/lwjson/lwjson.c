@@ -134,9 +134,6 @@ prv_parse_string(const char** p, const char** pout, size_t* poutlen) {
         }
     }
     *poutlen = len;
-    if ((res = prv_skip_blank(&s)) != lwjsonOK) {
-        return res;
-    }
     *p = s;
     return res;
 }
@@ -153,15 +150,23 @@ prv_parse_property_name(const char** p, lwjson_token_t* t) {
     const char* s = *p;
     lwjsonr_t res;
 
-    if ((res = prv_parse_string(p, &t->token_name, &t->token_name_len)) != lwjsonOK) {
+    /* Parse property string first */
+    if ((res = prv_parse_string(&s, &t->token_name, &t->token_name_len)) != lwjsonOK) {
         return res;
     }
-    s = *p;
+    /* Skip any spaces */
+    if ((res = prv_skip_blank(&s)) != lwjsonOK) {
+        return res;
+    }
+    /* Must continue with colon */
     if (*s != ':') {
         return lwjsonERRJSON;
     }
     ++s;
-    prv_skip_blank(&s);
+    /* Skip any spaces */
+    if ((res = prv_skip_blank(&s)) != lwjsonOK) {
+        return res;
+    }
     *p = s;
     return lwjsonOK;
 }
