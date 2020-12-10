@@ -278,6 +278,7 @@ prv_create_path_segment(const char** p, const char** opath, size_t* olen, uint8_
 
     /* Check input path */
     if (s == NULL || *s == '\0') {
+        *is_last = 1;
         return 0;
     }
 
@@ -287,12 +288,20 @@ prv_create_path_segment(const char** p, const char** opath, size_t* olen, uint8_
      * - "#" followed by dot "."
      */
     if (*s == '#') {
-        if (*(s + 1) != '.') {
-            return 0;
-        }
         *opath = s;
-        *olen = 1;
-        *p = s + *olen + 1;
+        for (*olen = 0;; ++s, ++(*olen)) {
+            if (*s == '.') {
+                ++s;
+                break;
+            } else if (*s == '\0') {
+                if (*olen == 1) {
+                    return 0;
+                } else {
+                    break;
+                }
+            }
+        }
+        *p = s;
     } else {
         *opath = s;
         for (*olen = 0; *s != '\0' && *s != '.'; ++(*olen), ++s) {}
@@ -320,10 +329,39 @@ prv_find(const lwjson_token_t* parent, const char* path) {
     /* Get path segments */
     if ((result = prv_create_path_segment(&path, &segment, &segment_len, &is_last)) != 0) {
         /* Check if detected an array request */
-        if (*segment == '#' && segment_len == 1) {
+        if (*segment == '#') {
+            /* Parent must be array */
             if (parent->type != LWJSON_TYPE_ARRAY) {
                 return NULL;
             }
+            
+            /* Check if index requested */
+            if (segment_len > 1) {
+                const lwjson_token_t *t;
+                size_t index = 0;
+
+                /* Parse number */
+                for (size_t i = 1; i < segment_len; ++i) {
+                    if (segment[i] < '0' || segment[i] > '9') {
+                        return NULL;
+                    } else {
+                        index = index * 10 + (segment[i] - '0');
+                    }
+                }
+
+                /* Start from beginning */
+                for (t = parent->u.first_child; t != NULL && index > 0; t = t->next, --index) {}
+                if (t != NULL) {
+                    if (is_last) {
+                        return t;
+                    } else {
+                        return prv_find(t, path);
+                    }
+                }
+                return NULL;
+            }
+
+            /* Scan all indexes and get first match */
             for (const lwjson_token_t* tmp_t, *t = parent->u.first_child; t != NULL; t = t->next) {
                 if ((tmp_t = prv_find(t, path)) != NULL) {
                     return tmp_t;
