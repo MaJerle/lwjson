@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.0.2
+ * Version:         v1.1.0
  */
 #include <string.h>
 #include "lwjson/lwjson.h"
@@ -334,7 +334,7 @@ prv_find(const lwjson_token_t* parent, const char* path) {
             if (parent->type != LWJSON_TYPE_ARRAY) {
                 return NULL;
             }
-            
+
             /* Check if index requested */
             if (segment_len > 1) {
                 const lwjson_token_t *t;
