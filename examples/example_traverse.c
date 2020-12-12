@@ -8,7 +8,10 @@ static lwjson_t lwjson;
 /* Parse JSON */
 void
 example_traverse_run(void) {
+    /* Initialize and pass statically allocated tokens */
     lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
+
+    /* Try to parse input string */
     if (lwjson_parse(&lwjson, "{\"mykey\":\"myvalue\",\"num\":1,\"obj\":{},\"arr\":[1,2,3,4]}") == lwjsonOK) {
         lwjson_token_t* t;
         printf("JSON parsed..\r\n");
@@ -33,5 +36,8 @@ example_traverse_run(void) {
             }
             printf("\n");
         }
+
+        /* Call this when not used anymore */
+        lwjson_free(&lwjson);
     }
 }

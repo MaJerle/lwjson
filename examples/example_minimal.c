@@ -17,5 +17,8 @@ example_minimal_run(void) {
         if ((t = lwjson_find(&lwjson, "mykey")) != NULL) {
             printf("Key found with data type: %d\r\n", (int)t->type);
         }
+
+        /* Call this when not used anymore */
+        lwjson_free(&lwjson);
     }
 }

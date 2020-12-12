@@ -102,7 +102,20 @@ test_parse_token_count(void) {
 
     printf("---\r\nTest JSON token count..\r\n");
 
-#define RUN_TEST(exp_token_count, json_str)     if (lwjson_parse(&lwjson, (json_str)) != lwjsonOK || lwjson.next_free_token_pos + 1 != exp_token_count) { ++test_failed; printf("Test failed for JSON input %s\r\n", json_str); } else { ++test_passed; }
+#define RUN_TEST(exp_token_count, json_str)     do {                \
+        if (lwjson_parse(&lwjson, (json_str)) == lwjsonOK) {        \
+            if ((lwjson.next_free_token_pos + 1) == exp_token_count) {  \
+                ++test_passed;                                      \
+            } else {                                                \
+                ++test_failed;                                      \
+                printf("Test failed for JSON token count on input %s\r\n", (json_str));\
+            }                                                       \
+            lwjson_free(&lwjson);                                   \
+        } else {                                                    \
+            ++test_failed;                                          \
+            printf("Test failed for JSON parse on input %s\r\n", (json_str));\
+        }                                                           \
+    } while (0)
 
     /* Run token count tests */
     RUN_TEST(2, "{\"k\":1}");
@@ -245,6 +258,9 @@ test_json_data_types(void) {
         }
     }
 
+    /* Call this once JSON usage is finished */
+    lwjson_free(&lwjson);
+
     /* Print results */
     printf("Data type test result pass/fail: %d/%d\r\n\r\n",
         (int)test_passed, (int)test_failed);
@@ -255,20 +271,35 @@ static void
 test_find_function(void) {
     size_t test_failed = 0, test_passed = 0;
     const lwjson_token_t* token;
-    const char* json_str = ""
-    "{"
-        "\"my_arr\":["
-            "{\"num\":1,\"str\":\"first_entry\"},"
-            "{\"num\":2,\"str\":\"second_entry\"},"
-            "{\"num\":3,\"str\":\"third_entry\"},"
-            "[\"abc\", \"def\"]"
-        "]"
-    "}";
+    const char* json_str = "\
+    {\
+        \"my_arr\":[\
+            {\"num\":1,\"str\":\"first_entry\"},\
+            {\"num\":2,\"str\":\"second_entry\"},\
+            {\"num\":3,\"str\":\"third_entry\"},\
+            [\"abc\", \"def\"],\
+            [true, false, null],\
+            [123, -123, 987]\
+        ],\
+        \"my_obj\": {\
+            \"key_true\": true,\
+            \"key_true\": false,\
+            \"arr\": [\
+                [1, 2, 3],\
+                [true, false, null],\
+                [{\"my_key\":\"my_text\"}]\
+            ]\
+        }\
+    }\
+    ";
 
-    printf("---\r\nTest JSON token count..\r\n");
-
-    /* Parse input string */
-    lwjson_parse(&lwjson, json_str);
+    printf("---\r\nTest JSON find..\r\n");
+    
+    /* First parse JSON */
+    if (lwjson_parse(&lwjson, json_str) != lwjsonOK) {
+        printf("Could not parse JSON string..\r\n");
+        return;
+    }
 
  #define RUN_TEST(c)     if ((c)) { ++test_passed; } else { ++test_failed; printf("Test failed on line %d\r\n", __LINE__); }
 
@@ -302,7 +333,39 @@ test_find_function(void) {
                 && strncmp(token->u.str.token_value, "abc", 3) == 0);
     RUN_TEST((token = lwjson_find(&lwjson, "my_arr.#3.#")) == NULL);
 
+    /* Use EX version to search for tokens */
+    RUN_TEST((token = lwjson_find_ex(&lwjson, NULL, "my_obj")) != NULL              /* First search for my_obj in root JSON */
+                && (token = lwjson_find_ex(&lwjson, token, "key_true")) != NULL     /* Use token for relative search and search for key_true only */
+                && token->type == LWJSON_TYPE_TRUE);
+
+    /* Deep search */
+
+    /* Search for first match in any array */
+    RUN_TEST((token = lwjson_find_ex(&lwjson, NULL, "my_obj.arr.#.#.my_key")) != NULL
+                && token->type == LWJSON_TYPE_STRING
+                && strncmp(token->u.str.token_value, "my_text", 7) == 0);
+
+    /* Search for match in specific array keys */
+    RUN_TEST((token = lwjson_find_ex(&lwjson, NULL, "my_obj.arr.#2.#0.my_key")) != NULL
+                && token->type == LWJSON_TYPE_STRING
+                && strncmp(token->u.str.token_value, "my_text", 7) == 0);
+
+    /* Search for match in specific array keys = must return NULL, no index = 1 in second array */
+    RUN_TEST((token = lwjson_find_ex(&lwjson, NULL, "my_obj.arr.#2.#1.my_key")) == NULL);
+
+    /* Use partial searches */
+    RUN_TEST((token = lwjson_find_ex(&lwjson, NULL, "my_obj")) != NULL
+                && (token = lwjson_find_ex(&lwjson, token, "arr")) != NULL
+                && (token = lwjson_find_ex(&lwjson, token, "#2")) != NULL
+                && (token = lwjson_find_ex(&lwjson, token, "#0")) != NULL
+                && (token = lwjson_find_ex(&lwjson, token, "my_key")) != NULL
+                && token->type == LWJSON_TYPE_STRING
+                && strncmp(token->u.str.token_value, "my_text", 7) == 0);
+
 #undef RUN_TEST
+
+    /* Call this once JSON usage is finished */
+    lwjson_free(&lwjson);
 
     /* Print results */
     printf("Find function test result pass/fail: %d/%d\r\n\r\n",
