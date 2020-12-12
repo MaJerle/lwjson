@@ -631,13 +631,14 @@ ret:
 }
 
 /**
- * \brief           Reset token instances and prepare for new parsing
+ * \brief           Free token instances (specially used in case of dynamic memory allocation)
  * \param[in,out]   lw: LwJSON instance
  * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
  */
 lwjsonr_t
-lwjson_reset(lwjson_t* lw) {
+lwjson_free(lwjson_t* lw) {
     memset(lw->tokens, 0x00, sizeof(*lw->tokens) * lw->tokens_len);
+    lw->flags.parsed = 0;
     return lwjsonOK;
 }
 
