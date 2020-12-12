@@ -617,7 +617,7 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
         to = NULL;
     }
     if (to != NULL) {
-        if (to->type != LWJSON_TYPE_ARRAY || to->type != LWJSON_TYPE_OBJECT) {
+        if (to->type != LWJSON_TYPE_ARRAY && to->type != LWJSON_TYPE_OBJECT) {
             res = lwjsonERRJSON;
         }
         to->token_name = NULL;
