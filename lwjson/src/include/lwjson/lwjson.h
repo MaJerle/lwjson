@@ -122,14 +122,15 @@ typedef struct {
     } flags;                                    /*!< List of flags */
 } lwjson_t;
 
-lwjsonr_t       lwjson_init(lwjson_t* lw, lwjson_token_t* tokens, size_t tokens_len);
-lwjsonr_t       lwjson_parse(lwjson_t* lw, const char* json_str);
-lwjsonr_t       lwjson_reset(lwjson_t* lw);
-const lwjson_token_t* lwjson_find(lwjson_t* lw, const char* path);
-lwjsonr_t       lwjson_free(lwjson_t* lw);
+lwjsonr_t               lwjson_init(lwjson_t* lw, lwjson_token_t* tokens, size_t tokens_len);
+lwjsonr_t               lwjson_parse(lwjson_t* lw, const char* json_str);
+lwjsonr_t               lwjson_reset(lwjson_t* lw);
+const lwjson_token_t*   lwjson_find(lwjson_t* lw, const char* path);
+const lwjson_token_t*   lwjson_find_ex(lwjson_t* lw, const lwjson_token_t* token, const char* path);
+lwjsonr_t               lwjson_free(lwjson_t* lw);
 
-void            lwjson_print_token(const lwjson_token_t* token);
-void            lwjson_print_json(const lwjson_t* lw);
+void                    lwjson_print_token(const lwjson_token_t* token);
+void                    lwjson_print_json(const lwjson_t* lw);
 
 /**
  * \brief           Get number of tokens used to parse JSON
@@ -150,14 +151,14 @@ void            lwjson_print_json(const lwjson_t* lw);
  * \param[in]       token: token with integer type
  * \return          Int number if type is integer, `0` otherwise
  */
-#define         lwjson_get_val_int(token)       (((token) != NULL && (token)->type == LWJSON_TYPE_NUM_INT) ? (token)->u.num_int : 0)
+#define         lwjson_get_val_int(token)       ((lwjson_int_t)(((token) != NULL && (token)->type == LWJSON_TYPE_NUM_INT) ? (token)->u.num_int : 0))
 
 /**
  * \brief           Get token value for \ref LWJSON_TYPE_NUM_REAL type
  * \param[in]       token: token with real type
  * \return          Real numbeer if type is real, `0` otherwise
  */
-#define         lwjson_get_val_real(token)      (((token) != NULL && (token)->type == LWJSON_TYPE_NUM_REAL) ? (token)->u.num_real : 0)
+#define         lwjson_get_val_real(token)      ((lwjson_real_t)(((token) != NULL && (token)->type == LWJSON_TYPE_NUM_REAL) ? (token)->u.num_real : 0))
 
 /**
  * \brief           Get for child token for \ref LWJSON_TYPE_OBJECT or \ref LWJSON_TYPE_ARRAY types
@@ -169,11 +170,12 @@ void            lwjson_print_json(const lwjson_t* lw);
 /**
  * \brief           Get string value from JSON token
  * \param[in]       token: Token with string type
- * \param[out]      str_len: Pointer to variable holding length of string
- * \return          Pointer to string
+ * \param[out]      str_len: Pointer to variable holding length of string.
+ *                      Set to `NULL` if not used
+ * \return          Pointer to string or `NULL` if invalid token type
  */
 static inline const char*
-lwjson_get_val_string(lwjson_token_t* token, size_t* str_len) {
+lwjson_get_val_string(const lwjson_token_t* token, size_t* str_len) {
     if (token != NULL && token->type == LWJSON_TYPE_STRING) {
         if (str_len != NULL) {
             *str_len = token->u.str.token_value_len;
@@ -182,6 +184,13 @@ lwjson_get_val_string(lwjson_token_t* token, size_t* str_len) {
     }
     return NULL;
 }
+
+/**
+ * \brief           Get length of string for \ref LWJSON_TOKEN_STRING token type
+ * \param[in]       token: token with string type
+ * \return          Length of string in units of bytes
+ */
+#define         lwjson_get_val_string_length(token)     ((size_t)(((token) != NULL && (token)->type == LWJSON_TYPE_STRING) ? (token)->u.str.token_value_len : 0))
 
 /**
  * \}

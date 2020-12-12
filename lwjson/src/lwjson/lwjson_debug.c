@@ -51,11 +51,14 @@ static void
 prv_print_token(lwjson_token_print_t* p, const lwjson_token_t* token) {
 #define print_indent()          printf("%.*s", (int)((p->indent)), "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t");
 
+    if (token == NULL) {
+        return;
+    }
+
     /* Check if token has a name */
+    print_indent();
     if (token->token_name != NULL) {
-        print_indent(); printf("\"%.*s\":", (int)token->token_name_len, token->token_name);
-    } else {
-        print_indent();
+        printf("\"%.*s\":", (int)token->token_name_len, token->token_name);
     }
 
     /* Print different types */
@@ -66,7 +69,7 @@ prv_print_token(lwjson_token_print_t* p, const lwjson_token_t* token) {
             if (token->u.first_child != NULL) {
                 printf("\n");
                 ++p->indent;
-                for (lwjson_token_t* t = token->u.first_child; t != NULL; t = t->next) {
+                for (const lwjson_token_t* t = lwjson_get_first_child(token); t != NULL; t = t->next) {
                     prv_print_token(p, t);
                 }
                 --p->indent;
@@ -76,15 +79,15 @@ prv_print_token(lwjson_token_print_t* p, const lwjson_token_t* token) {
             break;
         }
         case LWJSON_TYPE_STRING: {
-            printf("\"%.*s\"", (int)token->u.str.token_value_len, token->u.str.token_value);
+            printf("\"%.*s\"", (int)lwjson_get_val_string_length(token), lwjson_get_val_string(token, NULL));
             break;
         }
         case LWJSON_TYPE_NUM_INT: {
-            printf("%lld", (long long)token->u.num_int);
+            printf("%lld", (long long)lwjson_get_val_int(token));
             break;
         }
         case LWJSON_TYPE_NUM_REAL: {
-            printf("%f", (float)token->u.num_real);
+            printf("%f", (double)lwjson_get_val_real(token));
             break;
         }
         case LWJSON_TYPE_TRUE: {

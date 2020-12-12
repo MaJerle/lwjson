@@ -655,3 +655,28 @@ lwjson_find(lwjson_t* lw, const char* path) {
     }
     return prv_find(lwjson_get_first_token(lw), path);
 }
+
+/**
+ * \brief           Find first match in the given path for JSON path
+ * JSON must be valid and parsed with \ref lwjson_parse function
+ *
+ * \param[in]       lw: JSON instance with parsed JSON string
+ * \param[in]       token: Root token to start search at.
+ *                      Token must be type \ref LWJSON_TYPE_OBJECT or \ref LWJSON_TYPE_ARRAY.
+ *                      Set to `NULL` to use root token of LwJSON object
+ * \param[in]       path: path with dot-separated entries to search for JSON key
+ * \return          Pointer to found token on success, `NULL` if token cannot be found
+ */
+const lwjson_token_t*
+lwjson_find_ex(lwjson_t* lw, const lwjson_token_t* token, const char* path) {
+    if (lw == NULL || !lw->flags.parsed || path == NULL) {
+        return NULL;
+    }
+    if (token == NULL) {
+        token = lwjson_get_first_token(lw);
+    }
+    if (token == NULL || (token->type != LWJSON_TYPE_ARRAY && token->type != LWJSON_TYPE_OBJECT)) {
+        return NULL;
+    }
+    return prv_find(token, path);
+}
