@@ -90,12 +90,12 @@ typedef struct lwjson_token {
     size_t token_name_len;                      /*!< Length of token name (this is needed to support const input strings to parse) */
     union {
         struct {
-            const char* token_value;            /*!< Value if type is not \ref LWJSON_TYPE_OBJECT or \ref LWJSON_TYPE_ARRAY */
+            const char* token_value;            /*!< Pointer to the beginning of the string */
             size_t token_value_len;             /*!< Length of token value (this is needed to support const input strings to parse) */
         } str;                                  /*!< String data */
         lwjson_real_t num_real;                 /*!< Real number format */
         lwjson_int_t num_int;                   /*!< Int number format */
-        struct lwjson_token* first_child;       /*!< First children object */
+        struct lwjson_token* first_child;       /*!< First children object for object or array type */
     } u;                                        /*!< Union with different data types */
 } lwjson_token_t;
 
@@ -124,7 +124,6 @@ typedef struct {
 
 lwjsonr_t               lwjson_init(lwjson_t* lw, lwjson_token_t* tokens, size_t tokens_len);
 lwjsonr_t               lwjson_parse(lwjson_t* lw, const char* json_str);
-lwjsonr_t               lwjson_reset(lwjson_t* lw);
 const lwjson_token_t*   lwjson_find(lwjson_t* lw, const char* path);
 const lwjson_token_t*   lwjson_find_ex(lwjson_t* lw, const lwjson_token_t* token, const char* path);
 lwjsonr_t               lwjson_free(lwjson_t* lw);
@@ -140,7 +139,7 @@ void                    lwjson_print_json(const lwjson_t* lw);
 #define         lwjson_get_tokens_used(lw)      (((lw) != NULL) ? ((lw)->next_free_token_pos + 1) : 0)
 
 /**
- * \brief           Get top token on a list
+ * \brief           Get very first token of LwJSON instance
  * \param[in]       lw: Pointer to LwJSON instance
  * \return          Pointer to first token
  */
@@ -161,9 +160,9 @@ void                    lwjson_print_json(const lwjson_t* lw);
 #define         lwjson_get_val_real(token)      ((lwjson_real_t)(((token) != NULL && (token)->type == LWJSON_TYPE_NUM_REAL) ? (token)->u.num_real : 0))
 
 /**
- * \brief           Get for child token for \ref LWJSON_TYPE_OBJECT or \ref LWJSON_TYPE_ARRAY types
+ * \brief           Get first child token for \ref LWJSON_TYPE_OBJECT or \ref LWJSON_TYPE_ARRAY types
  * \param[in]       token: token with integer type
- * \return          Pointer to first child
+ * \return          Pointer to first child or `NULL` if parent token is not object or array
  */
 #define         lwjson_get_first_child(token)   (const void *)(((token) != NULL && ((token)->type == LWJSON_TYPE_OBJECT || (token)->type == LWJSON_TYPE_ARRAY)) ? (token)->u.first_child : NULL)
 
