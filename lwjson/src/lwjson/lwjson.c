@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.1.0
+ * Version:         v1.2.0
  */
 #include <string.h>
 #include "lwjson/lwjson.h"
@@ -596,7 +596,7 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
          * Check what are values after the token value
          *
          * As per RFC4627, every token value may have one or more
-         *  blank characters, followed by one of below options:
+         * blank characters, followed by one of below options:
          *  - Comma separator for next token
          *  - End of array indication
          *  - End of object indication
@@ -617,7 +617,7 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
         to = NULL;
     }
     if (to != NULL) {
-        if (to->type != LWJSON_TYPE_ARRAY || to->type != LWJSON_TYPE_OBJECT) {
+        if (to->type != LWJSON_TYPE_ARRAY && to->type != LWJSON_TYPE_OBJECT) {
             res = lwjsonERRJSON;
         }
         to->token_name = NULL;
@@ -631,13 +631,14 @@ ret:
 }
 
 /**
- * \brief           Reset token instances and prepare for new parsing
+ * \brief           Free token instances (specially used in case of dynamic memory allocation)
  * \param[in,out]   lw: LwJSON instance
  * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
  */
 lwjsonr_t
-lwjson_reset(lwjson_t* lw) {
+lwjson_free(lwjson_t* lw) {
     memset(lw->tokens, 0x00, sizeof(*lw->tokens) * lw->tokens_len);
+    lw->flags.parsed = 0;
     return lwjsonOK;
 }
 
@@ -654,4 +655,29 @@ lwjson_find(lwjson_t* lw, const char* path) {
         return NULL;
     }
     return prv_find(lwjson_get_first_token(lw), path);
+}
+
+/**
+ * \brief           Find first match in the given path for JSON path
+ * JSON must be valid and parsed with \ref lwjson_parse function
+ *
+ * \param[in]       lw: JSON instance with parsed JSON string
+ * \param[in]       token: Root token to start search at.
+ *                      Token must be type \ref LWJSON_TYPE_OBJECT or \ref LWJSON_TYPE_ARRAY.
+ *                      Set to `NULL` to use root token of LwJSON object
+ * \param[in]       path: path with dot-separated entries to search for JSON key
+ * \return          Pointer to found token on success, `NULL` if token cannot be found
+ */
+const lwjson_token_t*
+lwjson_find_ex(lwjson_t* lw, const lwjson_token_t* token, const char* path) {
+    if (lw == NULL || !lw->flags.parsed || path == NULL) {
+        return NULL;
+    }
+    if (token == NULL) {
+        token = lwjson_get_first_token(lw);
+    }
+    if (token == NULL || (token->type != LWJSON_TYPE_ARRAY && token->type != LWJSON_TYPE_OBJECT)) {
+        return NULL;
+    }
+    return prv_find(token, path);
 }
