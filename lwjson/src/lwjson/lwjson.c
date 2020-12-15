@@ -596,7 +596,7 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
          * Check what are values after the token value
          *
          * As per RFC4627, every token value may have one or more
-         *  blank characters, followed by one of below options:
+         * blank characters, followed by one of below options:
          *  - Comma separator for next token
          *  - End of array indication
          *  - End of object indication
