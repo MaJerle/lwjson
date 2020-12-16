@@ -84,7 +84,6 @@ typedef LWJSON_CFG_INT_TYPE lwjson_int_t;
  */
 typedef struct lwjson_token {
     struct lwjson_token* next;                  /*!< Next token on a list */
-    struct lwjson_token* parent;                /*!< Parent token (think about optimization and remove this one?) */
     lwjson_type_t type;                         /*!< Token type */
     const char* token_name;                     /*!< Token name (if exists) */
     size_t token_name_len;                      /*!< Length of token name (this is needed to support const input strings to parse) */
