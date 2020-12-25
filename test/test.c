@@ -288,7 +288,8 @@ test_find_function(void) {
                 [1, 2, 3],\
                 [true, false, null],\
                 [{\"my_key\":\"my_text\"}]\
-            ]\
+            ],\
+            \"ustr\":\"\\t\\u1234abc\"\
         }\
     }\
     ";
@@ -361,6 +362,12 @@ test_find_function(void) {
                 && (token = lwjson_find_ex(&lwjson, token, "my_key")) != NULL
                 && token->type == LWJSON_TYPE_STRING
                 && strncmp(token->u.str.token_value, "my_text", 7) == 0);
+
+    /* Search for match in specific array keys and check for string length field */
+    RUN_TEST((token = lwjson_find_ex(&lwjson, NULL, "my_obj.ustr")) != NULL
+        && token->type == LWJSON_TYPE_STRING
+        && lwjson_get_val_string_length(token) == 11
+        && strncmp(token->u.str.token_value, "\\t\\u1234abc", 11) == 0);
 
 #undef RUN_TEST
 
