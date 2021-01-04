@@ -159,10 +159,9 @@ prv_parse_property_name(const char** p, lwjson_token_t* t) {
         return res;
     }
     /* Must continue with colon */
-    if (*s != ':') {
+    if (*s++ != ':') {
         return lwjsonERRJSON;
     }
-    ++s;
     /* Skip any spaces */
     if ((res = prv_skip_blank(&s)) != lwjsonOK) {
         return res;
@@ -245,7 +244,7 @@ prv_parse_number(const char** p, lwjson_type_t* tout, lwjson_real_t* fout, lwjso
     }
     if (is_minus) {
         num = -num;
-	}
+    }
     *p = s;
 
     /* Write output values */
