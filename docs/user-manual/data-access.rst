@@ -56,7 +56,7 @@ Let's consider following JSON as input:
     		{
     			"brand":"Range",
     			"year":2020,
-    			"crashed":1
+    			"repainted":true
     		}
     	]
     }
