@@ -55,7 +55,6 @@ prv_alloc_token(lwjson_t* lw) {
  */
 static lwjsonr_t
 prv_skip_blank(const char** p) {
-    lwjsonr_t res = lwjsonOK;
     const char* s = *p;
     while (s != NULL && *s != '\0') {
         if (*s == ' ' || *s == '\t' || *s == '\r' || *s == '\n' || *s == '\f') {
@@ -320,7 +319,6 @@ prv_create_path_segment(const char** p, const char** opath, size_t* olen, uint8_
  */
 static const lwjson_token_t*
 prv_find(const lwjson_token_t* parent, const char* path) {
-    lwjson_token_t* token = NULL;
     const char* segment;
     size_t segment_len;
     uint8_t is_last, result;
