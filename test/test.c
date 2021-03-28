@@ -149,6 +149,9 @@ test_json_data_types(void) {
         "       \"num2\": -1234,"
         "       \"num3\": 0"
         "   },"
+#if LWJSON_CFG_COMMENTS
+        " /* This is my comment... */"
+#endif /* LWJSON_CFG_COMMENTS */
         "   \"real\": {"
         "       \"num1\":123.4,"
         "       \"num2\":-123.4,"
