@@ -2,8 +2,8 @@
 
 ## v1.2.0
 
-- Added lwjson_find_ex function to accept token pointer as starting reference
-- Update of the docs for find
+- Added `lwjson_find_ex` function to accept token pointer as starting reference
+- Update of the docs for *find*
 - Remove unused reset and add free function for future dynamic allocation support
 
 ## v1.1.0
