@@ -40,5 +40,7 @@
  * Open "include/lwjson/lwjson_opt.h" and
  * copy & replace here settings you want to change values
  */
+#define LWJSON_CFG_JSON5                    1
+#define LWJSON_CFG_COMMENTS                 1
 
 #endif /* LWJSON_HDR_OPTS_H */

@@ -73,15 +73,6 @@ extern "C" {
 #endif
 
 /**
- * \brief           Enables `1` or disables `0` support for JSON5 extended format
- *
- * More about JSON5: https://json5.org/
- */
-#ifndef LWJSON_CFG_JSON5
-#define LWJSON_CFG_JSON5                    0
-#endif
-
-/**
  * \}
  */
 

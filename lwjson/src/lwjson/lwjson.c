@@ -59,9 +59,28 @@ prv_skip_blank(const char** p) {
     while (s != NULL && *s != '\0') {
         if (*s == ' ' || *s == '\t' || *s == '\r' || *s == '\n' || *s == '\f') {
             ++s;
-            continue;
+#if LWJSON_CFG_COMMENTS
+        /* Check for comments and remove them */
+        } else if (*s == '/') {
+            const char* cs = s;
+            ++cs;
+            if (cs != NULL && *cs == '*') {
+                ++cs;
+                while (cs != NULL && *cs != '\0') {
+                    if (*cs == '*') {
+                        ++cs;
+                        if (*cs == '/') {
+                            s = ++cs;
+                            break;
+                        }
+                    }
+                    ++cs;
+                }
+            }
+#endif /* LWJSON_CFG_COMMENTS */
+        } else {
+            break;
         }
-        break;
     }
     *p = s;
     if (s != NULL && *s != '\0') {
