@@ -184,7 +184,7 @@ lwjson_get_val_string(const lwjson_token_t* token, size_t* str_len) {
 }
 
 /**
- * \brief           Get length of string for \ref LWJSON_TOKEN_STRING token type
+ * \brief           Get length of string for \ref LWJSON_TYPE_STRING token type
  * \param[in]       token: token with string type
  * \return          Length of string in units of bytes
  */
