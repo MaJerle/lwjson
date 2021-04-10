@@ -73,6 +73,24 @@ extern "C" {
 #endif
 
 /**
+ * \brief           Enables `1` or disables `0` support for inline comments
+ *
+ * Default set to `0` to be JSON compliant
+ */
+#ifndef LWJSON_CFG_COMMENTS
+#define LWJSON_CFG_COMMENTS                 0
+#endif
+
+/**
+ * \brief           Enables `1` or disables `0` support for JSON5 extended format
+ *
+ * More about JSON5: https://json5.org/
+ */
+#ifndef LWJSON_CFG_JSON5
+#define LWJSON_CFG_JSON5                    0
+#endif
+
+/**
  * \}
  */
 
