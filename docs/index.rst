@@ -24,13 +24,14 @@ Features
 * Zero-copy, no ``malloc`` or ``free`` functions used
 * Optional support for inline comments with `/* comment... */` syntax between any *blank* region of input string
 * Advanced find algorithm for tokens
-* Testscoverage is available
+* Tests coverage is available
 * User friendly MIT license
 
 Requirements
 ^^^^^^^^^^^^
 
 * C compiler
+* Few kB of ROM memory
 
 Contribute
 ^^^^^^^^^^
