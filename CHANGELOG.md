@@ -1,5 +1,11 @@
 # Changelog
 
+## Develop
+
+## 1.3.0
+
+- Added support for inline `/* */` comments
+
 ## v1.2.0
 
 - Added `lwjson_find_ex` function to accept token pointer as starting reference
