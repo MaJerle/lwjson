@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.2.0
+ * Version:         v1.3.0
  */
 #ifndef LWJSON_HDR_H
 #define LWJSON_HDR_H
@@ -84,7 +84,6 @@ typedef LWJSON_CFG_INT_TYPE lwjson_int_t;
  */
 typedef struct lwjson_token {
     struct lwjson_token* next;                  /*!< Next token on a list */
-    struct lwjson_token* parent;                /*!< Parent token (think about optimization and remove this one?) */
     lwjson_type_t type;                         /*!< Token type */
     const char* token_name;                     /*!< Token name (if exists) */
     size_t token_name_len;                      /*!< Length of token name (this is needed to support const input strings to parse) */
@@ -185,7 +184,7 @@ lwjson_get_val_string(const lwjson_token_t* token, size_t* str_len) {
 }
 
 /**
- * \brief           Get length of string for \ref LWJSON_TOKEN_STRING token type
+ * \brief           Get length of string for \ref LWJSON_TYPE_STRING token type
  * \param[in]       token: token with string type
  * \return          Length of string in units of bytes
  */

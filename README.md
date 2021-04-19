@@ -12,6 +12,7 @@ Library provides generic JSON text parser.
 * No recursion during parse operation
 * Re-entrant functions
 * Zero-copy, no ``malloc`` or ``free`` functions used
+* Optional support for inline comments with `/* comment... */` syntax between any *blank* region of input string
 * Advanced find algorithm for tokens
 * Test coverage is available
 * User friendly MIT license

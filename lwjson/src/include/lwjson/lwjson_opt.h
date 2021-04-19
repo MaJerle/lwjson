@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.2.0
+ * Version:         v1.3.0
  */
 #ifndef LWJSON_HDR_OPT_H
 #define LWJSON_HDR_OPT_H
@@ -70,6 +70,15 @@ extern "C" {
  */
 #ifndef LWJSON_CFG_INT_TYPE
 #define LWJSON_CFG_INT_TYPE                 long long
+#endif
+
+/**
+ * \brief           Enables `1` or disables `0` support for inline comments
+ *
+ * Default set to `0` to be JSON compliant
+ */
+#ifndef LWJSON_CFG_COMMENTS
+#define LWJSON_CFG_COMMENTS                 0
 #endif
 
 /**
