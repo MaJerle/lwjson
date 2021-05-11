@@ -467,7 +467,8 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
 
     /* Check input data first */
     if (p == NULL || *p == '\0') {
-        return lwjsonERRJSON;
+        res = lwjsonERRJSON;
+        goto ret;
     }
 
     /* First parse */
@@ -484,7 +485,7 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
     }
     ++p;
     if ((res = prv_check_valid_char_after_open_bracket(&p, to)) != lwjsonOK) {
-        return res;
+        goto ret;
     }
 
     /* Process all characters */
@@ -548,7 +549,7 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
                 t->type = *p == '{' ? LWJSON_TYPE_OBJECT : LWJSON_TYPE_ARRAY;
                 ++p;
                 if ((res = prv_check_valid_char_after_open_bracket(&p, t)) != lwjsonOK) {
-                    return res;
+                    goto ret;
                 }
                 t->next = to;                   /* Temporary saved as parent object */
                 to = t;
