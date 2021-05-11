@@ -550,7 +550,7 @@ lwjson_parse(lwjson_t* lw, const char* json_str) {
                 if ((res = prv_check_valid_char_after_open_bracket(&p, t)) != lwjsonOK) {
                     return res;
                 }
-                t->next = to;           /* Temporary saved as parent object */
+                t->next = to;                   /* Temporary saved as parent object */
                 to = t;
                 break;
             case '"':
