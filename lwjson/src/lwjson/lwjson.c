@@ -448,17 +448,20 @@ lwjson_init(lwjson_t* lw, lwjson_token_t* tokens, size_t tokens_len) {
 }
 
 /**
- * \brief           Parse input JSON format
+ * \brief           Parse JSON data with length parameter
  * JSON format must be complete and must comply with RFC4627
  * \param[in,out]   lw: LwJSON instance
- * \param[in]       json_str: JSON string to parse
+ * \param[in]       data: JSON string to parse
+ * \param[in]       len: JSON data length
  * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
  */
 lwjsonr_t
-lwjson_parse(lwjson_t* lw, const char* json_str) {
+lwjson_parse_ex(lwjson_t* lw, const void* json_data, size_t len) {
     lwjsonr_t res = lwjsonOK;
-    const char* p = json_str;
+    const char* p = json_data;
     lwjson_token_t* t, *to = &lw->first_token;
+
+    (void)len;
 
     /* values from very beginning */
     lw->flags.parsed = 0;
@@ -644,6 +647,18 @@ ret:
         lw->flags.parsed = 1;
     }
     return res;
+}
+
+/**
+ * \brief           Parse input JSON format
+ * JSON format must be complete and must comply with RFC4627
+ * \param[in,out]   lw: LwJSON instance
+ * \param[in]       json_str: JSON string to parse
+ * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
+ */
+lwjsonr_t
+lwjson_parse(lwjson_t* lw, const char* json_str) {
+    return lwjson_parse_ex(lw, json_str, strlen(json_str));
 }
 
 /**
