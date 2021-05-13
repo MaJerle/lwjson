@@ -20,7 +20,8 @@ test_json_parse(void) {
 
     printf("JSON parse test\r\n");
 
-#define RUN_TEST(exp_res, json_str)     if (lwjson_parse(&lwjson, (json_str)) == (exp_res)) { ++test_passed; } else { ++test_failed; printf("Test failed for input %s\r\n", json_str); }
+#define RUN_TEST(exp_res, json_str)             if (lwjson_parse(&lwjson, (json_str)) == (exp_res)) { ++test_passed; } else { ++test_failed; printf("Test failed for input %s on line %d\r\n", json_str, __LINE__); }
+#define RUN_TEST_EX(exp_res, json_str, len)     if (lwjson_parse_ex(&lwjson, (json_str), (len)) == (exp_res)) { ++test_passed; } else { ++test_failed; printf("Test failed for input %s on line %d\r\n", json_str, __LINE__); }
 
     /* Run JSON parse tests that must succeed */
     RUN_TEST(lwjsonOK, "{}");
@@ -87,6 +88,9 @@ test_json_parse(void) {
     RUN_TEST(lwjsonERRJSON, "{\"k\"1}");        /* Missing separator */
     RUN_TEST(lwjsonERRJSON, "{k:1}");           /* Property name must be string */
     RUN_TEST(lwjsonERRJSON, "{k:0.}");          /* Wrong number format */
+
+    /* Extended tests */
+    RUN_TEST_EX(lwjsonOK, "{\"k\":\"\\a\"}abc", 10);
 
 #undef RUN_TEST
 
