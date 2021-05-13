@@ -20,7 +20,8 @@ test_json_parse(void) {
 
     printf("JSON parse test\r\n");
 
-#define RUN_TEST(exp_res, json_str)     if (lwjson_parse(&lwjson, (json_str)) == (exp_res)) { ++test_passed; } else { ++test_failed; printf("Test failed for input %s\r\n", json_str); }
+#define RUN_TEST(exp_res, json_str)             if (lwjson_parse(&lwjson, (json_str)) == (exp_res)) { ++test_passed; } else { ++test_failed; printf("Test failed for input %s on line %d\r\n", json_str, __LINE__); }
+#define RUN_TEST_EX(exp_res, json_str, len)     if (lwjson_parse_ex(&lwjson, (json_str), (len)) == (exp_res)) { ++test_passed; } else { ++test_failed; printf("Test failed for input %s on line %d\r\n", json_str, __LINE__); }
 
     /* Run JSON parse tests that must succeed */
     RUN_TEST(lwjsonOK, "{}");
@@ -78,7 +79,7 @@ test_json_parse(void) {
     RUN_TEST(lwjsonERRJSON, "{\"k\":\"\\a\"}");
 
     /* Run JSON tests to fail */
-    RUN_TEST(lwjsonERRJSON, "");
+    RUN_TEST(lwjsonERRPAR, "");
     RUN_TEST(lwjsonERRJSON, "{[]}");            /* Array without key inside object */
     RUN_TEST(lwjsonERRJSON, "{\"k\":False}");   /* False value must be all lowercase */
     RUN_TEST(lwjsonERRJSON, "{\"k\":True}");    /* True value must be all lowercase */
@@ -88,7 +89,13 @@ test_json_parse(void) {
     RUN_TEST(lwjsonERRJSON, "{k:1}");           /* Property name must be string */
     RUN_TEST(lwjsonERRJSON, "{k:0.}");          /* Wrong number format */
 
+    /* Tests with custom len */
+    RUN_TEST_EX(lwjsonOK, "[1,2,3,4]abc", 9);   /* Limit input len to JSON-only */
+    RUN_TEST_EX(lwjsonERR, "[1,2,3,4]abc", 10); /* Too long input for JSON string.. */
+    RUN_TEST_EX(lwjsonOK, "[1,2,3,4]", 15);     /* String ends earlier than what is input data len indicating = OK if JSON is valid */
+
 #undef RUN_TEST
+#undef RUN_TEST_EX
 
     /* Print results */
     printf("JSON parse test result pass/fail: %d/%d\r\n\r\n",

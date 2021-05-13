@@ -30,7 +30,10 @@
             "type": "shell",
             "label": "Run built code",
             "command": "${workspaceFolder}\\Debug\\output.exe",
-            "problemMatcher": []
+            "problemMatcher": [],
+            "dependsOn": [
+                "Build project"
+            ]
         }
     ]
 }
