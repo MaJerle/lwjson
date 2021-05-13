@@ -29,13 +29,13 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.3.0
+ * Version:         v1.4.0
  */
 #include <string.h>
 #include "lwjson/lwjson.h"
 
 /**
- * \brief           Internal string object 
+ * \brief           Internal string object
  */
 typedef struct {
     const char* start;                          /*!< Original pointer to beginning of JSON object */

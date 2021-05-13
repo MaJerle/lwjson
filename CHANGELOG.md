@@ -2,6 +2,10 @@
 
 ## Develop
 
+## 1.4.0
+
+- Add support with input string with length specifier
+
 ## 1.3.0
 
 - Added support for inline `/* */` comments
