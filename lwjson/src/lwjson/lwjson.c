@@ -64,7 +64,7 @@ prv_alloc_token(lwjson_t* lw) {
  */
 static lwjsonr_t
 prv_skip_blank(lwjson_int_str_t* pobj) {
-    while (pobj->p != NULL && *pobj->p != '\0' && (pobj->p - pobj->start) < pobj->len) {
+    while (pobj->p != NULL && *pobj->p != '\0' && (size_t)(pobj->p - pobj->start) < pobj->len) {
         if (*pobj->p == ' ' || *pobj->p == '\t' || *pobj->p == '\r' || *pobj->p == '\n' || *pobj->p == '\f') {
             ++pobj->p;
 #if LWJSON_CFG_COMMENTS
@@ -73,7 +73,7 @@ prv_skip_blank(lwjson_int_str_t* pobj) {
             ++pobj->p;
             if (pobj->p != NULL && *pobj->p == '*') {
                 ++pobj->p;
-                while (pobj->p != NULL && *pobj->p != '\0' && (pobj->p - pobj->start) < pobj->len) {
+                while (pobj->p != NULL && *pobj->p != '\0' && (size_t)(pobj->p - pobj->start) < pobj->len) {
                     if (*pobj->p == '*') {
                         ++pobj->p;
                         if (*pobj->p == '/') {
@@ -89,7 +89,7 @@ prv_skip_blank(lwjson_int_str_t* pobj) {
             break;
         }
     }
-    if (pobj->p != NULL && *pobj->p != '\0' && (pobj->p - pobj->start) < pobj->len) {
+    if (pobj->p != NULL && *pobj->p != '\0' && (size_t)(pobj->p - pobj->start) < pobj->len) {
         return lwjsonOK;
     }
     return lwjsonERRJSON;
@@ -117,7 +117,7 @@ prv_parse_string(lwjson_int_str_t* pobj, const char** pout, size_t* poutlen) {
     *pout = pobj->p;
     /* Parse string but take care of escape characters */
     for (;; ++pobj->p, ++len) {
-        if (pobj->p == NULL || *pobj->p == '\0' || (pobj->p - pobj->start) >= pobj->len) {
+        if (pobj->p == NULL || *pobj->p == '\0' || (size_t)(pobj->p - pobj->start) >= pobj->len) {
             return lwjsonERRJSON;
         }
         /* Check special characters */
@@ -207,7 +207,7 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
     if ((res = prv_skip_blank(pobj)) != lwjsonOK) {
         return res;
     }
-    if (*pobj->p == '\0' || (pobj->p - pobj->start) >= pobj->len) {
+    if (*pobj->p == '\0' || (size_t)(pobj->p - pobj->start) >= pobj->len) {
         return lwjsonERRJSON;
     }
     is_minus = *pobj->p == '-' ? (++pobj->p, 1) : 0;
@@ -494,7 +494,7 @@ lwjson_parse_ex(lwjson_t* lw, const void* json_data, size_t json_len) {
     }
 
     /* Process all characters as indicated by input user */
-    while (pobj.p != NULL && *pobj.p != '\0' && (pobj.p - pobj.start) < pobj.len) {
+    while (pobj.p != NULL && *pobj.p != '\0' && (size_t)(pobj.p - pobj.start) < pobj.len) {
         /* Filter out blanks */
         if ((res = prv_skip_blank(&pobj)) != lwjsonOK) {
             goto ret;
