@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.3.0
+ * Version:         v1.4.0
  */
 #ifndef LWJSON_HDR_H
 #define LWJSON_HDR_H
@@ -103,9 +103,10 @@ typedef struct lwjson_token {
  */
 typedef enum {
     lwjsonOK = 0x00,                            /*!< Function returns successfully */
-    lwjsonERR,
+    lwjsonERR,                                  /*!< Generic error message */
     lwjsonERRJSON,                              /*!< Error JSON format */
     lwjsonERRMEM,                               /*!< Memory error */
+    lwjsonERRPAR,                               /*!< Parameter error */
 } lwjsonr_t;
 
 /**
@@ -122,6 +123,7 @@ typedef struct {
 } lwjson_t;
 
 lwjsonr_t               lwjson_init(lwjson_t* lw, lwjson_token_t* tokens, size_t tokens_len);
+lwjsonr_t               lwjson_parse_ex(lwjson_t* lw, const void* json_data, size_t len);
 lwjsonr_t               lwjson_parse(lwjson_t* lw, const char* json_str);
 const lwjson_token_t*   lwjson_find(lwjson_t* lw, const char* path);
 const lwjson_token_t*   lwjson_find_ex(lwjson_t* lw, const lwjson_token_t* token, const char* path);

@@ -2,6 +2,11 @@
 
 ## Develop
 
+## 1.4.0
+
+- Add support with input string with length specifier
+- Add VSCode project for Win32 compilation
+
 ## 1.3.0
 
 - Added support for inline `/* */` comments

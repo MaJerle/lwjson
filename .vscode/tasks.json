@@ -1,0 +1,39 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+        {
+            "type": "cppbuild",
+            "label": "Build project",
+            "command": "C:\\MinGW\\bin\\gcc.exe",
+            "args": [
+                "-g",
+                "${workspaceFolder}\\lwjson\\src\\lwjson\\*.c",
+                "${workspaceFolder}\\dev\\VisualStudio\\main.c",
+                "${workspaceFolder}\\test\\*.c",
+                "-I${workspaceFolder}\\dev\\VisualStudio\\",
+                "-I${workspaceFolder}\\lwjson\\src\\include\\",
+                "-o",
+                "${workspaceFolder}\\Debug\\output.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "type": "shell",
+            "label": "Run built code",
+            "command": "${workspaceFolder}\\Debug\\output.exe",
+            "problemMatcher": [],
+            "dependsOn": [
+                "Build project"
+            ]
+        }
+    ]
+}
