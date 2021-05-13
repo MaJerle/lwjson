@@ -79,7 +79,7 @@ test_json_parse(void) {
     RUN_TEST(lwjsonERRJSON, "{\"k\":\"\\a\"}");
 
     /* Run JSON tests to fail */
-    RUN_TEST(lwjsonERRJSON, "");
+    RUN_TEST(lwjsonERRPAR, "");
     RUN_TEST(lwjsonERRJSON, "{[]}");            /* Array without key inside object */
     RUN_TEST(lwjsonERRJSON, "{\"k\":False}");   /* False value must be all lowercase */
     RUN_TEST(lwjsonERRJSON, "{\"k\":True}");    /* True value must be all lowercase */
@@ -89,10 +89,12 @@ test_json_parse(void) {
     RUN_TEST(lwjsonERRJSON, "{k:1}");           /* Property name must be string */
     RUN_TEST(lwjsonERRJSON, "{k:0.}");          /* Wrong number format */
 
-    /* Extended tests */
-    RUN_TEST_EX(lwjsonOK, "{\"k\":\"\\a\"}abc", 10);
+    /* Tests with custom len */
+    RUN_TEST_EX(lwjsonOK, "[1,2,3,4]abc", 9);   /* Limit input len to JSON-only */
+    RUN_TEST_EX(lwjsonERR, "[1,2,3,4]abc", 10); /* Too long input for JSON string.. */
 
 #undef RUN_TEST
+#undef RUN_TEST_EX
 
     /* Print results */
     printf("JSON parse test result pass/fail: %d/%d\r\n\r\n",
