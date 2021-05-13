@@ -103,9 +103,10 @@ typedef struct lwjson_token {
  */
 typedef enum {
     lwjsonOK = 0x00,                            /*!< Function returns successfully */
-    lwjsonERR,
+    lwjsonERR,                                  /*!< Generic error message */
     lwjsonERRJSON,                              /*!< Error JSON format */
     lwjsonERRMEM,                               /*!< Memory error */
+    lwjsonERRPAR,                               /*!< Parameter error */
 } lwjsonr_t;
 
 /**
