@@ -92,6 +92,7 @@ test_json_parse(void) {
     /* Tests with custom len */
     RUN_TEST_EX(lwjsonOK, "[1,2,3,4]abc", 9);   /* Limit input len to JSON-only */
     RUN_TEST_EX(lwjsonERR, "[1,2,3,4]abc", 10); /* Too long input for JSON string.. */
+    RUN_TEST_EX(lwjsonOK, "[1,2,3,4]", 15);     /* String ends earlier than what is input data len indicating = OK if JSON is valid */
 
 #undef RUN_TEST
 #undef RUN_TEST_EX
