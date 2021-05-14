@@ -43,22 +43,22 @@ Let's consider following JSON as input:
 .. code::
 
     {
-    	"name":"John",
-    	"born": {
-    		"city": "Munich",
-    		"year": 1993
-    	}
-    	"cars":[
-    		{
-    			"brand":"Porsche",
-    			"year":2018
-    		},
-    		{
-    			"brand":"Range",
-    			"year":2020,
-    			"repainted":true
-    		}
-    	]
+        "name":"John",
+        "born": {
+            "city": "Munich",
+            "year": 1993
+        },
+        "cars":[
+            {
+                "brand":"Porsche",
+                "year":2018
+            },
+            {
+                "brand":"Range",
+                "year":2020,
+                "repainted":true
+	        }
+        ]
     }
 
 There is one *John*, born in *Munich* in ``1993`` and has ``2`` cars, *Porsche* and *Range*.

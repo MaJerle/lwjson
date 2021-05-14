@@ -19,7 +19,7 @@ Each token consists of:
 As an example, JSON text ``{"mykey":"myvalue"}`` will be parsed into ``2`` tokens:
 
 * First token is the opening bracket and has type *object* as it holds children tokens
-* Second token has name ``"mykey"``, its type is *string* and value is ``myvalue``
+* Second token has name ``mykey``, its type is *string* and value is ``myvalue``
 
 .. warning::
     When JSON input string is parsed, create tokens use input string as a reference.
