@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.4.0
+ * Version:         v1.5.0
  */
 #include <string.h>
 #include "lwjson/lwjson.h"
