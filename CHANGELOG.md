@@ -2,6 +2,11 @@
 
 ## Develop
 
+## 1.5.0
+
+- Add string compare feature
+- Add string compare with custom length feature
+
 ## 1.4.0
 
 - Add support with input string with length specifier

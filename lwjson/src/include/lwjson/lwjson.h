@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.4.0
+ * Version:         v1.5.0
  */
 #ifndef LWJSON_HDR_H
 #define LWJSON_HDR_H
@@ -191,6 +191,34 @@ lwjson_get_val_string(const lwjson_token_t* token, size_t* str_len) {
  * \return          Length of string in units of bytes
  */
 #define         lwjson_get_val_string_length(token)     ((size_t)(((token) != NULL && (token)->type == LWJSON_TYPE_STRING) ? (token)->u.str.token_value_len : 0))
+
+/**
+ * \brief           Compare string token with user input string for a case-sensitive match
+ * \param[in]       token: Token with string type
+ * \param[out]      str: String to compare
+ * \return          `1` if equal, `0` otherwise
+ */
+static inline uint8_t
+lwjson_string_compare(const lwjson_token_t* token, const char* str) {
+    if (token != NULL && token->type == LWJSON_TYPE_STRING) {
+        return strncmp(token->u.str.token_value, str, token->u.str.token_value_len) == 0;
+    }
+    return 0;
+}
+
+/**
+ * \brief           Compare string token with user input string for a case-sensitive match
+ * \param[in]       token: Token with string type
+ * \param[out]      str: String to compare
+ * \return          `1` if equal, `0` otherwise
+ */
+static inline uint8_t
+lwjson_string_compare_n(const lwjson_token_t* token, const char* str, size_t len) {
+    if (token != NULL && token->type == LWJSON_TYPE_STRING && len <= token->u.str.token_value_len) {
+        return strncmp(token->u.str.token_value, str, len) == 0;
+    }
+    return 0;
+}
 
 /**
  * \}

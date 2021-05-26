@@ -379,6 +379,14 @@ test_find_function(void) {
         && lwjson_get_val_string_length(token) == 11
         && strncmp(token->u.str.token_value, "\\t\\u1234abc", 11) == 0);
 
+    /* Check string compare */
+    RUN_TEST((token = lwjson_find_ex(&lwjson, NULL, "my_obj.arr.#.#.my_key")) != NULL
+        && lwjson_string_compare(token, "my_text"));
+    RUN_TEST((token = lwjson_find_ex(&lwjson, NULL, "my_obj.arr.#.#.my_key")) != NULL
+        && lwjson_string_compare_n(token, "my_text", 3));
+    RUN_TEST((token = lwjson_find_ex(&lwjson, NULL, "my_obj.arr.#.#.my_key")) != NULL
+        && !lwjson_string_compare_n(token, "my_stext", 4)); /* Must be a fail */
+
 #undef RUN_TEST
 
     /* Call this once JSON usage is finished */
