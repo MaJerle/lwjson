@@ -207,6 +207,20 @@ lwjson_string_compare(const lwjson_token_t* token, const char* str) {
 }
 
 /**
+ * \brief           Compare string token with user input string for a case-sensitive match
+ * \param[in]       token: Token with string type
+ * \param[out]      str: String to compare
+ * \return          `1` if equal, `0` otherwise
+ */
+static inline uint8_t
+lwjson_string_compare_n(const lwjson_token_t* token, const char* str, size_t len) {
+    if (token != NULL && token->type == LWJSON_TYPE_STRING && len <= token->u.str.token_value_len) {
+        return strncmp(token->u.str.token_value, str, len) == 0;
+    }
+    return 0;
+}
+
+/**
  * \}
  */
 

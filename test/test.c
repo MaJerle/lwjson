@@ -381,7 +381,11 @@ test_find_function(void) {
 
     /* Check string compare */
     RUN_TEST((token = lwjson_find_ex(&lwjson, NULL, "my_obj.arr.#.#.my_key")) != NULL
-                && lwjson_string_compare(token, "my_text"));
+        && lwjson_string_compare(token, "my_text"));
+    RUN_TEST((token = lwjson_find_ex(&lwjson, NULL, "my_obj.arr.#.#.my_key")) != NULL
+        && lwjson_string_compare_n(token, "my_text", 3));
+    RUN_TEST((token = lwjson_find_ex(&lwjson, NULL, "my_obj.arr.#.#.my_key")) != NULL
+        && !lwjson_string_compare_n(token, "my_stext", 4)); /* Must be a fail */
 
 #undef RUN_TEST
 

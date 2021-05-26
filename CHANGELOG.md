@@ -2,7 +2,8 @@
 
 ## Develop
 
-- Add string compare function
+- Add string compare feature
+- Add string compare with custom length feature
 
 ## 1.4.0
 
