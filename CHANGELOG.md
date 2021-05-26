@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Add string compare function
+
 ## 1.4.0
 
 - Add support with input string with length specifier
