@@ -195,7 +195,7 @@ lwjson_get_val_string(const lwjson_token_t* token, size_t* str_len) {
 /**
  * \brief           Compare string token with user input string for a case-sensitive match
  * \param[in]       token: Token with string type
- * \param[out]      str: String to compare
+ * \param[in]       str: NULL-terminated string to compare
  * \return          `1` if equal, `0` otherwise
  */
 static inline uint8_t
@@ -209,7 +209,8 @@ lwjson_string_compare(const lwjson_token_t* token, const char* str) {
 /**
  * \brief           Compare string token with user input string for a case-sensitive match
  * \param[in]       token: Token with string type
- * \param[out]      str: String to compare
+ * \param[in]       str: NULL-terminated string to compare
+ * \param[in]       len: Length of the string in bytes
  * \return          `1` if equal, `0` otherwise
  */
 static inline uint8_t
