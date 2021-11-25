@@ -4,16 +4,24 @@
         {
             "type": "cppbuild",
             "label": "Build project",
-            "command": "C:\\MinGW\\bin\\gcc.exe",
+            "command": "gcc",       // Must be in path
             "args": [
+                //Global macro with "-D" prefix
+                "",
+
+                // Source files
                 "-g",
                 "${workspaceFolder}\\lwjson\\src\\lwjson\\*.c",
                 "${workspaceFolder}\\dev\\VisualStudio\\main.c",
                 "${workspaceFolder}\\test\\*.c",
+
+                // Include files
                 "-I${workspaceFolder}\\dev\\VisualStudio\\",
                 "-I${workspaceFolder}\\lwjson\\src\\include\\",
+
+                // Final object
                 "-o",
-                "${workspaceFolder}\\Debug\\output.exe"
+                "${workspaceFolder}\\project_vscode_compiled.exe"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -29,7 +37,7 @@
         {
             "type": "shell",
             "label": "Run built code",
-            "command": "${workspaceFolder}\\Debug\\output.exe",
+            "command": "${workspaceFolder}\\project_vscode_compiled.exe",
             "problemMatcher": [],
             "dependsOn": [
                 "Build project"
