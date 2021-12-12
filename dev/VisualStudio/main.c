@@ -40,16 +40,14 @@ main() {
         printf("Could not open file..\r\n");
         goto exit;
     }
-    file_size = GetFileSize(f, NULL);
-    if (file_size == INVALID_FILE_SIZE) {
+    if ((file_size = GetFileSize(f, NULL)) == INVALID_FILE_SIZE) {
         printf("Invalid file size..\r\n");
         goto exit;
     } else if (file_size == 0) {
         printf("File is empty..\r\n");
         goto exit;
     }
-    json_text = calloc((size_t)(file_size + 1), sizeof(*json_text));
-    if (json_text == NULL) {
+    if ((json_text = calloc((size_t)(file_size + 1), sizeof(*json_text))) == NULL) {
         printf("Could not allocate memory..\r\n");
         goto exit;
     }
@@ -60,7 +58,7 @@ main() {
 
     /* Start parsing */
     if (lwjson_parse(&lwjson, json_text) != lwjsonOK) {
-        printf("Could not parse input json\r\n");
+        printf("Could not parse input JSON\r\n");
         goto exit;
     }
 

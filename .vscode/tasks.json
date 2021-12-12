@@ -1,27 +1,21 @@
 {
 	"version": "2.0.0",
+    
+    /* For this builds, you need
+     *
+     * - Ninja build system
+     * - MSYS2 compiler with ninja support
+     * - C/C++ extension for VSCode
+     * - CMake-Tools extension for VSCode
+     */
 	"tasks": [
         {
             "type": "cppbuild",
             "label": "Build project",
-            "command": "gcc",       // Must be in path
+            "command": "cmake",
             "args": [
-                //Global macro with "-D" prefix
-                "",
-
-                // Source files
-                "-g",
-                "${workspaceFolder}\\lwjson\\src\\lwjson\\*.c",
-                "${workspaceFolder}\\dev\\VisualStudio\\main.c",
-                "${workspaceFolder}\\test\\*.c",
-
-                // Include files
-                "-I${workspaceFolder}\\dev\\VisualStudio\\",
-                "-I${workspaceFolder}\\lwjson\\src\\include\\",
-
-                // Final object
-                "-o",
-                "${workspaceFolder}\\project_vscode_compiled.exe"
+                "--build",
+                "\"build\""
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -36,12 +30,25 @@
         },
         {
             "type": "shell",
-            "label": "Run built code",
-            "command": "${workspaceFolder}\\project_vscode_compiled.exe",
+            "label": "Clean project",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "\"build\"",
+                "--target",
+                "clean"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "type": "shell",
+            "label": "Run application",
+            "command": "${workspaceFolder}\\build\\LwJSON.exe",
+            "args": [],
             "problemMatcher": [],
-            "dependsOn": [
-                "Build project"
-            ]
-        }
+        },
     ]
 }

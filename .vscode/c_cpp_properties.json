@@ -3,19 +3,20 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}\\lwjson\\src\\include",
-                "${workspaceFolder}\\dev\\VisualStudio",
-                "${workspaceFolder}"
+                "${workspaceFolder}\\dev\\VisualStudio\\",
+                "${workspaceFolder}\\lwjson\\src\\include\\"
             ],
             "defines": [
+                "WIN32",
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE"
             ],
-            "compilerPath": "C:\\MinGW\\bin\\gcc.exe",
+            "compilerPath": "c:\\msys64\\mingw64\\bin\\gcc.exe",
             "cStandard": "gnu17",
             "cppStandard": "gnu++14",
-            "intelliSenseMode": "windows-gcc-x86"
+            "intelliSenseMode": "windows-gcc-x86",
+            "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],
     "version": 4
