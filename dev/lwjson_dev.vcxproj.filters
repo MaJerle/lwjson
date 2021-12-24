@@ -24,19 +24,19 @@
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\lwjson\src\lwjson\lwjson.c">
+    <ClCompile Include="..\lwjson\src\lwjson\lwjson.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\test\test.c">
+    <ClCompile Include="..\test\test.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\lwjson\src\lwjson\lwjson_debug.c">
+    <ClCompile Include="..\lwjson\src\lwjson\lwjson_debug.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\examples\example_minimal.c">
+    <ClCompile Include="..\examples\example_minimal.c">
       <Filter>Source Files\Examples</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\examples\example_traverse.c">
+    <ClCompile Include="..\examples\example_traverse.c">
       <Filter>Source Files\Examples</Filter>
     </ClCompile>
   </ItemGroup>
