@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Split CMakeLists.txt files between library and executable
+
 ## 1.5.0
 
 - Add string compare feature
