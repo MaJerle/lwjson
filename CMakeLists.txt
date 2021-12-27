@@ -38,3 +38,4 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 # Add subdir with lwjson and link to project
 add_subdirectory("lwjson" lwjson)
 target_link_libraries(${PROJECT_NAME} lwjson)
+target_link_libraries(${PROJECT_NAME} lwjson_debug)

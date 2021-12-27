@@ -1,21 +1,32 @@
 cmake_minimum_required(VERSION 3.13)
 
-# Debug message
-message("LWJSON: Entering lib source CMakeLists.txt")
-
-# Set library name
-set(LWJSON_LIB_NAME "lwjson")
-
-# Register library to the system
-add_library(${LWJSON_LIB_NAME} INTERFACE)
+#Debug message
+message("Entering ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt")
 
 # Setup generic source files
-target_sources(${LWJSON_LIB_NAME} INTERFACE
+set(lwjson_core_SRCS
     ${CMAKE_CURRENT_LIST_DIR}/src/lwjson/lwjson.c
-    ${CMAKE_CURRENT_LIST_DIR}/src/lwjson/lwjson.c
+    )
+
+# Debug sources
+set(lwjson_debug_SRCS
+    ${CMAKE_CURRENT_LIST_DIR}/src/lwjson/lwjson_debug.c
     )
 
 # Setup include directories
-target_include_directories(${LWJSON_LIB_NAME} INTERFACE
+set(lwjson_include_DIRS
     ${CMAKE_CURRENT_LIST_DIR}/src/include
     )
+
+# Register core library to the system
+add_library(lwjson INTERFACE)
+target_sources(lwjson PUBLIC ${lwjson_core_SRCS})
+target_include_directories(lwjson INTERFACE ${lwjson_include_DIRS})
+
+# Register lwjson debug module
+add_library(lwjson_debug INTERFACE)
+target_sources(lwjson_debug PUBLIC ${lwjson_debug_SRCS})
+target_include_directories(lwjson_debug INTERFACE ${lwjson_include_DIRS})
+
+#Debug message
+message("Exiting ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt")
