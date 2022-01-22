@@ -508,21 +508,19 @@ lwjson_parse_ex(lwjson_t* lw, const void* json_data, size_t json_len) {
         if (*pobj.p == (to->type == LWJSON_TYPE_OBJECT ? '}' : ']')) {
             lwjson_token_t* parent = to->next;
             to->next = NULL;
-            to = parent;
             ++pobj.p;
 
-            /* End of string, check if properly terminated */
-            if (to == NULL) {
+            /* End of string if to == NULL (no parent), check if properly terminated */
+            if ((to = parent) == NULL) {
                 prv_skip_blank(&pobj);
-                res = (pobj.p == NULL || *pobj.p == '\0' || (pobj.p - pobj.start) == pobj.len) ? lwjsonOK : lwjsonERR;
+                res = (pobj.p == NULL || *pobj.p == '\0' || (size_t)(pobj.p - pobj.start) == pobj.len) ? lwjsonOK : lwjsonERR;
                 goto ret;
             }
             continue;
         }
 
         /* Allocate new token */
-        t = prv_alloc_token(lw);
-        if (t == NULL) {
+        if ((t = prv_alloc_token(lw)) == NULL) {
             res = lwjsonERRMEM;
             goto ret;
         }
