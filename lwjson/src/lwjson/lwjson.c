@@ -68,7 +68,7 @@ prv_skip_blank(lwjson_int_str_t* pobj) {
         if (*pobj->p == ' ' || *pobj->p == '\t' || *pobj->p == '\r' || *pobj->p == '\n' || *pobj->p == '\f') {
             ++pobj->p;
 #if LWJSON_CFG_COMMENTS
-        /* Check for comments and remove them */
+            /* Check for comments and remove them */
         } else if (*pobj->p == '/') {
             ++pobj->p;
             if (pobj->p != NULL && *pobj->p == '*') {
@@ -138,8 +138,8 @@ prv_parse_string(lwjson_int_str_t* pobj, const char** pout, size_t* poutlen) {
                     ++pobj->p;
                     for (size_t i = 0; i < 4; ++i, ++len) {
                         if (!((*pobj->p >= '0' && *pobj->p <= '9')
-                            || (*pobj->p >= 'a' && *pobj->p <= 'f')
-                            || (*pobj->p >= 'A' && *pobj->p <= 'F'))) {
+                              || (*pobj->p >= 'a' && *pobj->p <= 'f')
+                              || (*pobj->p >= 'A' && *pobj->p <= 'F'))) {
                             return lwjsonERRJSON;
                         }
                         if (i < 3) {
@@ -352,7 +352,7 @@ prv_find(const lwjson_token_t* parent, const char* path) {
 
             /* Check if index requested */
             if (segment_len > 1) {
-                const lwjson_token_t *t;
+                const lwjson_token_t* t;
                 size_t index = 0;
 
                 /* Parse number */
@@ -418,10 +418,10 @@ prv_check_valid_char_after_open_bracket(lwjson_int_str_t* pobj, lwjson_token_t* 
     }
     if (*pobj->p == '\0'
         || (t->type == LWJSON_TYPE_OBJECT
-                && (*pobj->p != '"' && *pobj->p != '}'))
+            && (*pobj->p != '"' && *pobj->p != '}'))
         || (t->type == LWJSON_TYPE_ARRAY
-                && (*pobj->p != '"' && *pobj->p != ']' && *pobj->p != '[' && *pobj->p != '{' && *pobj->p != '-'
-                    && (*pobj->p < '0' || *pobj->p > '9') && *pobj->p != 't' && *pobj->p != 'n' && *pobj->p != 'f'))) {
+            && (*pobj->p != '"' && *pobj->p != ']' && *pobj->p != '[' && *pobj->p != '{' && *pobj->p != '-'
+                && (*pobj->p < '0' || *pobj->p > '9') && *pobj->p != 't' && *pobj->p != 'n' && *pobj->p != 'f'))) {
         res = lwjsonERRJSON;
     }
     return res;

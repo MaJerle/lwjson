@@ -5,6 +5,7 @@
 - Split CMakeLists.txt files between library and executable
 - Change license year to 2022
 - Fix GCC warning for incompatible comparison types
+- Update code style with astyle
 
 ## 1.5.0
 
