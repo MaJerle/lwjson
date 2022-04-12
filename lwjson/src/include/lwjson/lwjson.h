@@ -133,6 +133,32 @@ void                    lwjson_print_token(const lwjson_token_t* token);
 void                    lwjson_print_json(const lwjson_t* lw);
 
 /**
+ * \brief           Stream parsing stack object
+ */
+typedef struct {
+    lwjson_type_t type;
+    char name[32];                              /*!< Last known dictionary name. Not used for array types
+                                                    TODO: Add conditional compilation to decrease memory size even more */
+} lwjson_stream_stack_t;
+
+/**
+ * \brief           LwJSON streaming structure
+ */
+typedef struct {
+    lwjson_stream_stack_t stack[16];            /*!< Stack used for parsing */
+    size_t stack_pos;                           /*!< Current stack position */
+    
+    /* State */
+    union {
+        struct {
+            char buff[512];                     /*!< Buffer to write temporary data */
+            size_t buff_pos;                    /*!< Buffer position for next write (length of bytes in buffer) */
+        } str;                                  /*!< String structure */
+        /* Todo: Add other types */
+    } data;                                     /*!< Data union used to parse various */
+} lwjson_stream_t;
+
+/**
  * \brief           Get number of tokens used to parse JSON
  * \param[in]       lw: Pointer to LwJSON instance
  * \return          Number of tokens used to parse JSON

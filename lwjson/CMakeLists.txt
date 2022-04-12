@@ -6,6 +6,7 @@ message("Entering ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt")
 # Setup generic source files
 set(lwjson_core_SRCS
     ${CMAKE_CURRENT_LIST_DIR}/src/lwjson/lwjson.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/lwjson/lwjson_stream.c
     )
 
 # Debug sources
