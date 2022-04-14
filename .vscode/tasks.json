@@ -40,6 +40,9 @@
             "label": "Run application",
             "command": "${workspaceFolder}\\build\\LwLibPROJECT.exe",
             "args": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
             "problemMatcher": [],
         },
         {

@@ -4,8 +4,12 @@
 #include "windows.h"
 #include "lwjson/lwjson.h"
 
+/* Classic parser */
 static lwjson_token_t tokens[4096];
 static lwjson_t lwjson;
+
+/* Stream parser */
+static lwjson_stream_parser_t stream_parser;
 
 extern void test_run(void);
 extern void example_minimal_run(void);
@@ -19,16 +23,16 @@ main() {
     char* json_text = NULL;
     const lwjson_token_t* tkn;
 
-    test_run();
+    //test_run();
     //example_minimal_run();
     //example_traverse_run();
-    return 0;
+    //return 0;
 
     printf("\n---\n");
     /* Init JSON */
     lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
 
-    f = CreateFile(TEXT("..\\..\\test\\json\\custom.json"),
+    f = CreateFile(TEXT("test\\json\\custom_stream.json"),
         GENERIC_READ,             // open for reading
         0,                        // do not share
         NULL,                     // no security
@@ -56,11 +60,20 @@ main() {
         goto exit;
     }
 
+    /* Now parse as a stream */
+    lwjson_stream_init(&stream_parser);
+    for (const char* str = json_text; str != NULL && *str != '\0'; ++str) {
+        lwjson_stream_parse(&stream_parser, *str);
+    }
+    return 0;
+
     /* Start parsing */
+    printf("Parsing JSON with full text\r\n");
     if (lwjson_parse(&lwjson, json_text) != lwjsonOK) {
         printf("Could not parse input JSON\r\n");
         goto exit;
     }
+    printf("Full JSON parsed\r\n");
 
     /* Dump result */
     lwjson_print_json(&lwjson);

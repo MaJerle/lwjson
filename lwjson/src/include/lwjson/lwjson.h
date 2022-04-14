@@ -107,6 +107,10 @@ typedef enum {
     lwjsonERRJSON,                              /*!< Error JSON format */
     lwjsonERRMEM,                               /*!< Memory error */
     lwjsonERRPAR,                               /*!< Parameter error */
+
+    lwjsonSTREAMNONE,                           /*!< No new info to process - parsing in progress */
+    lwjsonSTREAMINPROGRESS,                     /*!< Stream token parsing is in progress */
+    lwjsonSTREAMDONE,                           /*!< Streaming parser is done */
 } lwjsonr_t;
 
 /**
@@ -161,6 +165,8 @@ typedef struct {
 
 typedef enum {
     LWJSON_STREAM_STATE_WAITINGFIRSTCHAR = 0x00,/*!< State to wait for very first opening character */ 
+    LWJSON_STREAM_STATE_PARSING,                /*!< In parsing of the first char state */
+    LWJSON_STREAM_STATE_PARSING_STRING,         /*!< Parse string primitive */
 } lwjson_stream_state_t;
 
 /**
@@ -175,12 +181,15 @@ typedef struct {
     /* State */
     union {
         struct {
-            char buff[512];                     /*!< Buffer to write temporary data */
+            char buff[512];                     /*!< Buffer to write temporary data. TODO: Size to be variable with define */
             size_t buff_pos;                    /*!< Buffer position for next write (length of bytes in buffer) */
         } str;                                  /*!< String structure */
         /* Todo: Add other types */
     } data;                                     /*!< Data union used to parse various */
 } lwjson_stream_parser_t;
+
+lwjsonr_t lwjson_stream_init(lwjson_stream_parser_t* jsp);
+lwjsonr_t lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c);
 
 /**
  * \brief           Get number of tokens used to parse JSON
