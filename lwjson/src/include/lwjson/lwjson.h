@@ -133,21 +133,45 @@ void                    lwjson_print_token(const lwjson_token_t* token);
 void                    lwjson_print_json(const lwjson_t* lw);
 
 /**
+ * \brief           Object type for streaming parser
+ */
+typedef enum {
+    LWJSON_STREAM_TYPE_NONE,
+    LWJSON_STREAM_TYPE_OBJECT,
+    LWJSON_STREAM_TYPE_OBJECT_END,
+    LWJSON_STREAM_TYPE_ARRAY,
+    LWJSON_STREAM_TYPE_ARRAY_END,
+    LWJSON_STREAM_TYPE_KEY,
+    LWJSON_STREAM_TYPE_STRING,
+    LWJSON_STREAM_TYPE_TRUE,
+    LWJSON_STREAM_TYPE_FALSE,
+    LWJSON_STREAM_TYPE_NULL,
+    LWJSON_STREAM_TYPE_INT,
+    LWJSON_STREAM_TYPE_REAL,
+} lwjson_stream_type_t;
+
+/**
  * \brief           Stream parsing stack object
  */
 typedef struct {
-    lwjson_type_t type;
+    lwjson_stream_type_t type;                  /*!< Streaming type - current value */
     char name[32];                              /*!< Last known dictionary name. Not used for array types
                                                     TODO: Add conditional compilation to decrease memory size even more */
 } lwjson_stream_stack_t;
+
+typedef enum {
+    LWJSON_STREAM_STATE_WAITINGFIRSTCHAR = 0x00,/*!< State to wait for very first opening character */ 
+} lwjson_stream_state_t;
 
 /**
  * \brief           LwJSON streaming structure
  */
 typedef struct {
-    lwjson_stream_stack_t stack[16];            /*!< Stack used for parsing */
+    lwjson_stream_stack_t stack[16];            /*!< Stack used for parsing. TODO: Add conditional compilation flag */
     size_t stack_pos;                           /*!< Current stack position */
     
+    lwjson_stream_state_t parse_state;          /*!< Parser state */
+
     /* State */
     union {
         struct {
@@ -156,7 +180,7 @@ typedef struct {
         } str;                                  /*!< String structure */
         /* Todo: Add other types */
     } data;                                     /*!< Data union used to parse various */
-} lwjson_stream_t;
+} lwjson_stream_parser_t;
 
 /**
  * \brief           Get number of tokens used to parse JSON
