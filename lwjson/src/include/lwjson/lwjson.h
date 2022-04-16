@@ -165,8 +165,9 @@ typedef struct {
 
 typedef enum {
     LWJSON_STREAM_STATE_WAITINGFIRSTCHAR = 0x00,/*!< State to wait for very first opening character */ 
-    LWJSON_STREAM_STATE_PARSING,                /*!< In parsing of the first char state */
+    LWJSON_STREAM_STATE_PARSING,                /*!< In parsing of the first char state - detecting next character state */
     LWJSON_STREAM_STATE_PARSING_STRING,         /*!< Parse string primitive */
+    LWJSON_STREAM_STATE_PARSING_PRIMITIVE,      /*!< Parse any primitive that is non-string, either "true", "false", "null" or a number */
 } lwjson_stream_state_t;
 
 /**
@@ -184,6 +185,10 @@ typedef struct {
             char buff[512];                     /*!< Buffer to write temporary data. TODO: Size to be variable with define */
             size_t buff_pos;                    /*!< Buffer position for next write (length of bytes in buffer) */
         } str;                                  /*!< String structure */
+        struct {
+            char buff[32];                      /*!< Temporary write buffer */
+            size_t buff_pos;                    /*!< Buffer position for next write */
+        } prim;                                 /*!< Primitive object */
         /* Todo: Add other types */
     } data;                                     /*!< Data union used to parse various */
 } lwjson_stream_parser_t;

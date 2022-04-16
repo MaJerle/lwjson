@@ -1,13 +1,42 @@
 {
-    "test": "abc",
-    "array": [
-        "123",
-        "def",
-        "ghi"
-    ],
-    "array_in_array": [
-        ["1", "2", "3"],
-        ["4", "5", "6"],
-        ["7", "8", "9"]
-    ]
+  "test": "abc",
+  "array": [
+    "123",
+    "def",
+    "ghi"
+  ],
+  "array_in_array": [
+    ["1", "2", "3"],
+    ["4", "5", "6"],
+    ["7", "8", "9"]
+  ]
 }
+
+[
+  {
+    "first_name": "Jeanette",
+    "last_name": "Penddreth",
+    "email": "jpenddreth0@census.gov",
+    "gender": "Female",
+    "ip_address": "26.58.193.2",
+    "obj": {
+        "abc": {
+            "def": {
+                "gdf": "this is final value"
+            }
+        }
+    }
+  }, {
+    "first_name": "Giavani",
+    "last_name": "Frediani",
+    "email": "gfrediani1@senate.gov",
+    "gender": "Male",
+    "ip_address": "229\\\".179.4.212",
+    "num": 123,
+    "num2": 123.43,
+    "num3": -123E13,
+    "true": true,
+    "false": false,
+    "null": null
+  }
+]
