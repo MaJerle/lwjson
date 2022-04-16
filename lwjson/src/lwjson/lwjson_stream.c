@@ -63,6 +63,21 @@ static const char* type_strings[] = {
 #define LWJSON_DEBUG(jsp, ...)              
 #endif /* defined(LWJSON_DEV) */
 
+#define SEND_EVT(jsp, type)             if ((jsp) != NULL && (jsp)->evt_fn != NULL) { (jsp)->evt_fn((jsp), (type)); }
+
+/**
+ * \brief           Check if character is a space character (with extended chars)
+ * \param[in]       c: Character to check
+ * \return          `1` if considered extended space, `0` otherwise
+ */
+#define prv_is_space_char_ext(c)        ((c) == ' ' || (c) == '\t' || (c) == '\r' || (c) == '\n' || (c) == '\f')
+
+/**
+ * \brief           Push "parent" state to the artificial stack
+ * \param           jsp: JSON stream parser instance
+ * \param           type: Stream type to be pushed on stack
+ * \return          `1` on success, `0` otherwise
+ */
 uint8_t
 prv_stack_push(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type) {
     if (jsp->stack_pos < LWJSON_ARRAYSIZE(jsp->stack)) {
@@ -75,6 +90,11 @@ prv_stack_push(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type) {
     return 0;
 }
 
+/**
+ * \brief           Pop value from stack (remove it) and return its value
+ * \param           jsp: JSON stream parser instance
+ * \return          Member of \ref lwjson_stream_type_t enumeration 
+ */
 lwjson_stream_type_t
 prv_stack_pop(lwjson_stream_parser_t* jsp) {
     if (jsp->stack_pos > 0) {
@@ -85,6 +105,11 @@ prv_stack_pop(lwjson_stream_parser_t* jsp) {
     return LWJSON_STREAM_TYPE_NONE;
 }
 
+/**
+ * \brief           Get top type value currently on the stack
+ * \param           jsp: JSON stream parser instance
+ * \return          Member of \ref lwjson_stream_type_t enumeration 
+ */
 lwjson_stream_type_t
 prv_stack_get_top(lwjson_stream_parser_t* jsp) {
     if (jsp->stack_pos > 0) {
@@ -93,16 +118,16 @@ prv_stack_get_top(lwjson_stream_parser_t* jsp) {
     return LWJSON_STREAM_TYPE_NONE;
 }
 
-#define prv_is_space_char_ext(c)        ((c) == ' ' || (c) == '\t' || (c) == '\r' || (c) == '\n' || (c) == '\f')
-
 /**
  * \brief           Initialize LwJSON stream object before parsing takes place
  * \param[in,out]   jsp: Stream JSON structure 
  * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
  */
 lwjsonr_t
-lwjson_stream_init(lwjson_stream_parser_t* jsp) {
+lwjson_stream_init(lwjson_stream_parser_t* jsp, lwjson_stream_parser_callback_fn evt_fn) {
+    memset(jsp, 0x00, sizeof(*jsp));
     jsp->parse_state = LWJSON_STREAM_STATE_WAITINGFIRSTCHAR;
+    jsp->evt_fn = evt_fn;
     return lwjsonOK;
 }
 
@@ -137,15 +162,36 @@ lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c) {
                     return lwjsonERRMEM;
                 }
                 jsp->parse_state = LWJSON_STREAM_STATE_PARSING;
+                SEND_EVT(jsp, c == '{' ? LWJSON_STREAM_TYPE_OBJECT : LWJSON_STREAM_TYPE_ARRAY);
 
             /* Determine end or object or an array */
             } else if (c == '}' || c == ']') {
-                if (!prv_stack_pop(jsp)) {
-                    return lwjsonERR;
+                lwjson_stream_type_t t = prv_stack_get_top(jsp);
+
+                /* 
+                 * If it is a key last entry on closing area,
+                 * it is an error - an example: {"key":}
+                 */
+                if (t == LWJSON_STREAM_TYPE_KEY) {
+                    LWJSON_DEBUG(jsp, "ERROR - key should not be followed by ] without value for a key\r\n");
+                    return lwjsonERRJSON;
                 }
+
+                /* Now remove the array or object from stack */
+                if (!prv_stack_pop(jsp)) {
+                    return lwjsonERRMEM;
+                }
+
+                /*
+                 * Check if above is a key type
+                 * and remove it too as we finished with processing of potential case.
+                 * 
+                 * {"key":{"abc":1}} - remove "key" part
+                 */
                 if (prv_stack_get_top(jsp) == LWJSON_STREAM_TYPE_KEY) {
                     prv_stack_pop(jsp);
                 }
+                SEND_EVT(jsp, c == '}' ? LWJSON_STREAM_TYPE_OBJECT_END : LWJSON_STREAM_TYPE_ARRAY_END);
 
             /* Determine start of string - can be key or regular string (in array or after key) */
             } else if (c == '"') {
@@ -159,7 +205,6 @@ lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c) {
                     LWJSON_DEBUG(jsp, "Start of string parsing - string entry in an array\r\n");
                 } 
 #endif /* defined(LWJSON_DEV) */
-
                 jsp->parse_state = LWJSON_STREAM_STATE_PARSING_STRING;
                 memset(&jsp->data.str, 0x00, sizeof(jsp->data.str));
 
@@ -168,17 +213,13 @@ lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c) {
                 lwjson_stream_type_t t = prv_stack_get_top(jsp);
 
                 /*
-                 * Color character means end of key.
-                 *
-                 * Valid key can only happen if its parent (top of current stack)
-                 * is an object - otherwise trigger and error
+                 * Color can only be followed by key on the stack
+                 * 
+                 * It is clear JSON error if this is not the case
                  */
-                if (t == LWJSON_STREAM_TYPE_OBJECT) {
-                    if (!prv_stack_push(jsp, LWJSON_STREAM_TYPE_KEY)) {
-                        return lwjsonERRMEM;
-                    }
-                } else {
-                   LWJSON_DEBUG(jsp, "Error - wrong ':' character\r\n");
+                if (t != LWJSON_STREAM_TYPE_KEY) {
+                    LWJSON_DEBUG(jsp, "Error - wrong ':' character\r\n");
+                    return lwjsonERRJSON;
                 }
             /* Check if this is start of number or "true", "false" or "null" */
             } else if (c == '-' || (c >= '0' && c <= '9')
@@ -204,8 +245,11 @@ lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c) {
              * 
              * TODO: Handle backslash
              */
-            if (c == '"') {
+            if (c == '"' && jsp->prev_c != '\\') {
                 lwjson_stream_type_t t = prv_stack_get_top(jsp);
+                
+                /* TODO: Send callback to user */
+
 #if defined(LWJSON_DEV)
                 if (t == LWJSON_STREAM_TYPE_OBJECT) {
                     LWJSON_DEBUG(jsp, "End of string parsing - object key name: \"%s\"\r\n", jsp->data.str.buff);
@@ -215,13 +259,28 @@ lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c) {
                     LWJSON_DEBUG(jsp, "End of string parsing - an array string entry: \"%s\"\r\n", jsp->data.str.buff);
                 }
 #endif /* defined(LWJSON_DEV) */
-                if (t == LWJSON_STREAM_TYPE_KEY) {
+
+                /*
+                 * When top of stack is object - string is treated as a key
+                 * When top of stack is a key - string is a value for a key - notify user and pop the value for key
+                 * When top of stack is an array - string is one type - notify user and don't do anything
+                 */
+                if (t == LWJSON_STREAM_TYPE_OBJECT) {
+                    SEND_EVT(jsp, LWJSON_STREAM_TYPE_KEY);
+                    if (!prv_stack_push(jsp, LWJSON_STREAM_TYPE_KEY)) {
+                        return lwjsonERRMEM;
+                    }
+                } else if (t == LWJSON_STREAM_TYPE_KEY) {
+                    SEND_EVT(jsp, LWJSON_STREAM_TYPE_STRING);
                     prv_stack_pop(jsp);
+                    /* Next character to wait for is either space or comma or end of object */
+                } else if (t == LWJSON_STREAM_TYPE_ARRAY) {
+                    SEND_EVT(jsp, LWJSON_STREAM_TYPE_STRING);
                 }
                 jsp->parse_state = LWJSON_STREAM_STATE_PARSING;
             } else {
                 jsp->data.str.buff[jsp->data.str.buff_pos++] = c;
-                /* TODO: Add 0 if necessary */
+                /* TODO: If buffer lower than needed for user - send multiple events */
             }
             break;
         }
@@ -238,6 +297,11 @@ lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c) {
                 jsp->data.prim.buff[jsp->data.prim.buff_pos++] = c;
             } else {
                 lwjson_stream_type_t t = prv_stack_get_top(jsp);
+
+                /* TODO: Send callback to user */
+                /* Find first type of primitive - then send */
+                //SEND_EVT(jsp, LWJSON_STREAM_TYPE_);
+
 #if defined(LWJSON_DEV)
                 if (t == LWJSON_STREAM_TYPE_OBJECT) {
                     /* TODO: Handle error - primitive cannot be just after object */
@@ -259,4 +323,5 @@ lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c) {
         default:
             break;
     }
+    jsp->prev_c = c;                    /* Save current c as previous for next round */
 }

@@ -37,6 +37,9 @@
     "num3": -123E13,
     "true": true,
     "false": false,
-    "null": null
+    "null": null,
+    "key": "test",
+    "lala": 123,
+    "blabla": -123
   }
 ]

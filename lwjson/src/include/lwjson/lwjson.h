@@ -170,14 +170,25 @@ typedef enum {
     LWJSON_STREAM_STATE_PARSING_PRIMITIVE,      /*!< Parse any primitive that is non-string, either "true", "false", "null" or a number */
 } lwjson_stream_state_t;
 
+/* Forward declaration */
+struct lwjson_stream_parser;
+
+/**
+ * \brief           Callback function for various events
+ * 
+ */
+typedef void (*lwjson_stream_parser_callback_fn)(struct lwjson_stream_parser* jsp, lwjson_stream_type_t type);
+
 /**
  * \brief           LwJSON streaming structure
  */
-typedef struct {
+typedef struct lwjson_stream_parser {
     lwjson_stream_stack_t stack[16];            /*!< Stack used for parsing. TODO: Add conditional compilation flag */
     size_t stack_pos;                           /*!< Current stack position */
     
     lwjson_stream_state_t parse_state;          /*!< Parser state */
+
+    lwjson_stream_parser_callback_fn evt_fn;    /*!< Event function for user */
 
     /* State */
     union {
@@ -191,9 +202,10 @@ typedef struct {
         } prim;                                 /*!< Primitive object */
         /* Todo: Add other types */
     } data;                                     /*!< Data union used to parse various */
+    char prev_c;                                /*!< History of characters */
 } lwjson_stream_parser_t;
 
-lwjsonr_t lwjson_stream_init(lwjson_stream_parser_t* jsp);
+lwjsonr_t lwjson_stream_init(lwjson_stream_parser_t* jsp, lwjson_stream_parser_callback_fn evt_fn);
 lwjsonr_t lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c);
 
 /**

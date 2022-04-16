@@ -15,6 +15,8 @@ extern void test_run(void);
 extern void example_minimal_run(void);
 extern void example_traverse_run(void);
 
+static void jsp_stream_callback(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type);
+
 int
 main() {
     HANDLE f;
@@ -61,7 +63,7 @@ main() {
     }
 
     /* Now parse as a stream */
-    lwjson_stream_init(&stream_parser);
+    lwjson_stream_init(&stream_parser, jsp_stream_callback);
     for (const char* str = json_text; str != NULL && *str != '\0'; ++str) {
         lwjson_stream_parse(&stream_parser, *str);
     }
@@ -91,4 +93,9 @@ exit:
         json_text = NULL;
     }
     return 0;
+}
+
+static void
+jsp_stream_callback(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type) {
+
 }
