@@ -34,7 +34,7 @@
 #include <string.h>
 #include "lwjson/lwjson.h"
 
-#if defined(LWJSON_DEV)
+#if defined(LWJSON_DEVV)
 #include <stdio.h>
 #define DEBUG_STRING_PREFIX_SPACES          "                                                                                                "
 #define LWJSON_DEBUG(jsp, ...)              do {    \
@@ -56,8 +56,7 @@ static const char* type_strings[] = {
     [LWJSON_STREAM_TYPE_TRUE]       = "true",
     [LWJSON_STREAM_TYPE_FALSE]      = "false",
     [LWJSON_STREAM_TYPE_NULL]       = "null",
-    [LWJSON_STREAM_TYPE_INT]        = "int",
-    [LWJSON_STREAM_TYPE_REAL]       = "real",
+    [LWJSON_STREAM_TYPE_NUMBER]     = "number",
 };
 #else
 #define LWJSON_DEBUG(jsp, ...)              
@@ -82,9 +81,9 @@ uint8_t
 prv_stack_push(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type) {
     if (jsp->stack_pos < LWJSON_ARRAYSIZE(jsp->stack)) {
         jsp->stack[jsp->stack_pos].type = type;
-        LWJSON_DEBUG(jsp, "Pushed to stack: %s\r\n", type_strings[type]);
+        jsp->stack[jsp->stack_pos].index = 0;
         jsp->stack_pos++;
-        /* TODO: Copy name in case of non-array object */
+        LWJSON_DEBUG(jsp, "Pushed to stack: %s\r\n", type_strings[type]);
         return 1;
     }
     return 0;
@@ -98,9 +97,12 @@ prv_stack_push(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type) {
 lwjson_stream_type_t
 prv_stack_pop(lwjson_stream_parser_t* jsp) {
     if (jsp->stack_pos > 0) {
-        jsp->stack_pos--;
-        LWJSON_DEBUG(jsp, "Popped from stack: %s\r\n", type_strings[jsp->stack[jsp->stack_pos].type]);
-        return jsp->stack[jsp->stack_pos].type;
+        lwjson_stream_type_t t = jsp->stack[--jsp->stack_pos].type;
+        LWJSON_DEBUG(jsp, "Popped from stack: %s\r\n", type_strings[t]);
+        if (jsp->stack_pos > 0 && jsp->stack[jsp->stack_pos - 1].type == LWJSON_STREAM_TYPE_ARRAY) {
+            jsp->stack[jsp->stack_pos - 1].index++;
+        }
+        return t;
     }
     return LWJSON_STREAM_TYPE_NONE;
 }
@@ -145,6 +147,7 @@ lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c) {
         return lwjsonOK;
     }
 
+start_over:
     /*
      * Determine what to do from parsing state
      */
@@ -159,6 +162,7 @@ lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c) {
             /* Determine start or object or an array */
             if (c == '{' || c == '[') {
                 if (!prv_stack_push(jsp, c == '{' ? LWJSON_STREAM_TYPE_OBJECT : LWJSON_STREAM_TYPE_ARRAY)) {
+                    LWJSON_DEBUG(jsp, "Cannot push object/array to stack\r\n");
                     return lwjsonERRMEM;
                 }
                 jsp->parse_state = LWJSON_STREAM_STATE_PARSING;
@@ -224,7 +228,7 @@ lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c) {
             /* Check if this is start of number or "true", "false" or "null" */
             } else if (c == '-' || (c >= '0' && c <= '9')
                         || c == 't' || c == 'f' || c == 'n') {
-                LWJSON_DEBUG(jsp, "Start of primitive parsing parsing - %s, %c\r\n",
+                LWJSON_DEBUG(jsp, "Start of primitive parsing parsing - %s, First char: %c\r\n",
                             (c == '-' || (c >= '0' && c <= '9')) ? "number" : "true,false,null", c);
                 jsp->parse_state = LWJSON_STREAM_STATE_PARSING_PRIMITIVE;
                 memset(&jsp->data.prim, 0x00, sizeof(jsp->data.prim));
@@ -267,9 +271,18 @@ lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c) {
                  */
                 if (t == LWJSON_STREAM_TYPE_OBJECT) {
                     SEND_EVT(jsp, LWJSON_STREAM_TYPE_KEY);
-                    if (!prv_stack_push(jsp, LWJSON_STREAM_TYPE_KEY)) {
+                    if (prv_stack_push(jsp, LWJSON_STREAM_TYPE_KEY)) {
+                        size_t len = jsp->data.str.buff_pos;
+                        if (len > (sizeof(jsp->stack->name) - 1)) {
+                            len = sizeof(jsp->stack->name) - 1;
+                        }
+                        memcpy(jsp->stack[jsp->stack_pos - 1].name, jsp->data.str.buff, len);
+                        jsp->stack[jsp->stack_pos - 1].name[len] = '\0';
+                    } else {
+                        LWJSON_DEBUG(jsp, "Cannot push key to stack\r\n");
                         return lwjsonERRMEM;
                     }
+
                 } else if (t == LWJSON_STREAM_TYPE_KEY) {
                     SEND_EVT(jsp, LWJSON_STREAM_TYPE_STRING);
                     prv_stack_pop(jsp);
@@ -279,6 +292,8 @@ lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c) {
                 }
                 jsp->parse_state = LWJSON_STREAM_STATE_PARSING;
             } else {
+                /* TODO: Check other backslash elements */
+
                 jsp->data.str.buff[jsp->data.str.buff_pos++] = c;
                 /* TODO: If buffer lower than needed for user - send multiple events */
             }
@@ -298,10 +313,6 @@ lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c) {
             } else {
                 lwjson_stream_type_t t = prv_stack_get_top(jsp);
 
-                /* TODO: Send callback to user */
-                /* Find first type of primitive - then send */
-                //SEND_EVT(jsp, LWJSON_STREAM_TYPE_);
-
 #if defined(LWJSON_DEV)
                 if (t == LWJSON_STREAM_TYPE_OBJECT) {
                     /* TODO: Handle error - primitive cannot be just after object */
@@ -311,10 +322,37 @@ lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c) {
                     LWJSON_DEBUG(jsp, "End of primitive parsing - an array string entry: \"%s\"\r\n", jsp->data.str.buff);
                 }
 #endif /* defined(LWJSON_DEV) */
+
+                /*
+                 * This is the end of primitive parsing
+                 *
+                 * It is assumed that buffer for primitive can handle at least
+                 * true, false, null or all number characters (that being real or int number)
+                 */
+                if (jsp->data.prim.buff_pos == 4 && strncmp(jsp->data.prim.buff, "true", 4) == 0) {
+                    LWJSON_DEBUG(jsp, "Primitive parsed as %s\r\n", "true");
+                    SEND_EVT(jsp, LWJSON_STREAM_TYPE_TRUE);
+                } else if (jsp->data.prim.buff_pos == 4 && strncmp(jsp->data.prim.buff, "null", 4) == 0) {
+                    LWJSON_DEBUG(jsp, "Primitive parsed as %s\r\n", "null");
+                    SEND_EVT(jsp, LWJSON_STREAM_TYPE_NULL);
+                } else if (jsp->data.prim.buff_pos == 5 && strncmp(jsp->data.prim.buff, "false", 5) == 0) {
+                    LWJSON_DEBUG(jsp, "Primitive parsed as %s\r\n", "false");
+                    SEND_EVT(jsp, LWJSON_STREAM_TYPE_FALSE);
+                } else {
+                    LWJSON_DEBUG(jsp, "Primitive parsed - can only be a number\r\n");
+                    SEND_EVT(jsp, LWJSON_STREAM_TYPE_NUMBER);
+                }
                 if (t == LWJSON_STREAM_TYPE_KEY) {
                     prv_stack_pop(jsp);
                 }
+                
+                /* 
+                 * Received character is not part of the primitive and must be processed again
+                 * 
+                 * Set state to default state and start from beginning
+                 */
                 jsp->parse_state = LWJSON_STREAM_STATE_PARSING;
+                goto start_over;
             }
             break;
         }
@@ -324,4 +362,5 @@ lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c) {
             break;
     }
     jsp->prev_c = c;                    /* Save current c as previous for next round */
+    return lwjsonOK;
 }

@@ -150,8 +150,7 @@ typedef enum {
     LWJSON_STREAM_TYPE_TRUE,
     LWJSON_STREAM_TYPE_FALSE,
     LWJSON_STREAM_TYPE_NULL,
-    LWJSON_STREAM_TYPE_INT,
-    LWJSON_STREAM_TYPE_REAL,
+    LWJSON_STREAM_TYPE_NUMBER,
 } lwjson_stream_type_t;
 
 /**
@@ -161,6 +160,7 @@ typedef struct {
     lwjson_stream_type_t type;                  /*!< Streaming type - current value */
     char name[32];                              /*!< Last known dictionary name. Not used for array types
                                                     TODO: Add conditional compilation to decrease memory size even more */
+    uint16_t index;                             /*!< Current index when type is an array */
 } lwjson_stream_stack_t;
 
 typedef enum {

@@ -65,7 +65,9 @@ main() {
     /* Now parse as a stream */
     lwjson_stream_init(&stream_parser, jsp_stream_callback);
     for (const char* str = json_text; str != NULL && *str != '\0'; ++str) {
-        lwjson_stream_parse(&stream_parser, *str);
+        if (lwjson_stream_parse(&stream_parser, *str) != lwjsonOK) {
+            break;
+        }
     }
     return 0;
 
@@ -97,5 +99,50 @@ exit:
 
 static void
 jsp_stream_callback(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type) {
+    /* Get current weather icon */
+    if (type == LWJSON_STREAM_TYPE_STRING               /* Make sure current type is a string */
+        && jsp->stack_pos >= 6
 
+        /* Its previously parsed key has to be icon */
+        && (jsp->stack[jsp->stack_pos - 1].type == LWJSON_STREAM_TYPE_KEY && strcmp(jsp->stack[jsp->stack_pos - 1].name, "icon") == 0)
+        && (jsp->stack[jsp->stack_pos - 2].type == LWJSON_STREAM_TYPE_OBJECT)
+        && (jsp->stack[jsp->stack_pos - 3].type == LWJSON_STREAM_TYPE_ARRAY)
+        && (jsp->stack[jsp->stack_pos - 4].type == LWJSON_STREAM_TYPE_KEY && strcmp(jsp->stack[jsp->stack_pos - 4].name, "weather") == 0)
+        && (jsp->stack[jsp->stack_pos - 5].type == LWJSON_STREAM_TYPE_OBJECT)
+        && (jsp->stack[jsp->stack_pos - 6].type == LWJSON_STREAM_TYPE_KEY && strcmp(jsp->stack[jsp->stack_pos - 6].name, "current") == 0)) {
+        
+        printf("GOT ICON string for current weather: %s\r\n", jsp->data.str.buff);
+    }
+
+    /* Get hourly temperature */
+    if (type == LWJSON_STREAM_TYPE_NUMBER
+        && jsp->stack_pos >= 4
+
+        /* Get chain of previously parsed entries */
+        && (jsp->stack[jsp->stack_pos - 1].type == LWJSON_STREAM_TYPE_KEY && strcmp(jsp->stack[jsp->stack_pos - 1].name, "temp") == 0)
+        && (jsp->stack[jsp->stack_pos - 2].type == LWJSON_STREAM_TYPE_OBJECT)
+        && (jsp->stack[jsp->stack_pos - 3].type == LWJSON_STREAM_TYPE_ARRAY)
+        && (jsp->stack[jsp->stack_pos - 4].type == LWJSON_STREAM_TYPE_KEY && strcmp(jsp->stack[jsp->stack_pos - 4].name, "hourly") == 0)) {
+        
+        printf("Hour %d forecast for temperature: %s\r\n", (int)jsp->stack[jsp->stack_pos - 3].index, jsp->data.str.buff);
+    }
+
+    /* Get daily temperatures */
+    if (type == LWJSON_STREAM_TYPE_NUMBER
+        && jsp->stack_pos >= 6
+
+        /* Get chain of previously parsed entries */
+        && (jsp->stack[jsp->stack_pos - 1].type == LWJSON_STREAM_TYPE_KEY)
+        && (jsp->stack[jsp->stack_pos - 2].type == LWJSON_STREAM_TYPE_OBJECT)
+        && (jsp->stack[jsp->stack_pos - 3].type == LWJSON_STREAM_TYPE_KEY && strcmp(jsp->stack[jsp->stack_pos - 3].name, "temp") == 0)
+        && (jsp->stack[jsp->stack_pos - 4].type == LWJSON_STREAM_TYPE_OBJECT)
+        && (jsp->stack[jsp->stack_pos - 5].type == LWJSON_STREAM_TYPE_ARRAY)
+        && (jsp->stack[jsp->stack_pos - 6].type == LWJSON_STREAM_TYPE_KEY && strcmp(jsp->stack[jsp->stack_pos - 6].name, "daily") == 0)) {
+        
+        if (strcmp(jsp->stack[jsp->stack_pos - 1].name, "min") == 0) {
+            printf("Day %d temp minimum: %s\r\n", (int)jsp->stack[jsp->stack_pos - 5].index, jsp->data.str.buff);
+        } else if (strcmp(jsp->stack[jsp->stack_pos - 1].name, "max") == 0) {
+            printf("Day %d temp maximum: %s\r\n", (int)jsp->stack[jsp->stack_pos - 5].index, jsp->data.str.buff);
+        }
+    }
 }
