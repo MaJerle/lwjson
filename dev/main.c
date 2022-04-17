@@ -14,6 +14,7 @@ static lwjson_stream_parser_t stream_parser;
 extern void test_run(void);
 extern void example_minimal_run(void);
 extern void example_traverse_run(void);
+extern void example_stream_run(void);
 
 static void jsp_stream_callback(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type);
 
@@ -25,10 +26,11 @@ main() {
     char* json_text = NULL;
     const lwjson_token_t* tkn;
 
-    //test_run();
-    //example_minimal_run();
-    //example_traverse_run();
-    //return 0;
+    test_run();
+    example_minimal_run();
+    example_traverse_run();
+    example_stream_run();
+    return 0;
 
     printf("\n---\n");
     /* Init JSON */

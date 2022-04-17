@@ -22,6 +22,7 @@ Features
 * No recursion during parse operation
 * Re-entrant functions
 * Zero-copy, no ``malloc`` or ``free`` functions used
+* Supports streaming parsing as secondary option
 * Optional support for inline comments with `/* comment... */` syntax between any *blank* region of input string
 * Advanced find algorithm for tokens
 * Tests coverage is available

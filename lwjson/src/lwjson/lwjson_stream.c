@@ -82,8 +82,8 @@ prv_stack_push(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type) {
     if (jsp->stack_pos < LWJSON_ARRAYSIZE(jsp->stack)) {
         jsp->stack[jsp->stack_pos].type = type;
         jsp->stack[jsp->stack_pos].meta.index = 0;
-        jsp->stack_pos++;
         LWJSON_DEBUG(jsp, "Pushed to stack: %s\r\n", type_strings[type]);
+        jsp->stack_pos++;
         return 1;
     }
     return 0;
