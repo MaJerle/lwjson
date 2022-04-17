@@ -98,7 +98,10 @@ lwjson_stream_type_t
 prv_stack_pop(lwjson_stream_parser_t* jsp) {
     if (jsp->stack_pos > 0) {
         lwjson_stream_type_t t = jsp->stack[--jsp->stack_pos].type;
+        jsp->stack[jsp->stack_pos].type = LWJSON_STREAM_TYPE_NONE;
         LWJSON_DEBUG(jsp, "Popped from stack: %s\r\n", type_strings[t]);
+
+        /* Take care of array to indicate number of entries */
         if (jsp->stack_pos > 0 && jsp->stack[jsp->stack_pos - 1].type == LWJSON_STREAM_TYPE_ARRAY) {
             jsp->stack[jsp->stack_pos - 1].index++;
         }
