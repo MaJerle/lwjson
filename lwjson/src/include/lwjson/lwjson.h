@@ -159,7 +159,7 @@ typedef enum {
 typedef struct {
     lwjson_stream_type_t type;                  /*!< Streaming type - current value */
     union {   
-        char name[32];                          /*!< Last known key name, used only for \ref LWJSON_STREAM_TYPE_KEY type */
+        char name[LWJSON_CFG_STREAM_KEY_MAX_LEN + 1];   /*!< Last known key name, used only for \ref LWJSON_STREAM_TYPE_KEY type */
         uint16_t index;                         /*!< Current index when type is an array */
     } meta;                                     /*!< Meta information */
 } lwjson_stream_stack_t;
@@ -194,11 +194,11 @@ typedef struct lwjson_stream_parser {
     /* State */
     union {
         struct {
-            char buff[512];                     /*!< Buffer to write temporary data. TODO: Size to be variable with define */
+            char buff[LWJSON_CFG_STREAM_STRING_MAX_LEN + 1];    /*!< Buffer to write temporary data. TODO: Size to be variable with define */
             size_t buff_pos;                    /*!< Buffer position for next write (length of bytes in buffer) */
         } str;                                  /*!< String structure */
         struct {
-            char buff[32];                      /*!< Temporary write buffer */
+            char buff[LWJSON_CFG_STREAM_PRIMITIVE_MAX_LEN + 1]; /*!< Temporary write buffer */
             size_t buff_pos;                    /*!< Buffer position for next write */
         } prim;                                 /*!< Primitive object */
         /* Todo: Add other types */
