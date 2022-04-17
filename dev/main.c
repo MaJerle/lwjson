@@ -99,25 +99,100 @@ exit:
 
 static void
 jsp_stream_callback(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type) {
-    /* Get current weather icon */
-    if (type == LWJSON_STREAM_TYPE_STRING               /* Make sure current type is a string */
-        && jsp->stack_pos >= 6
+#if 0
+    if (jsp->stack_pos >= 4
+        && (type == LWJSON_STREAM_TYPE_STRING || type == LWJSON_STREAM_TYPE_NUMBER)
+        && jsp->stack[0].type == LWJSON_STREAM_TYPE_OBJECT
+        && jsp->stack[1].type == LWJSON_STREAM_TYPE_KEY
+        && jsp->stack[2].type == LWJSON_STREAM_TYPE_ARRAY
+        && jsp->stack[3].type == LWJSON_STREAM_TYPE_ARRAY
+        && strcmp(jsp->stack[1].name, "array_in_array") == 0) {
+        printf("Index: %u, Index: %u, value: %s\r\n",
+            (int)jsp->stack[2].index, (int)jsp->stack[3].index,
+            jsp->data.str.buff
+        );
+    }
+    return;
+#endif
 
-        /* Its previously parsed key has to be icon */
-        && (jsp->stack[jsp->stack_pos - 1].type == LWJSON_STREAM_TYPE_KEY && strcmp(jsp->stack[jsp->stack_pos - 1].name, "icon") == 0)
-        && (jsp->stack[jsp->stack_pos - 2].type == LWJSON_STREAM_TYPE_OBJECT)
-        && (jsp->stack[jsp->stack_pos - 3].type == LWJSON_STREAM_TYPE_ARRAY)
-        && (jsp->stack[jsp->stack_pos - 4].type == LWJSON_STREAM_TYPE_KEY && strcmp(jsp->stack[jsp->stack_pos - 4].name, "weather") == 0)
-        && (jsp->stack[jsp->stack_pos - 5].type == LWJSON_STREAM_TYPE_OBJECT)
-        && (jsp->stack[jsp->stack_pos - 6].type == LWJSON_STREAM_TYPE_KEY && strcmp(jsp->stack[jsp->stack_pos - 6].name, "current") == 0)) {
-        
-        printf("GOT ICON string for current weather: %s\r\n", jsp->data.str.buff);
+    /* 
+     * Take care of key-value pairs immediately at the start of object
+     *
+     * Values such as latitude and longitude are parsed here
+     */
+    if (jsp->stack_pos == 2
+        && jsp->stack[0].type == LWJSON_STREAM_TYPE_OBJECT
+        && jsp->stack[1].type == LWJSON_STREAM_TYPE_KEY) {
+
+        if (strcmp(jsp->stack[1].name, "lat") == 0) {
+            printf("Latitude weather: %f\r\n", strtod(jsp->data.str.buff, NULL));
+        } else if (strcmp(jsp->stack[1].name, "lon") == 0) {
+            printf("Longitude weather: %f\r\n", strtod(jsp->data.str.buff, NULL));
+        } else if (strcmp(jsp->stack[1].name, "timezone_offset") == 0) {
+            printf("Timezone offset: %u\r\n", (unsigned)atoll(jsp->data.str.buff));
+        } else if (strcmp(jsp->stack[1].name, "timezone") == 0) {
+            printf("Timezone: %s\r\n", jsp->data.str.buff);
+        }
     }
 
     /*
-     * Chcek for hourly forecast
-     *
-     * Define the stack sequence which gives us to this point
+     * Handle current object - single object with multiple key-value pairs
+     */
+    if (jsp->stack_pos >= 4
+        && jsp->stack[0].type == LWJSON_STREAM_TYPE_OBJECT
+        && jsp->stack[1].type == LWJSON_STREAM_TYPE_KEY
+        && jsp->stack[2].type == LWJSON_STREAM_TYPE_OBJECT
+        && jsp->stack[3].type == LWJSON_STREAM_TYPE_KEY) {
+        /* Check for current weather */
+        if (strcmp(jsp->stack[1].name, "current") == 0) {
+            /*
+             * Process the "weather part"
+             */
+            if (jsp->stack_pos >= 7
+                && jsp->stack[4].type == LWJSON_STREAM_TYPE_ARRAY
+                && jsp->stack[5].type == LWJSON_STREAM_TYPE_OBJECT
+                && jsp->stack[6].type == LWJSON_STREAM_TYPE_KEY
+                && strcmp(jsp->stack[3].name, "weather") == 0) {
+                
+                if (strcmp(jsp->stack[6].name, "id") == 0) {
+                    printf("Current weather %d id: %u\r\n", (int)jsp->stack[4].index, (unsigned)atoll(jsp->data.str.buff));
+                } else if (strcmp(jsp->stack[6].name, "main") == 0) {
+                    printf("Current weather %d main: %s\r\n", (int)jsp->stack[4].index, jsp->data.str.buff);
+                } else if (strcmp(jsp->stack[6].name, "description") == 0) {
+                    printf("Current weather %d description: %s\r\n", (int)jsp->stack[4].index, jsp->data.str.buff);
+                } else if (strcmp(jsp->stack[6].name, "icon") == 0) {
+                    printf("Current weather %d icon: %s\r\n", (int)jsp->stack[4].index, jsp->data.str.buff);
+                }
+            } else if (strcmp(jsp->stack[3].name, "dt") == 0) {
+                printf("Current weather dt: %u\r\n", (unsigned)atoll(jsp->data.str.buff));
+            } else if (strcmp(jsp->stack[3].name, "sunrise") == 0) {
+                printf("Current weather sunrise: %u\r\n", (unsigned)atoll(jsp->data.str.buff));
+            } else if (strcmp(jsp->stack[3].name, "sunset") == 0) {
+                printf("Current weather sunset: %u\r\n", (unsigned)atoll(jsp->data.str.buff));
+            } else if (strcmp(jsp->stack[3].name, "temp") == 0) {
+                printf("Current weather temp: %f\r\n", strtod(jsp->data.str.buff, NULL));
+            } else if (strcmp(jsp->stack[3].name, "feels_like") == 0) {
+                printf("Current weather feels_like: %f\r\n", strtod(jsp->data.str.buff, NULL));
+            } else if (strcmp(jsp->stack[3].name, "pressure") == 0) {
+                printf("Current weather pressure: %u\r\n", (unsigned)atoll(jsp->data.str.buff));
+            } else if (strcmp(jsp->stack[3].name, "humidity") == 0) {
+                printf("Current weather humidity: %u\r\n", (unsigned)atoll(jsp->data.str.buff));
+            } else if (strcmp(jsp->stack[3].name, "uvi") == 0) {
+                printf("Current weather uvi: %u\r\n", (unsigned)atoll(jsp->data.str.buff));
+            } else if (strcmp(jsp->stack[3].name, "clouds") == 0) {
+                printf("Current weather clouds: %u\r\n", (unsigned)atoll(jsp->data.str.buff));
+            } else if (strcmp(jsp->stack[3].name, "visibility") == 0) {
+                printf("Current weather visibility: %u\r\n", (unsigned)atoll(jsp->data.str.buff));
+            } else if (strcmp(jsp->stack[3].name, "wind_speed") == 0) {
+                printf("Current weather wind_speed: %f\r\n", strtod(jsp->data.str.buff, NULL));
+            } else if (strcmp(jsp->stack[3].name, "wind_deg") == 0) {
+                printf("Current weather wind_deg: %u\r\n", (unsigned)atoll(jsp->data.str.buff));
+            }
+        }
+    }
+
+    /* 
+     * Process the various object in specific JSON order
      */
     if (jsp->stack_pos >= 5
         /* First build the order... */
@@ -125,79 +200,76 @@ jsp_stream_callback(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type) {
         && jsp->stack[1].type == LWJSON_STREAM_TYPE_KEY
         && jsp->stack[2].type == LWJSON_STREAM_TYPE_ARRAY
         && jsp->stack[3].type == LWJSON_STREAM_TYPE_OBJECT
-        && jsp->stack[4].type == LWJSON_STREAM_TYPE_KEY
-
-        /* .. then analyze the strings */
-        && strcmp(jsp->stack[1].name, "hourly") == 0) {
-
-        if (strcmp(jsp->stack[4].name, "dt") == 0) {
-            printf("Hour %d forecast for dt: %u\r\n", (int)jsp->stack[jsp->stack_pos - 3].index, (unsigned)atoll(jsp->data.str.buff));
-        } else if (strcmp(jsp->stack[4].name, "temp") == 0) {
-            printf("Hour %d forecast for temp: %f\r\n", (int)jsp->stack[jsp->stack_pos - 3].index, strtod(jsp->data.str.buff, NULL));
-        } else if (strcmp(jsp->stack[4].name, "feels_like") == 0) {
-            printf("Hour %d forecast for feels_like: %f\r\n", (int)jsp->stack[jsp->stack_pos - 3].index, strtod(jsp->data.str.buff, NULL));
-        } else if (strcmp(jsp->stack[4].name, "pressure") == 0) {
-            printf("Hour %d forecast for pressure: %d\r\n", (int)jsp->stack[jsp->stack_pos - 3].index, (int)atoll(jsp->data.str.buff));
-        } else if (strcmp(jsp->stack[4].name, "humidity") == 0) {
-            printf("Hour %d forecast for humidity: %d\r\n", (int)jsp->stack[jsp->stack_pos - 3].index, (int)atoll(jsp->data.str.buff));
-        }
-    }
-
-    /* Get daily temperatures */
-    if (jsp->stack_pos >= 5
-        /* First build the order... */
-        && jsp->stack[0].type == LWJSON_STREAM_TYPE_OBJECT
-        && jsp->stack[1].type == LWJSON_STREAM_TYPE_KEY
-        && jsp->stack[2].type == LWJSON_STREAM_TYPE_ARRAY
-        && jsp->stack[3].type == LWJSON_STREAM_TYPE_OBJECT
-        && jsp->stack[4].type == LWJSON_STREAM_TYPE_KEY
-
-        /* .. then analyze the strings */
-        && strcmp(jsp->stack[1].name, "daily") == 0) {
+        && jsp->stack[4].type == LWJSON_STREAM_TYPE_KEY) {
         
-        /* Analyze objects for temp and feels like object */
-        if (jsp->stack_pos >= 7
-            && jsp->stack[5].type == LWJSON_STREAM_TYPE_OBJECT
-            && jsp->stack[6].type == LWJSON_STREAM_TYPE_KEY) {
-            if (strcmp(jsp->stack[4].name, "temp") == 0) {
-                /* Parsing of temp object */    
-                if (strcmp(jsp->stack[6].name, "min") == 0) {
-                    printf("Day %d temp min: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
-                } else if (strcmp(jsp->stack[6].name, "max") == 0) {
-                    printf("Day %d temp max: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
-                } else if (strcmp(jsp->stack[6].name, "day") == 0) {
-                    printf("Day %d temp day: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
-                } else if (strcmp(jsp->stack[6].name, "night") == 0) {
-                    printf("Day %d temp night: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
-                } else if (strcmp(jsp->stack[6].name, "eve") == 0) {
-                    printf("Day %d temp eve: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
-                } else if (strcmp(jsp->stack[6].name, "morn") == 0) {
-                    printf("Day %d temp morn: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
+        /*
+         * Handle daily forecast objects
+         */
+        if (strcmp(jsp->stack[1].name, "daily") == 0) {
+            /* Analyze objects for temp and feels like object */
+            if (jsp->stack_pos >= 7
+                && jsp->stack[5].type == LWJSON_STREAM_TYPE_OBJECT
+                && jsp->stack[6].type == LWJSON_STREAM_TYPE_KEY) {
+                if (strcmp(jsp->stack[4].name, "temp") == 0) {
+                    /* Parsing of temp object */    
+                    if (strcmp(jsp->stack[6].name, "min") == 0) {
+                        printf("Day %2d temp min: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
+                    } else if (strcmp(jsp->stack[6].name, "max") == 0) {
+                        printf("Day %2d temp max: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
+                    } else if (strcmp(jsp->stack[6].name, "day") == 0) {
+                        printf("Day %2d temp day: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
+                    } else if (strcmp(jsp->stack[6].name, "night") == 0) {
+                        printf("Day %2d temp night: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
+                    } else if (strcmp(jsp->stack[6].name, "eve") == 0) {
+                        printf("Day %2d temp eve: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
+                    } else if (strcmp(jsp->stack[6].name, "morn") == 0) {
+                        printf("Day %2d temp morn: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
+                    }
+                } else if (strcmp(jsp->stack[4].name, "feels_like") == 0) {
+                    /* Parsing of feels-like objects */
+                    if (strcmp(jsp->stack[6].name, "day") == 0) {
+                        printf("Day %2d temp_feels_like day: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
+                    } else if (strcmp(jsp->stack[6].name, "night") == 0) {
+                        printf("Day %2d temp_feels_like night: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
+                    } else if (strcmp(jsp->stack[6].name, "eve") == 0) {
+                        printf("Day %2d temp_feels_like eve: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
+                    } else if (strcmp(jsp->stack[6].name, "morn") == 0) {
+                        printf("Day %2d temp_feels_like morn: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
+                    }
                 }
-            } else if (strcmp(jsp->stack[4].name, "feels_like") == 0) {
-                /* Parsing of feels-like objects */
-                if (strcmp(jsp->stack[6].name, "day") == 0) {
-                    printf("Day %d temp_feels_like day: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
-                } else if (strcmp(jsp->stack[6].name, "night") == 0) {
-                    printf("Day %d temp_feels_like night: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
-                } else if (strcmp(jsp->stack[6].name, "eve") == 0) {
-                    printf("Day %d temp_feels_like eve: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
-                } else if (strcmp(jsp->stack[6].name, "morn") == 0) {
-                    printf("Day %d temp_feels_like morn: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
-                }
+            } else if (strcmp(jsp->stack[jsp->stack_pos - 1].name, "dt") == 0) {
+                printf("Day %2d dt: %u\r\n", (int)jsp->stack[2].index, (unsigned)atoll(jsp->data.str.buff));
+            } else if (strcmp(jsp->stack[jsp->stack_pos - 1].name, "pressure") == 0) {
+                printf("Day %2d pressure: %u\r\n", (int)jsp->stack[2].index, (unsigned)atoll(jsp->data.str.buff));
+            } else if (strcmp(jsp->stack[jsp->stack_pos - 1].name, "humidity") == 0) {
+                printf("Day %2d humidity: %u\r\n", (int)jsp->stack[2].index, (unsigned)atoll(jsp->data.str.buff));
+            } else if (strcmp(jsp->stack[jsp->stack_pos - 1].name, "clouds") == 0) {
+                printf("Day %2d clouds: %u\r\n", (int)jsp->stack[2].index, (unsigned)atoll(jsp->data.str.buff));
+            } else if (strcmp(jsp->stack[jsp->stack_pos - 1].name, "snow") == 0) {
+                printf("Day %2d snow: %f\r\n", (int)jsp->stack[2].index, strtod(jsp->data.str.buff, NULL));
+            } else if (strcmp(jsp->stack[jsp->stack_pos - 1].name, "rain") == 0) {
+                printf("Day %2d rain: %f\r\n", (int)jsp->stack[2].index, strtod(jsp->data.str.buff, NULL));
+            } else if (strcmp(jsp->stack[jsp->stack_pos - 1].name, "uvi") == 0) {
+                printf("Day %2d uvi: %f\r\n", (int)jsp->stack[2].index, strtod(jsp->data.str.buff, NULL));
             }
-        } else if (strcmp(jsp->stack[4].name, "dt") == 0) {
-            printf("Day %d dt: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
-        } else if (strcmp(jsp->stack[4].name, "pressure") == 0) {
-            printf("Day %d pressure: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
-        } else if (strcmp(jsp->stack[4].name, "humidity") == 0) {
-            printf("Day %d humidity: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
-        } else if (strcmp(jsp->stack[4].name, "clouds") == 0) {
-            printf("Day %d clouds: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
-        } else if (strcmp(jsp->stack[4].name, "snow") == 0) {
-            printf("Day %d snow: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
-        } else if (strcmp(jsp->stack[4].name, "uvi") == 0) {
-            printf("Day %d uvi: %s\r\n", (int)jsp->stack[2].index, jsp->data.str.buff);
+        } else if (strcmp(jsp->stack[1].name, "hourly") == 0) {
+            if (strcmp(jsp->stack[4].name, "dt") == 0) {
+                printf("Hour %2d forecast for dt: %u\r\n", (int)jsp->stack[jsp->stack_pos - 3].index, (unsigned)atoll(jsp->data.str.buff));
+            } else if (strcmp(jsp->stack[4].name, "temp") == 0) {
+                printf("Hour %2d forecast for temp: %f\r\n", (int)jsp->stack[jsp->stack_pos - 3].index, strtod(jsp->data.str.buff, NULL));
+            } else if (strcmp(jsp->stack[4].name, "feels_like") == 0) {
+                printf("Hour %2d forecast for feels_like: %f\r\n", (int)jsp->stack[jsp->stack_pos - 3].index, strtod(jsp->data.str.buff, NULL));
+            } else if (strcmp(jsp->stack[4].name, "pressure") == 0) {
+                printf("Hour %2d forecast for pressure: %d\r\n", (int)jsp->stack[jsp->stack_pos - 3].index, (int)atoll(jsp->data.str.buff));
+            } else if (strcmp(jsp->stack[4].name, "humidity") == 0) {
+                printf("Hour %2d forecast for humidity: %d\r\n", (int)jsp->stack[jsp->stack_pos - 3].index, (int)atoll(jsp->data.str.buff));
+            }
+        } else if (strcmp(jsp->stack[1].name, "minutely") == 0) {
+            if (strcmp(jsp->stack[4].name, "dt") == 0) {
+                printf("Minute %2d forecast for dt: %u\r\n", (int)jsp->stack[jsp->stack_pos - 3].index, (unsigned)atoll(jsp->data.str.buff));
+            } else if (strcmp(jsp->stack[4].name, "precipitation") == 0) {
+                printf("Minute %2d forecast for precipitation: %u\r\n", (int)jsp->stack[jsp->stack_pos - 3].index, (unsigned)atoll(jsp->data.str.buff));
+            }
         }
     }
 }
