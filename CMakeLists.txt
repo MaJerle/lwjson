@@ -20,6 +20,9 @@ add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/dev/main.c
     ${CMAKE_CURRENT_LIST_DIR}/test/test.c
+    ${CMAKE_CURRENT_LIST_DIR}/examples/example_minimal.c
+    ${CMAKE_CURRENT_LIST_DIR}/examples/example_traverse.c
+    ${CMAKE_CURRENT_LIST_DIR}/examples/example_stream.c
     )
 
 # Add key include paths

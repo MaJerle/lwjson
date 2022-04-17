@@ -107,6 +107,10 @@ typedef enum {
     lwjsonERRJSON,                              /*!< Error JSON format */
     lwjsonERRMEM,                               /*!< Memory error */
     lwjsonERRPAR,                               /*!< Parameter error */
+
+    lwjsonSTREAMNONE,                           /*!< No new info to process - parsing in progress */
+    lwjsonSTREAMINPROGRESS,                     /*!< Stream token parsing is in progress */
+    lwjsonSTREAMDONE,                           /*!< Streaming parser is done */
 } lwjsonr_t;
 
 /**
@@ -131,6 +135,79 @@ lwjsonr_t               lwjson_free(lwjson_t* lw);
 
 void                    lwjson_print_token(const lwjson_token_t* token);
 void                    lwjson_print_json(const lwjson_t* lw);
+
+/**
+ * \brief           Object type for streaming parser
+ */
+typedef enum {
+    LWJSON_STREAM_TYPE_NONE,
+    LWJSON_STREAM_TYPE_OBJECT,
+    LWJSON_STREAM_TYPE_OBJECT_END,
+    LWJSON_STREAM_TYPE_ARRAY,
+    LWJSON_STREAM_TYPE_ARRAY_END,
+    LWJSON_STREAM_TYPE_KEY,
+    LWJSON_STREAM_TYPE_STRING,
+    LWJSON_STREAM_TYPE_TRUE,
+    LWJSON_STREAM_TYPE_FALSE,
+    LWJSON_STREAM_TYPE_NULL,
+    LWJSON_STREAM_TYPE_NUMBER,
+} lwjson_stream_type_t;
+
+/**
+ * \brief           Stream parsing stack object
+ */
+typedef struct {
+    lwjson_stream_type_t type;                  /*!< Streaming type - current value */
+    union {   
+        char name[LWJSON_CFG_STREAM_KEY_MAX_LEN + 1];   /*!< Last known key name, used only for \ref LWJSON_STREAM_TYPE_KEY type */
+        uint16_t index;                         /*!< Current index when type is an array */
+    } meta;                                     /*!< Meta information */
+} lwjson_stream_stack_t;
+
+typedef enum {
+    LWJSON_STREAM_STATE_WAITINGFIRSTCHAR = 0x00,/*!< State to wait for very first opening character */ 
+    LWJSON_STREAM_STATE_PARSING,                /*!< In parsing of the first char state - detecting next character state */
+    LWJSON_STREAM_STATE_PARSING_STRING,         /*!< Parse string primitive */
+    LWJSON_STREAM_STATE_PARSING_PRIMITIVE,      /*!< Parse any primitive that is non-string, either "true", "false", "null" or a number */
+} lwjson_stream_state_t;
+
+/* Forward declaration */
+struct lwjson_stream_parser;
+
+/**
+ * \brief           Callback function for various events
+ * 
+ */
+typedef void (*lwjson_stream_parser_callback_fn)(struct lwjson_stream_parser* jsp, lwjson_stream_type_t type);
+
+/**
+ * \brief           LwJSON streaming structure
+ */
+typedef struct lwjson_stream_parser {
+    lwjson_stream_stack_t stack[16];            /*!< Stack used for parsing. TODO: Add conditional compilation flag */
+    size_t stack_pos;                           /*!< Current stack position */
+    
+    lwjson_stream_state_t parse_state;          /*!< Parser state */
+
+    lwjson_stream_parser_callback_fn evt_fn;    /*!< Event function for user */
+
+    /* State */
+    union {
+        struct {
+            char buff[LWJSON_CFG_STREAM_STRING_MAX_LEN + 1];    /*!< Buffer to write temporary data. TODO: Size to be variable with define */
+            size_t buff_pos;                    /*!< Buffer position for next write (length of bytes in buffer) */
+        } str;                                  /*!< String structure */
+        struct {
+            char buff[LWJSON_CFG_STREAM_PRIMITIVE_MAX_LEN + 1]; /*!< Temporary write buffer */
+            size_t buff_pos;                    /*!< Buffer position for next write */
+        } prim;                                 /*!< Primitive object */
+        /* Todo: Add other types */
+    } data;                                     /*!< Data union used to parse various */
+    char prev_c;                                /*!< History of characters */
+} lwjson_stream_parser_t;
+
+lwjsonr_t lwjson_stream_init(lwjson_stream_parser_t* jsp, lwjson_stream_parser_callback_fn evt_fn);
+lwjsonr_t lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c);
 
 /**
  * \brief           Get number of tokens used to parse JSON

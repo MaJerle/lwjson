@@ -12,7 +12,7 @@
             "miDebuggerPath": "c:\\msys64\\mingw64\\bin\\gdb.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}",
             "environment": [],
             "console": "integratedTerminal"
         }
