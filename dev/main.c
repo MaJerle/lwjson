@@ -237,6 +237,21 @@ jsp_stream_callback(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type) {
                         printf("Day %2d temp_feels_like morn: %s\r\n", (int)jsp->stack[2].meta.index, jsp->data.str.buff);
                     }
                 }
+            } else if (jsp->stack_pos >= 8
+                && jsp->stack[5].type == LWJSON_STREAM_TYPE_ARRAY
+                && jsp->stack[6].type == LWJSON_STREAM_TYPE_OBJECT
+                && jsp->stack[7].type == LWJSON_STREAM_TYPE_KEY
+                && strcmp(jsp->stack[4].meta.name, "weather") == 0) {
+                
+                if (strcmp(jsp->stack[7].meta.name, "id") == 0) {
+                    printf("Day %2d weather %2d id: %s\r\n", (int)jsp->stack[2].meta.index, (int)jsp->stack[5].meta.index, jsp->data.str.buff);
+                } else if (strcmp(jsp->stack[7].meta.name, "main") == 0) {
+                    printf("Day %2d weather %2d main: %s\r\n", (int)jsp->stack[2].meta.index, (int)jsp->stack[5].meta.index, jsp->data.str.buff);
+                } else if (strcmp(jsp->stack[7].meta.name, "description") == 0) {
+                    printf("Day %2d weather %2d description: %s\r\n", (int)jsp->stack[2].meta.index, (int)jsp->stack[5].meta.index, jsp->data.str.buff);
+                } else if (strcmp(jsp->stack[7].meta.name, "icon") == 0) {
+                    printf("Day %2d weather %2d icon: %s\r\n", (int)jsp->stack[2].meta.index, (int)jsp->stack[5].meta.index, jsp->data.str.buff);
+                }
             } else if (strcmp(jsp->stack[jsp->stack_pos - 1].meta.name, "dt") == 0) {
                 printf("Day %2d dt: %u\r\n", (int)jsp->stack[2].meta.index, (unsigned)atoll(jsp->data.str.buff));
             } else if (strcmp(jsp->stack[jsp->stack_pos - 1].meta.name, "pressure") == 0) {
@@ -253,7 +268,22 @@ jsp_stream_callback(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type) {
                 printf("Day %2d uvi: %f\r\n", (int)jsp->stack[2].meta.index, strtod(jsp->data.str.buff, NULL));
             }
         } else if (strcmp(jsp->stack[1].meta.name, "hourly") == 0) {
-            if (strcmp(jsp->stack[4].meta.name, "dt") == 0) {
+            if (jsp->stack_pos >= 8
+                && jsp->stack[5].type == LWJSON_STREAM_TYPE_ARRAY
+                && jsp->stack[6].type == LWJSON_STREAM_TYPE_OBJECT
+                && jsp->stack[7].type == LWJSON_STREAM_TYPE_KEY
+                && strcmp(jsp->stack[4].meta.name, "weather") == 0) {
+                
+                if (strcmp(jsp->stack[7].meta.name, "id") == 0) {
+                    printf("Hour %2d weather %2d id: %s\r\n", (int)jsp->stack[2].meta.index, (int)jsp->stack[5].meta.index, jsp->data.str.buff);
+                } else if (strcmp(jsp->stack[7].meta.name, "main") == 0) {
+                    printf("Hour %2d weather %2d main: %s\r\n", (int)jsp->stack[2].meta.index, (int)jsp->stack[5].meta.index, jsp->data.str.buff);
+                } else if (strcmp(jsp->stack[7].meta.name, "description") == 0) {
+                    printf("Hour %2d weather %2d description: %s\r\n", (int)jsp->stack[2].meta.index, (int)jsp->stack[5].meta.index, jsp->data.str.buff);
+                } else if (strcmp(jsp->stack[7].meta.name, "icon") == 0) {
+                    printf("Hour %2d weather %2d icon: %s\r\n", (int)jsp->stack[2].meta.index, (int)jsp->stack[5].meta.index, jsp->data.str.buff);
+                }
+            }else if (strcmp(jsp->stack[4].meta.name, "dt") == 0) {
                 printf("Hour %2d forecast for dt: %u\r\n", (int)jsp->stack[jsp->stack_pos - 3].meta.index, (unsigned)atoll(jsp->data.str.buff));
             } else if (strcmp(jsp->stack[4].meta.name, "temp") == 0) {
                 printf("Hour %2d forecast for temp: %f\r\n", (int)jsp->stack[jsp->stack_pos - 3].meta.index, strtod(jsp->data.str.buff, NULL));
