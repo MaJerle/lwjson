@@ -34,7 +34,7 @@ main() {
     /* Init JSON */
     lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
 
-    f = CreateFile(TEXT("test\\json\\custom_stream.json"),
+    f = CreateFile(TEXT("test\\json\\weather_onecall.json"),
         GENERIC_READ,             // open for reading
         0,                        // do not share
         NULL,                     // no security
