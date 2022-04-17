@@ -81,7 +81,7 @@ uint8_t
 prv_stack_push(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type) {
     if (jsp->stack_pos < LWJSON_ARRAYSIZE(jsp->stack)) {
         jsp->stack[jsp->stack_pos].type = type;
-        jsp->stack[jsp->stack_pos].index = 0;
+        jsp->stack[jsp->stack_pos].meta.index = 0;
         jsp->stack_pos++;
         LWJSON_DEBUG(jsp, "Pushed to stack: %s\r\n", type_strings[type]);
         return 1;
@@ -103,7 +103,7 @@ prv_stack_pop(lwjson_stream_parser_t* jsp) {
 
         /* Take care of array to indicate number of entries */
         if (jsp->stack_pos > 0 && jsp->stack[jsp->stack_pos - 1].type == LWJSON_STREAM_TYPE_ARRAY) {
-            jsp->stack[jsp->stack_pos - 1].index++;
+            jsp->stack[jsp->stack_pos - 1].meta.index++;
         }
         return t;
     }
@@ -276,11 +276,11 @@ start_over:
                     SEND_EVT(jsp, LWJSON_STREAM_TYPE_KEY);
                     if (prv_stack_push(jsp, LWJSON_STREAM_TYPE_KEY)) {
                         size_t len = jsp->data.str.buff_pos;
-                        if (len > (sizeof(jsp->stack->name) - 1)) {
-                            len = sizeof(jsp->stack->name) - 1;
+                        if (len > (sizeof(jsp->stack[0].meta.name) - 1)) {
+                            len = sizeof(jsp->stack[0].meta.name) - 1;
                         }
-                        memcpy(jsp->stack[jsp->stack_pos - 1].name, jsp->data.str.buff, len);
-                        jsp->stack[jsp->stack_pos - 1].name[len] = '\0';
+                        memcpy(jsp->stack[jsp->stack_pos - 1].meta.name, jsp->data.str.buff, len);
+                        jsp->stack[jsp->stack_pos - 1].meta.name[len] = '\0';
                     } else {
                         LWJSON_DEBUG(jsp, "Cannot push key to stack\r\n");
                         return lwjsonERRMEM;
@@ -292,7 +292,7 @@ start_over:
                     /* Next character to wait for is either space or comma or end of object */
                 } else if (t == LWJSON_STREAM_TYPE_ARRAY) {
                     SEND_EVT(jsp, LWJSON_STREAM_TYPE_STRING);
-                    jsp->stack[jsp->stack_pos - 1].index++;
+                    jsp->stack[jsp->stack_pos - 1].meta.index++;
                 }
                 jsp->parse_state = LWJSON_STREAM_STATE_PARSING;
             } else {
@@ -349,7 +349,7 @@ start_over:
                 if (t == LWJSON_STREAM_TYPE_KEY) {
                     prv_stack_pop(jsp);
                 } else if (t == LWJSON_STREAM_TYPE_ARRAY) {
-                    jsp->stack[jsp->stack_pos - 1].index++;
+                    jsp->stack[jsp->stack_pos - 1].meta.index++;
                 }
                 
                 /* 
