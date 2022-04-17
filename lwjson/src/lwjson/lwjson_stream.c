@@ -292,6 +292,7 @@ start_over:
                     /* Next character to wait for is either space or comma or end of object */
                 } else if (t == LWJSON_STREAM_TYPE_ARRAY) {
                     SEND_EVT(jsp, LWJSON_STREAM_TYPE_STRING);
+                    jsp->stack[jsp->stack_pos - 1].index++;
                 }
                 jsp->parse_state = LWJSON_STREAM_STATE_PARSING;
             } else {
@@ -347,6 +348,8 @@ start_over:
                 }
                 if (t == LWJSON_STREAM_TYPE_KEY) {
                     prv_stack_pop(jsp);
+                } else if (t == LWJSON_STREAM_TYPE_ARRAY) {
+                    jsp->stack[jsp->stack_pos - 1].index++;
                 }
                 
                 /* 
