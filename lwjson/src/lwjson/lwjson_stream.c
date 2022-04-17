@@ -34,7 +34,7 @@
 #include <string.h>
 #include "lwjson/lwjson.h"
 
-#if defined(LWJSON_DEVV)
+#if defined(LWJSON_DEV)
 #include <stdio.h>
 #define DEBUG_STRING_PREFIX_SPACES          "                                                                                                "
 #define LWJSON_DEBUG(jsp, ...)              do {    \
