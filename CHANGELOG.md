@@ -6,6 +6,7 @@
 - Change license year to 2022
 - Fix GCC warning for incompatible comparison types
 - Update code style with astyle
+- Add support for stream parsing
 
 ## 1.5.0
 
