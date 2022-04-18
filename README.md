@@ -1,6 +1,8 @@
 # Lightweight JSON text parser
 
-Library provides generic JSON text parser.
+Library provides generic JSON text parser, that is optimized for embedded systems.
+Supports `streaming` parsing or classic parsing with full JSON data available in one big linear memory.
+First one being optimized for ultra small microcontrollers, second one being ready for PC applications - or simply when several kB of RAM memory is available at any given point of time
 
 <h3>Read first: <a href="http://docs.majerle.eu/projects/lwjson/">Documentation</a></h3>
 
