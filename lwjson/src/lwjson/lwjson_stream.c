@@ -162,7 +162,7 @@ start_over:
          */
         case LWJSON_STREAM_STATE_WAITINGFIRSTCHAR:
         case LWJSON_STREAM_STATE_PARSING: {
-            /* Determine start or object or an array */
+            /* Determine start of object or an array */
             if (c == '{' || c == '[') {
                 if (!prv_stack_push(jsp, c == '{' ? LWJSON_STREAM_TYPE_OBJECT : LWJSON_STREAM_TYPE_ARRAY)) {
                     LWJSON_DEBUG(jsp, "Cannot push object/array to stack\r\n");
@@ -171,7 +171,7 @@ start_over:
                 jsp->parse_state = LWJSON_STREAM_STATE_PARSING;
                 SEND_EVT(jsp, c == '{' ? LWJSON_STREAM_TYPE_OBJECT : LWJSON_STREAM_TYPE_ARRAY);
 
-            /* Determine end or object or an array */
+            /* Determine end of object or an array */
             } else if (c == '}' || c == ']') {
                 lwjson_stream_type_t t = prv_stack_get_top(jsp);
 
