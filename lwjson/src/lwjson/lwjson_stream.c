@@ -164,6 +164,10 @@ start_over:
         case LWJSON_STREAM_STATE_PARSING: {
             /* Determine start of object or an array */
             if (c == '{' || c == '[') {
+                /* Reset stack pointer if this character came from waiting for first character */
+                if (jsp->parse_state == LWJSON_STREAM_STATE_WAITINGFIRSTCHAR) {
+                    jsp->stack_pos = 0;
+                }
                 if (!prv_stack_push(jsp, c == '{' ? LWJSON_STREAM_TYPE_OBJECT : LWJSON_STREAM_TYPE_ARRAY)) {
                     LWJSON_DEBUG(jsp, "Cannot push object/array to stack\r\n");
                     return lwjsonERRMEM;
