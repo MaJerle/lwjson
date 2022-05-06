@@ -184,6 +184,16 @@ start_over:
                     return lwjsonERRJSON;
                 }
 
+                /*
+                 * Check if closing character matches stack value
+                 * Avoid cases like: {"key":"value"] or ["v1", "v2", "v3"}
+                 */
+                if ((c == '}' && t != LWJSON_STREAM_TYPE_OBJECT)
+                    || (c == ']' && t != LWJSON_STREAM_TYPE_ARRAY)) {
+                    LWJSON_DEBUG(jsp, "ERROR - closing character '%c' does not match stack element \"%s\"\r\n", c, type_strings[t]);
+                    return lwjsonERRJSON;
+                }
+
                 /* Now remove the array or object from stack */
                 if (!prv_stack_pop(jsp)) {
                     return lwjsonERRMEM;
@@ -254,9 +264,6 @@ start_over:
              */
             if (c == '"' && jsp->prev_c != '\\') {
                 lwjson_stream_type_t t = prv_stack_get_top(jsp);
-                
-                /* TODO: Send callback to user */
-
 #if defined(LWJSON_DEV)
                 if (t == LWJSON_STREAM_TYPE_OBJECT) {
                     LWJSON_DEBUG(jsp, "End of string parsing - object key name: \"%s\"\r\n", jsp->data.str.buff);
