@@ -26,6 +26,8 @@ main() {
     char* json_text = NULL;
     const lwjson_token_t* tkn;
 
+    (void)token_cnt;
+
     test_run();
     example_minimal_run();
     example_traverse_run();
@@ -101,6 +103,7 @@ exit:
 
 static void
 jsp_stream_callback(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type) {
+    (void)type;
 #if 0
     if (jsp->stack_pos >= 4
         && (type == LWJSON_STREAM_TYPE_STRING || type == LWJSON_STREAM_TYPE_NUMBER)

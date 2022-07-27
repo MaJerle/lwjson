@@ -23,12 +23,12 @@ target_sources(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/examples/example_minimal.c
     ${CMAKE_CURRENT_LIST_DIR}/examples/example_traverse.c
     ${CMAKE_CURRENT_LIST_DIR}/examples/example_stream.c
-    )
+)
 
 # Add key include paths
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/dev
-    )
+)
 
 # Compilation definition information
 target_compile_definitions(${PROJECT_NAME} PUBLIC
@@ -36,7 +36,14 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
     _DEBUG
     CONSOLE
     LWJSON_DEV
-    )
+)
+
+# Compiler options
+target_compile_options(${PROJECT_NAME} PRIVATE
+    -Wall
+    -Wextra
+    -Wpedantic
+)
 
 # Add subdir with lwjson and link to project
 add_subdirectory("lwjson" lwjson)
