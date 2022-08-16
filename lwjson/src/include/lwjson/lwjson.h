@@ -140,17 +140,17 @@ void                    lwjson_print_json(const lwjson_t* lw);
  * \brief           Object type for streaming parser
  */
 typedef enum {
-    LWJSON_STREAM_TYPE_NONE,
-    LWJSON_STREAM_TYPE_OBJECT,
-    LWJSON_STREAM_TYPE_OBJECT_END,
-    LWJSON_STREAM_TYPE_ARRAY,
-    LWJSON_STREAM_TYPE_ARRAY_END,
-    LWJSON_STREAM_TYPE_KEY,
-    LWJSON_STREAM_TYPE_STRING,
-    LWJSON_STREAM_TYPE_TRUE,
-    LWJSON_STREAM_TYPE_FALSE,
-    LWJSON_STREAM_TYPE_NULL,
-    LWJSON_STREAM_TYPE_NUMBER,
+    LWJSON_STREAM_TYPE_NONE,                    /*!< No entry - not used */
+    LWJSON_STREAM_TYPE_OBJECT,                  /*!< Object indication */
+    LWJSON_STREAM_TYPE_OBJECT_END,              /*!< Object end indication */
+    LWJSON_STREAM_TYPE_ARRAY,                   /*!< Array indication */
+    LWJSON_STREAM_TYPE_ARRAY_END,               /*!< Array end indication */
+    LWJSON_STREAM_TYPE_KEY,                     /*!< Key string */
+    LWJSON_STREAM_TYPE_STRING,                  /*!< Strin type */
+    LWJSON_STREAM_TYPE_TRUE,                    /*!< True primitive */
+    LWJSON_STREAM_TYPE_FALSE,                   /*!< False primitive */
+    LWJSON_STREAM_TYPE_NULL,                    /*!< Null primitive */
+    LWJSON_STREAM_TYPE_NUMBER,                  /*!< Generic number */
 } lwjson_stream_type_t;
 
 /**
@@ -184,7 +184,7 @@ typedef void (*lwjson_stream_parser_callback_fn)(struct lwjson_stream_parser* js
  * \brief           LwJSON streaming structure
  */
 typedef struct lwjson_stream_parser {
-    lwjson_stream_stack_t stack[16];            /*!< Stack used for parsing. TODO: Add conditional compilation flag */
+    lwjson_stream_stack_t stack[LWJSON_CFG_STREAM_STACK_SIZE];  /*!< Stack used for parsing */
     size_t stack_pos;                           /*!< Current stack position */
     
     lwjson_stream_state_t parse_state;          /*!< Parser state */
