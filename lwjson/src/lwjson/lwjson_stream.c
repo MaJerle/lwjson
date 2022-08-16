@@ -200,7 +200,7 @@ start_over:
 
                 /* Now remove the array or object from stack */
                 if (!prv_stack_pop(jsp)) {
-                    return lwjsonERRMEM;
+                    return lwjsonERRJSON;
                 }
 
                 /*
