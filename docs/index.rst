@@ -72,6 +72,7 @@ Table of contents
     get-started/index
     user-manual/index
     api-reference/index
+    changelog/index
 
 .. toctree::
     :maxdepth: 2
