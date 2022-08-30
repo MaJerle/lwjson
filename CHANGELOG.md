@@ -7,6 +7,7 @@
 - Fix GCC warning for incompatible comparison types
 - Update code style with astyle
 - Add support for stream parsing - first version
+- Add `.clang-format` draft
 
 ## 1.5.0
 
