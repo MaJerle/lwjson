@@ -59,7 +59,7 @@ extern "C" {
  * This is used for numbers in \ref LWJSON_TYPE_NUM_REAL token data type.
  */
 #ifndef LWJSON_CFG_REAL_TYPE
-#define LWJSON_CFG_REAL_TYPE                    float
+#define LWJSON_CFG_REAL_TYPE float
 #endif
 
 /**
@@ -69,7 +69,7 @@ extern "C" {
  * This is used for numbers in \ref LWJSON_TYPE_NUM_INT token data type.
  */
 #ifndef LWJSON_CFG_INT_TYPE
-#define LWJSON_CFG_INT_TYPE                     long long
+#define LWJSON_CFG_INT_TYPE long long
 #endif
 
 /**
@@ -78,7 +78,7 @@ extern "C" {
  * Default set to `0` to be JSON compliant
  */
 #ifndef LWJSON_CFG_COMMENTS
-#define LWJSON_CFG_COMMENTS                     0
+#define LWJSON_CFG_COMMENTS 0
 #endif
 
 /**
@@ -92,7 +92,7 @@ extern "C" {
  * 
  */
 #ifndef LWJSON_CFG_STREAM_KEY_MAX_LEN
-#define LWJSON_CFG_STREAM_KEY_MAX_LEN           32
+#define LWJSON_CFG_STREAM_KEY_MAX_LEN 32
 #endif
 
 /**
@@ -100,7 +100,7 @@ extern "C" {
  * 
  */
 #ifndef LWJSON_CFG_STREAM_STACK_SIZE
-#define LWJSON_CFG_STREAM_STACK_SIZE            16
+#define LWJSON_CFG_STREAM_STACK_SIZE 16
 #endif
 
 /**
@@ -108,7 +108,7 @@ extern "C" {
  * 
  */
 #ifndef LWJSON_CFG_STREAM_STRING_MAX_LEN
-#define LWJSON_CFG_STREAM_STRING_MAX_LEN        256
+#define LWJSON_CFG_STREAM_STRING_MAX_LEN 256
 #endif
 
 /**
@@ -117,7 +117,7 @@ extern "C" {
  * Primitives are all numbers and logical values (null, true, false)
  */
 #ifndef LWJSON_CFG_STREAM_PRIMITIVE_MAX_LEN
-#define LWJSON_CFG_STREAM_PRIMITIVE_MAX_LEN     32
+#define LWJSON_CFG_STREAM_PRIMITIVE_MAX_LEN 32
 #endif
 
 /**
