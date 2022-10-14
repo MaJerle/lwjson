@@ -34,8 +34,8 @@
 #ifndef LWJSON_HDR_H
 #define LWJSON_HDR_H
 
-#include <stdint.h>
 #include <string.h>
+#include <stdint.h>
 #include "lwjson/lwjson_opt.h"
 
 #ifdef __cplusplus
@@ -190,8 +190,9 @@ typedef void (*lwjson_stream_parser_callback_fn)(struct lwjson_stream_parser* js
  * \brief           LwJSON streaming structure
  */
 typedef struct lwjson_stream_parser {
-    lwjson_stream_stack_t stack[LWJSON_CFG_STREAM_STACK_SIZE]; /*!< Stack used for parsing */
-    size_t stack_pos;                                          /*!< Current stack position */
+    lwjson_stream_stack_t
+        stack[LWJSON_CFG_STREAM_STACK_SIZE]; /*!< Stack used for parsing. TODO: Add conditional compilation flag */
+    size_t stack_pos;                        /*!< Current stack position */
 
     lwjson_stream_state_t parse_state; /*!< Parser state */
 
@@ -201,14 +202,17 @@ typedef struct lwjson_stream_parser {
     union {
         struct {
             char buff[LWJSON_CFG_STREAM_STRING_MAX_LEN
-                      + 1];  /*!< Buffer to write temporary data. TODO: Size to be variable with define */
-            size_t buff_pos; /*!< Buffer position for next write (length of bytes in buffer) */
-        } str;               /*!< String structure */
+                      + 1];        /*!< Buffer to write temporary data. TODO: Size to be variable with define */
+            size_t buff_pos;       /*!< Buffer position for next write (length of bytes in buffer) */
+            size_t buff_total_pos; /*!< Total buffer position used up to now (in several data chunks) */
+            uint8_t is_last;       /*!< Status indicates if this is the last part of the string */
+        } str;                     /*!< String structure. It is only used for keys and string objects.
+                                        Use primitive part for all other options */
 
         struct {
             char buff[LWJSON_CFG_STREAM_PRIMITIVE_MAX_LEN + 1]; /*!< Temporary write buffer */
             size_t buff_pos;                                    /*!< Buffer position for next write */
-        } prim;                                                 /*!< Primitive object */
+        } prim; /*!< Primitive object. Used for all types, except key or string */
 
         /* Todo: Add other types */
     } data; /*!< Data union used to parse various */

@@ -264,6 +264,8 @@ start_over:
          * It is used for key or string in an object or an array
          */
         case LWJSON_STREAM_STATE_PARSING_STRING: {
+            lwjson_stream_type_t t = prv_stack_get_top(jsp);
+
             /* 
              * Quote character may trigger end of string, 
              * or if backslasled before - it is part of string
@@ -271,7 +273,6 @@ start_over:
              * TODO: Handle backslash
              */
             if (c == '"' && jsp->prev_c != '\\') {
-                lwjson_stream_type_t t = prv_stack_get_top(jsp);
 #if defined(LWJSON_DEV)
                 if (t == LWJSON_STREAM_TYPE_OBJECT) {
                     LWJSON_DEBUG(jsp, "End of string parsing - object key name: \"%s\"\r\n", jsp->data.str.buff);
@@ -283,6 +284,9 @@ start_over:
                     LWJSON_DEBUG(jsp, "End of string parsing - an array string entry: \"%s\"\r\n", jsp->data.str.buff);
                 }
 #endif /* defined(LWJSON_DEV) */
+
+                /* Set is_last to 1 as this is the last part of this string token */
+                jsp->data.str.is_last = 1;
 
                 /*
                  * When top of stack is object - string is treated as a key
@@ -302,7 +306,6 @@ start_over:
                         LWJSON_DEBUG(jsp, "Cannot push key to stack\r\n");
                         return lwjsonERRMEM;
                     }
-
                 } else if (t == LWJSON_STREAM_TYPE_KEY) {
                     SEND_EVT(jsp, LWJSON_STREAM_TYPE_STRING);
                     prv_stack_pop(jsp);
@@ -314,9 +317,22 @@ start_over:
                 jsp->parse_state = LWJSON_STREAM_STATE_PARSING;
             } else {
                 /* TODO: Check other backslash elements */
-
                 jsp->data.str.buff[jsp->data.str.buff_pos++] = c;
-                /* TODO: If buffer lower than needed for user - send multiple events */
+                jsp->data.str.buff_total_pos++;
+
+                /* Handle buffer "overflow" */
+                if (jsp->data.str.buff_pos >= (LWJSON_CFG_STREAM_STRING_MAX_LEN - 1)) {
+                    jsp->data.str.buff[jsp->data.str.buff_pos] = '\0';
+
+                    /* 
+                     * - For array or key types - following one is always string
+                     * - For object type - character is key
+                     */
+                    SEND_EVT(jsp, (t == LWJSON_STREAM_TYPE_KEY || t == LWJSON_STREAM_TYPE_ARRAY)
+                                      ? LWJSON_STREAM_TYPE_STRING
+                                      : LWJSON_STREAM_TYPE_KEY);
+                    jsp->data.str.buff_pos = 0;
+                }
             }
             break;
         }
@@ -340,10 +356,10 @@ start_over:
                     LWJSON_DEBUG(
                         jsp,
                         "End of primitive parsing - string value associated to previous key in an object: \"%s\"\r\n",
-                        jsp->data.str.buff);
+                        jsp->data.prim.buff);
                 } else if (t == LWJSON_STREAM_TYPE_ARRAY) {
                     LWJSON_DEBUG(jsp, "End of primitive parsing - an array string entry: \"%s\"\r\n",
-                                 jsp->data.str.buff);
+                                 jsp->data.prim.buff);
                 }
 #endif /* defined(LWJSON_DEV) */
 
@@ -362,9 +378,12 @@ start_over:
                 } else if (jsp->data.prim.buff_pos == 5 && strncmp(jsp->data.prim.buff, "false", 5) == 0) {
                     LWJSON_DEBUG(jsp, "Primitive parsed as %s\r\n", "false");
                     SEND_EVT(jsp, LWJSON_STREAM_TYPE_FALSE);
-                } else {
-                    LWJSON_DEBUG(jsp, "Primitive parsed - can only be a number\r\n");
+                } else if (jsp->data.prim.buff[0] == '-'
+                           || (jsp->data.prim.buff[0] >= '0' && jsp->data.prim.buff[0] <= '9')) {
+                    LWJSON_DEBUG(jsp, "Primitive parsed - number\r\n");
                     SEND_EVT(jsp, LWJSON_STREAM_TYPE_NUMBER);
+                } else {
+                    LWJSON_DEBUG(jsp, "Invalid primitive type. Got: %s\r\n", jsp->data.prim.buff);
                 }
                 if (t == LWJSON_STREAM_TYPE_KEY) {
                     prv_stack_pop(jsp);

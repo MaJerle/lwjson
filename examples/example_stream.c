@@ -15,12 +15,13 @@ static lwjson_stream_parser_t stream_parser;
 void
 prv_example_callback_func(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type) {
     /* Get a value corresponsing to "k1" key */
-    if (jsp->stack_pos >= 2             /* Number of stack entries must be high */
-        && jsp->stack[0].type == LWJSON_STREAM_TYPE_OBJECT  /* First must be object */
-        && jsp->stack[1].type == LWJSON_STREAM_TYPE_KEY /* We need key to be before */
+    if (jsp->stack_pos >= 2                                /* Number of stack entries must be high */
+        && jsp->stack[0].type == LWJSON_STREAM_TYPE_OBJECT /* First must be object */
+        && jsp->stack[1].type == LWJSON_STREAM_TYPE_KEY    /* We need key to be before */
         && strcmp(jsp->stack[1].meta.name, "k1") == 0) {
         printf("Got key '%s' with value '%s'\r\n", jsp->stack[1].meta.name, jsp->data.str.buff);
     }
+    (void)type;
 }
 
 /* Parse JSON */
@@ -30,7 +31,7 @@ example_stream_run(void) {
     lwjson_stream_init(&stream_parser, prv_example_callback_func);
 
     /* Demonstrate as stream inputs */
-    for (const char *c = json_str; *c != '\0'; ++c) {
+    for (const char* c = json_str; *c != '\0'; ++c) {
         if (lwjson_stream_parse(&stream_parser, *c) != lwjsonOK) {
             printf("ERROR\r\n");
             return;

@@ -2,6 +2,7 @@
     "lat": 45.5709,
     "lon": 15.193,
     "timezone": "Europe/Ljubljana",
+    "base64_str": "TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdC4gRHVpcyBxdWlzIGRpYW0gbm9uIG5pc2wgZGljdHVtIGZlcm1lbnR1bS4gTWFlY2VuYXMgdnVscHV0YXRlIGVyYXQgc2VkIHNvbGxpY2l0dWRpbiBpbXBlcmRpZXQuIFN1c3BlbmRpc3NlIGV1IG1hdXJpcyBhdWd1ZS4gUGVsbGVudGVzcXVlIHZhcml1cyBkYXBpYnVzIGR1aSwgbm9uIHZlaGljdWxhIGxpYmVybyB2YXJpdXMgZXUuIFBlbGxlbnRlc3F1ZSBjb25ndWUgbmliaCBwdXJ1cywgaW4gYWxpcXVldCBsaWd1bGEgdml2ZXJyYSBhYy4gSW50ZWdlciBzZWQgbmlzbCBldSBlcm9zIHNhZ2l0dGlzIGNvbmRpbWVudHVtIHZlbCBzaXQgYW1ldCBsZW8uIE51bGxhbSBzZWQgZmluaWJ1cyBuaWJoLiBDbGFzcyBhcHRlbnQgdGFjaXRpIHNvY2lvc3F1IGFkIGxpdG9yYSB0b3JxdWVudCBwZXIgY29udWJpYSBub3N0cmEsIHBlciBpbmNlcHRvcyBoaW1lbmFlb3MuIEFsaXF1YW0gdmVsIHNvZGFsZXMganVzdG8sIGV0IHBvc3VlcmUgbWFnbmEuIEV0aWFtIGVsZW1lbnR1bSBmZWxpcyB1dCBsZWN0dXMgdGluY2lkdW50IGdyYXZpZGEuIE51bGxhbSBmYXVjaWJ1cyBhbGlxdWV0IHRlbGx1cyB2aXRhZSBzb2RhbGVzLiBBbGlxdWFtIHNjZWxlcmlzcXVlIGZlcm1lbnR1bSB2dWxwdXRhdGUuIEN1cmFiaXR1ciBzaXQgYW1ldCBlcmF0IGhlbmRyZXJpdCwgdWx0cmljZXMgbWV0dXMgc2l0IGFtZXQsIG1hbGVzdWFkYSBuaXNsLiBDdXJhYml0dXIgZXUgdG9ydG9yIG1hbGVzdWFkYSBmZWxpcyB2aXZlcnJhIHB1bHZpbmFyLiBOdWxsYSBlbGVtZW50dW0gdmVsIHVybmEgaWQgcGhhcmV0cmEuCgpBbGlxdWFtIHVsdHJpY2VzIHNpdCBhbWV0IGxhY3VzIHNlZCBiaWJlbmR1bS4gSW4gY29udmFsbGlzIGVyYXQgdmVsIGRpYW0gbGFjaW5pYSB1bHRyaWNpZXMuIFNlZCBhdCBjb25ndWUgbmlzaS4gRnVzY2UgdmFyaXVzIGxhY2luaWEgbGVvLCB2aXRhZSB0ZW1wdXMgbGVvIG1heGltdXMgZXQuIE51bGxhIG5lYyBkYXBpYnVzIGVyb3MuIEV0aWFtIGF0IGZlcm1lbnR1bSByaXN1cywgYWMgcHJldGl1bSBmZWxpcy4gRnVzY2UgcXVpcyBqdXN0byBhbGlxdWFtLCBmaW5pYnVzIG1ldHVzIGlkLCBzb2RhbGVzIG1hdXJpcy4gQ3JhcyB2ZXN0aWJ1bHVtIHB1cnVzIHF1YW0sIGlkIHZlc3RpYnVsdW0gbnVuYyBjb252YWxsaXMgZXQuIE1hZWNlbmFzIGp1c3RvIGxvcmVtLCB2YXJpdXMgYSBsYW9yZWV0IGVnZXQsIGZpbmlidXMgZXUgbGlndWxhLiBQcmFlc2VudCBmYWNpbGlzaXMsIG1pIGJsYW5kaXQgbW9sZXN0aWUgYXVjdG9yLCB0ZWxsdXMgc2VtIHVsdHJpY2llcyBuZXF1ZSwgdml0YWUgdm9sdXRwYXQgZW5pbSBsZW8gZXQgYXVndWUuIFBoYXNlbGx1cyB2ZXN0aWJ1bHVtIGNvbnNlY3RldHVyIGNvbW1vZG8uCgpEb25lYyBmZXJtZW50dW0gb2RpbyBldSBwdXJ1cyBpbnRlcmR1bSB0cmlzdGlxdWUuIER1aXMgaGVuZHJlcml0IG5lcXVlIGRvbG9yLCB1dCBjb25zZXF1YXQgc2VtIHBvcnRhIHF1aXMuIENyYXMgZGljdHVtIGNvbmd1ZSBpbnRlcmR1bS4gVXQgbmVjIGR1aSBpbiBhdWd1ZSBsYW9yZWV0IHRpbmNpZHVudCBzaXQgYW1ldCBhIGxhY3VzLiBWaXZhbXVzIGZyaW5naWxsYSBvcmNpIGF0IHZpdmVycmEgdGluY2lkdW50LiBEdWlzIGF1Y3RvciwgZmVsaXMgdm9sdXRwYXQgdGVtcHVzIGNvbW1vZG8sIGxlbyBwdXJ1cyBjb25ndWUgbGVjdHVzLCBldCBtb2xsaXMgZW5pbSBhbnRlIHF1aXMgdXJuYS4gVmVzdGlidWx1bSBxdWlzIG1hZ25hIGEgdmVsaXQgZGlnbmlzc2ltIGV1aXNtb2QgbGFjaW5pYSBpbiBlbmltLiBJbiBtYXR0aXMgc2VkIGRpYW0gbmVjIGF1Y3Rvci4gRnVzY2Ugc2l0IGFtZXQgZXN0IHR1cnBpcy4gSW4gZXUgdG9ydG9yIGVyb3MuIENyYXMgbG9ib3J0aXMgZGFwaWJ1cyBzZW0gbmVjIGxhY2luaWEuIFN1c3BlbmRpc3NlIG1hZ25hIGFyY3UsIHJ1dHJ1bSB1dCBkaWN0dW0gc2VkLCBzY2VsZXJpc3F1ZSBpbiBlbGl0LiBEdWlzIHZ1bHB1dGF0ZSBjdXJzdXMgZWZmaWNpdHVyLiBQZWxsZW50ZXNxdWUgYmxhbmRpdCBmZXJtZW50dW0gZXN0LiBDcmFzIHZhcml1cyBpcHN1bSB1cm5hLCBhIGhlbmRyZXJpdCBzYXBpZW4gcnV0cnVtIGF0LiBOYW0gZ3JhdmlkYSBxdWlzIG1pIGV0IGF1Y3Rvci4KCkRvbmVjIHBvcnRhIG1hdXJpcyBzaXQgYW1ldCB2aXZlcnJhIHVsdHJpY2VzLiBEb25lYyBsdWN0dXMgcHJldGl1bSBvcmNpIGV0IG9ybmFyZS4gTW9yYmkgYWMgbGFjdXMgYWxpcXVhbSwgY3Vyc3VzIHB1cnVzIHZpdGFlLCBncmF2aWRhIGRvbG9yLiBGdXNjZSBzZWQgdmVsaXQgbW9sbGlzLCBzZW1wZXIgbGlndWxhIGlkLCBtYXR0aXMgc2VtLiBWZXN0aWJ1bHVtIHVsdHJpY2llcyBzZW0gbm9uIG9kaW8gaGVuZHJlcml0IGRhcGlidXMuIFBoYXNlbGx1cyB2b2x1dHBhdCBhdWd1ZSB2ZWwgbmliaCB2YXJpdXMsIGluIGRpZ25pc3NpbSBtZXR1cyBzZW1wZXIuIFN1c3BlbmRpc3NlIGxvYm9ydGlzIGxlY3R1cyBldSBxdWFtIGNvbmd1ZSwgcXVpcyB2dWxwdXRhdGUgYXJjdSBiaWJlbmR1bS4gU3VzcGVuZGlzc2UgdGVtcHVzIG1hZ25hIHZlbmVuYXRpcyBwdXJ1cyB2ZXN0aWJ1bHVtIGlhY3VsaXMuIE51bGxhbSBpbnRlcmR1bSB0cmlzdGlxdWUgbmVxdWUgZWdldCBlZmZpY2l0dXIuIER1aXMgZmluaWJ1cywgdmVsaXQgdWxsYW1jb3JwZXIgc2NlbGVyaXNxdWUgaGVuZHJlcml0LCBuaXNpIG51bmMgbGFvcmVldCBkb2xvciwgdGVtcHVzIHJ1dHJ1bSBhbnRlIGxlbyBhIGxlY3R1cy4gRG9uZWMgdml0YWUgcG9ydGEgbG9yZW0sIGVnZXQgc3VzY2lwaXQgbGVjdHVzLiBNYXVyaXMgYWMgbGVvIG1pLiBNYXVyaXMgZXVpc21vZCBzZW0gZXUgbGlndWxhIGNvbnNlY3RldHVyIGNvbmRpbWVudHVtLgoKTW9yYmkgdWxsYW1jb3JwZXIgdm9sdXRwYXQgbWFzc2Egbm9uIGFsaXF1ZXQuIE1hdXJpcyB2aXRhZSBmcmluZ2lsbGEgbWF1cmlzLiBTZWQgbmliaCBtYWduYSwgdmVuZW5hdGlzIHF1aXMgbWF4aW11cyBhdCwgbWF0dGlzIG5lYyBudW5jLiBVdCByaG9uY3VzIGFudGUgYXQgZGFwaWJ1cyBmYWNpbGlzaXMuIEN1cmFiaXR1ciBhY2N1bXNhbiBpZCBhdWd1ZSBuZWMgbGFjaW5pYS4gUGhhc2VsbHVzIGNvbnNlcXVhdCBoZW5kcmVyaXQgbWFzc2EuIEFsaXF1YW0gbHVjdHVzIGVmZmljaXR1ciBjb25zZWN0ZXR1ci4gSW50ZWdlciBmZXJtZW50dW0gc2FwaWVuIGZldWdpYXQgZmVsaXMgdmVoaWN1bGEsIG5vbiBlbGVtZW50dW0gbnVsbGEgZ3JhdmlkYS4gSW4gdmVsIHVsdHJpY2llcyBleC4gUHJhZXNlbnQgcGhhcmV0cmEgYSB0dXJwaXMgdml0YWUgbGFvcmVldC4gRXRpYW0gYWNjdW1zYW4gc2VtcGVyIHR1cnBpcyBlZ2V0IHBvcnR0aXRvci4gUGhhc2VsbHVzIGFjIGZlbGlzIGV1IHR1cnBpcyBtYXhpbXVzIG1vbGxpcy4gRG9uZWMgY3Vyc3VzIGRpYW0gbmVjIGp1c3RvIGZhY2lsaXNpcywgc2VkIG1vbGxpcyBudWxsYSBoZW5kcmVyaXQuIE5hbSBydXRydW0sIG1hc3NhIG5vbiBibGFuZGl0IHZvbHV0cGF0LCBsYWN1cyB0ZWxsdXMgYWxpcXVhbSB0b3J0b3IsIHV0IGZyaW5naWxsYSBuaWJoIHNhcGllbiB2aXRhZSBzYXBpZW4uIENsYXNzIGFwdGVudCB0YWNpdGkgc29jaW9zcXUgYWQgbGl0b3JhIHRvcnF1ZW50IHBlciBjb251YmlhIG5vc3RyYSwgcGVyIGluY2VwdG9zIGhpbWVuYWVvcy4=",
     "timezone_offset": 7200,
     "current": {
         "dt": 1650206004,
@@ -293,7 +294,8 @@
                     "main": "Clouds",
                     "description": "overcast clouds",
                     "icon": "04d"
-                },{
+                },
+                {
                     "id": 804,
                     "main": "Clouds",
                     "description": "overcast clouds",
@@ -988,7 +990,8 @@
                     "main": "Clouds",
                     "description": "overcast clouds",
                     "icon": "04n"
-                },{
+                },
+                {
                     "id": 804,
                     "main": "Clouds",
                     "description": "overcast clouds",
@@ -1016,7 +1019,8 @@
                     "main": "Clouds",
                     "description": "overcast clouds",
                     "icon": "04n"
-                },{
+                },
+                {
                     "id": 804,
                     "main": "Clouds",
                     "description": "overcast clouds",
@@ -1044,7 +1048,8 @@
                     "main": "Clouds",
                     "description": "overcast clouds",
                     "icon": "04n"
-                },{
+                },
+                {
                     "id": 804,
                     "main": "Clouds",
                     "description": "overcast clouds",
@@ -1072,7 +1077,8 @@
                     "main": "Clouds",
                     "description": "overcast clouds",
                     "icon": "04n"
-                },{
+                },
+                {
                     "id": 804,
                     "main": "Clouds",
                     "description": "overcast clouds",
@@ -1100,7 +1106,8 @@
                     "main": "Clouds",
                     "description": "overcast clouds",
                     "icon": "04n"
-                },{
+                },
+                {
                     "id": 804,
                     "main": "Clouds",
                     "description": "overcast clouds",
@@ -1128,7 +1135,8 @@
                     "main": "Clouds",
                     "description": "broken clouds",
                     "icon": "04n"
-                },{
+                },
+                {
                     "id": 804,
                     "main": "Clouds",
                     "description": "overcast clouds",
@@ -1156,7 +1164,8 @@
                     "main": "Clouds",
                     "description": "broken clouds",
                     "icon": "04n"
-                },{
+                },
+                {
                     "id": 804,
                     "main": "Clouds",
                     "description": "overcast clouds",
@@ -1184,7 +1193,8 @@
                     "main": "Clouds",
                     "description": "overcast clouds",
                     "icon": "04n"
-                },{
+                },
+                {
                     "id": 804,
                     "main": "Clouds",
                     "description": "overcast clouds",
@@ -1212,7 +1222,8 @@
                     "main": "Clouds",
                     "description": "overcast clouds",
                     "icon": "04n"
-                },{
+                },
+                {
                     "id": 804,
                     "main": "Clouds",
                     "description": "overcast clouds",
@@ -1240,7 +1251,8 @@
                     "main": "Clouds",
                     "description": "overcast clouds",
                     "icon": "04d"
-                },{
+                },
+                {
                     "id": 804,
                     "main": "Clouds",
                     "description": "overcast clouds",
@@ -1468,7 +1480,8 @@
                     "main": "Clouds",
                     "description": "scattered clouds",
                     "icon": "03d"
-                },{
+                },
+                {
                     "id": 804,
                     "main": "Clouds",
                     "description": "overcast clouds",
@@ -1512,7 +1525,8 @@
                     "main": "Clouds",
                     "description": "scattered clouds",
                     "icon": "03d"
-                },{
+                },
+                {
                     "id": 804,
                     "main": "Clouds",
                     "description": "overcast clouds",
@@ -1556,7 +1570,8 @@
                     "main": "Clouds",
                     "description": "overcast clouds",
                     "icon": "04d"
-                },{
+                },
+                {
                     "id": 804,
                     "main": "Clouds",
                     "description": "overcast clouds",
@@ -1600,7 +1615,8 @@
                     "main": "Rain",
                     "description": "moderate rain",
                     "icon": "10d"
-                },{
+                },
+                {
                     "id": 804,
                     "main": "Clouds",
                     "description": "overcast clouds",
@@ -1645,7 +1661,8 @@
                     "main": "Clouds",
                     "description": "overcast clouds",
                     "icon": "04d"
-                },{
+                },
+                {
                     "id": 804,
                     "main": "Clouds",
                     "description": "overcast clouds",
@@ -1689,7 +1706,8 @@
                     "main": "Rain",
                     "description": "moderate rain",
                     "icon": "10d"
-                },{
+                },
+                {
                     "id": 804,
                     "main": "Clouds",
                     "description": "overcast clouds",
@@ -1734,7 +1752,8 @@
                     "main": "Rain",
                     "description": "light rain",
                     "icon": "10d"
-                },{
+                },
+                {
                     "id": 804,
                     "main": "Clouds",
                     "description": "overcast clouds",
@@ -1779,7 +1798,8 @@
                     "main": "Rain",
                     "description": "light rain",
                     "icon": "10d"
-                },{
+                },
+                {
                     "id": 804,
                     "main": "Clouds",
                     "description": "overcast clouds",
