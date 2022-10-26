@@ -27,14 +27,19 @@ prv_example_callback_func(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type
 /* Parse JSON */
 void
 example_stream_run(void) {
+    lwjsonr_t res;
     printf("\r\n\r\nParsing stream\r\n");
     lwjson_stream_init(&stream_parser, prv_example_callback_func);
 
     /* Demonstrate as stream inputs */
     for (const char* c = json_str; *c != '\0'; ++c) {
-        if (lwjson_stream_parse(&stream_parser, *c) != lwjsonOK) {
-            printf("ERROR\r\n");
-            return;
+        if ((res = lwjson_stream_parse(&stream_parser, *c)) == lwjsonOK) {
+            printf("OK\r\n");
+        } else if (res == lwjsonSTREAMDONE) {
+            printf("Done\r\n");
+        } else {
+            printf("Error\r\n");
+            break;
         }
     }
     printf("Parsing completed\r\n");

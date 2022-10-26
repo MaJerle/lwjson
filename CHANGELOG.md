@@ -8,6 +8,8 @@
 - Update code style with astyle
 - Add support for stream parsing - first version
 - Add `.clang-format` draft
+- Add `lwjsonSTREAMDONE` return code when streamer well parsed some JSON and reached end of string
+- Add option to reset stream state machine
 
 ## 1.5.0
 

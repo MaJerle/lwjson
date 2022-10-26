@@ -142,10 +142,24 @@ lwjson_stream_init(lwjson_stream_parser_t* jsp, lwjson_stream_parser_callback_fn
 }
 
 /**
+ * \brief           Reset LwJSON stream structure
+ * 
+ * \param           jsp: LwJSON stream parser
+ * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
+ */
+lwjsonr_t
+lwjson_stream_reset(lwjson_stream_parser_t* jsp) {
+    jsp->parse_state = LWJSON_STREAM_STATE_WAITINGFIRSTCHAR;
+    jsp->stack_pos = 0;
+    return lwjsonOK;
+}
+
+/**
  * \brief           Parse JSON string in streaming mode
  * \param[in,out]   jsp: Stream JSON structure 
  * \param[in]       c: Character to parse
- * \return          lwjsonr_t
+ * \return          \ref lwjsonOK if parsing is in progress and no hard error detected
+ *                  \ref lwjsonSTREAMDONE when valid JSON was detected and stack level reached back `0` level
  */
 lwjsonr_t
 lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c) {
@@ -217,6 +231,11 @@ start_over:
                     prv_stack_pop(jsp);
                 }
                 SEND_EVT(jsp, c == '}' ? LWJSON_STREAM_TYPE_OBJECT_END : LWJSON_STREAM_TYPE_ARRAY_END);
+
+                /* If that is the end of JSON */
+                if (jsp->stack_pos == 0) {
+                    return lwjsonSTREAMDONE;
+                }
 
                 /* Determine start of string - can be key or regular string (in array or after key) */
             } else if (c == '"') {

@@ -105,15 +105,12 @@ typedef struct lwjson_token {
  * \brief           JSON result enumeration
  */
 typedef enum {
-    lwjsonOK = 0x00, /*!< Function returns successfully */
-    lwjsonERR,       /*!< Generic error message */
-    lwjsonERRJSON,   /*!< Error JSON format */
-    lwjsonERRMEM,    /*!< Memory error */
-    lwjsonERRPAR,    /*!< Parameter error */
-
-    lwjsonSTREAMNONE,       /*!< No new info to process - parsing in progress */
-    lwjsonSTREAMINPROGRESS, /*!< Stream token parsing is in progress */
-    lwjsonSTREAMDONE,       /*!< Streaming parser is done */
+    lwjsonOK = 0x00,  /*!< Function returns successfully */
+    lwjsonERR,        /*!< Generic error message */
+    lwjsonERRJSON,    /*!< Error JSON format */
+    lwjsonERRMEM,     /*!< Memory error */
+    lwjsonERRPAR,     /*!< Parameter error */
+    lwjsonSTREAMDONE, /*!< Streaming parser is done */
 } lwjsonr_t;
 
 /**
@@ -221,6 +218,7 @@ typedef struct lwjson_stream_parser {
 } lwjson_stream_parser_t;
 
 lwjsonr_t lwjson_stream_init(lwjson_stream_parser_t* jsp, lwjson_stream_parser_callback_fn evt_fn);
+lwjsonr_t lwjson_stream_reset(lwjson_stream_parser_t* jsp);
 lwjsonr_t lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c);
 
 /**
