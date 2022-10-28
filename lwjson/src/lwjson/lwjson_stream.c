@@ -364,7 +364,9 @@ start_over:
         case LWJSON_STREAM_STATE_PARSING_PRIMITIVE: {
             /* Any character except space, comma, or end of array/object are valid */
             if (!prv_is_space_char_ext(c) && c != ',' && c != ']' && c != '}') {
-                jsp->data.prim.buff[jsp->data.prim.buff_pos++] = c;
+                if (jsp->data.prim.buff_pos < sizeof(jsp->data.prim.buff) - 1) {
+                    jsp->data.prim.buff[jsp->data.prim.buff_pos++] = c;
+                }
             } else {
                 lwjson_stream_type_t t = prv_stack_get_top(jsp);
 
