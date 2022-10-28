@@ -82,7 +82,7 @@ static const char* type_strings[] = {
  * \param           type: Stream type to be pushed on stack
  * \return          `1` on success, `0` otherwise
  */
-uint8_t
+static uint8_t
 prv_stack_push(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type) {
     if (jsp->stack_pos < LWJSON_ARRAYSIZE(jsp->stack)) {
         jsp->stack[jsp->stack_pos].type = type;
@@ -99,7 +99,7 @@ prv_stack_push(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type) {
  * \param           jsp: JSON stream parser instance
  * \return          Member of \ref lwjson_stream_type_t enumeration 
  */
-lwjson_stream_type_t
+static lwjson_stream_type_t
 prv_stack_pop(lwjson_stream_parser_t* jsp) {
     if (jsp->stack_pos > 0) {
         lwjson_stream_type_t t = jsp->stack[--jsp->stack_pos].type;
@@ -120,7 +120,7 @@ prv_stack_pop(lwjson_stream_parser_t* jsp) {
  * \param           jsp: JSON stream parser instance
  * \return          Member of \ref lwjson_stream_type_t enumeration 
  */
-lwjson_stream_type_t
+static lwjson_stream_type_t
 prv_stack_get_top(lwjson_stream_parser_t* jsp) {
     if (jsp->stack_pos > 0) {
         return jsp->stack[jsp->stack_pos - 1].type;
