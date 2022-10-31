@@ -39,7 +39,7 @@ main() {
     /* Init JSON */
     lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
 
-    f = CreateFile(TEXT("test\\json\\weather_onecall.json"),
+    f = CreateFile(TEXT("test\\json\\custom_stream.json"),
                    GENERIC_READ,          // open for reading
                    0,                     // do not share
                    NULL,                  // no security
@@ -70,7 +70,15 @@ main() {
     /* Now parse as a stream */
     lwjson_stream_init(&stream_parser, jsp_stream_callback);
     for (const char* str = json_text; str != NULL && *str != '\0'; ++str) {
-        if (lwjson_stream_parse(&stream_parser, *str) != lwjsonOK) {
+        lwjsonr_t res = lwjson_stream_parse(&stream_parser, *str);
+        if (res == lwjsonSTREAMWAITFIRSTCHAR) {
+            printf("Waiting valid JSON start\r\n");
+        } else if (res == lwjsonSTREAMINPROG) {
+            //printf("Stream in progress...\r\n");
+        } else if (res == lwjsonSTREAMDONE) {
+            printf("Stream is completed\r\n");
+        } else {
+            printf("Unknown error...\r\n");
             break;
         }
     }

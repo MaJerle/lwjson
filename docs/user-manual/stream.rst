@@ -50,5 +50,21 @@ An example of the stream parsing:
     :linenos:
     :caption: Parse JSON data as a stream object
 
+Example
+*******
+
+For the purpose of example, the following JSON input...
+
+.. literalinclude:: ../examples/stream.json
+    :language: json
+    :linenos:
+    :caption: JSON input for streaming
+
+\... will output the log as:
+
+.. literalinclude:: ../examples/stream_log.txt
+    :linenos:
+    :caption: JSON development log for the various events
+
 .. toctree::
     :maxdepth: 2
