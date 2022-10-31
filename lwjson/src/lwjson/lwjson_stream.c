@@ -64,6 +64,10 @@ static const char* type_strings[] = {
 #define LWJSON_DEBUG(jsp, ...)
 #endif /* defined(LWJSON_DEV) */
 
+/**
+ * \brief           Sends an event to user for further processing
+ * 
+ */
 #define SEND_EVT(jsp, type)                                                                                            \
     if ((jsp) != NULL && (jsp)->evt_fn != NULL) {                                                                      \
         (jsp)->evt_fn((jsp), (type));                                                                                  \
@@ -165,7 +169,7 @@ lwjsonr_t
 lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c) {
     /* Get first character first */
     if (jsp->parse_state == LWJSON_STREAM_STATE_WAITINGFIRSTCHAR && c != '{' && c != '[') {
-        return lwjsonOK;
+        return lwjsonSTREAMDONE;
     }
 
 start_over:
@@ -428,5 +432,5 @@ start_over:
             break;
     }
     jsp->prev_c = c; /* Save current c as previous for next round */
-    return lwjsonOK;
+    return lwjsonSTREAMINPROG;
 }

@@ -105,13 +105,20 @@ typedef struct lwjson_token {
  * \brief           JSON result enumeration
  */
 typedef enum {
-    lwjsonOK = 0x00,  /*!< Function returns successfully */
-    lwjsonERR,        /*!< Generic error message */
-    lwjsonERRJSON,    /*!< Error JSON format */
-    lwjsonERRMEM,     /*!< Memory error */
-    lwjsonERRPAR,     /*!< Parameter error */
-    lwjsonSTREAMDONE, /*!< Streaming parser is done */
-} lwjsonr_t;
+    lwjsonOK = 0x00, /*!< Function returns successfully */
+    lwjsonERR,       /*!< Generic error message */
+    lwjsonERRJSON,   /*!< Error JSON format */
+    lwjsonERRMEM,    /*!< Memory error */
+    lwjsonERRPAR,    /*!< Parameter error */
+
+    lwjsonSTREAMWAITFIRSTCHAR, /*!< Streaming parser did not yet receive first valid character
+                        indicating start of JSON sequence */
+    lwjsonSTREAMDONE,          /*!< Streaming parser is done,
+                                    closing character matched the stream opening one */
+    lwjsonSTREAMINPROG,        /*!< Stream parsing is still in progress */
+}
+
+lwjsonr_t;
 
 /**
  * \brief           LwJSON instance
