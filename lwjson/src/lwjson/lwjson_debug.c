@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2020 Tilen MAJERLE
+ * Copyright (c) 2022 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -29,17 +29,17 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.5.0
+ * Version:         v1.6.0
  */
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 #include "lwjson/lwjson.h"
 
 /**
  * \brief           Token print instance
  */
 typedef struct {
-    size_t indent;                              /*!< Indent level for token print */
+    size_t indent; /*!< Indent level for token print */
 } lwjson_token_print_t;
 
 /**
@@ -49,7 +49,7 @@ typedef struct {
  */
 static void
 prv_print_token(lwjson_token_print_t* p, const lwjson_token_t* token) {
-#define print_indent()          printf("%.*s", (int)((p->indent)), "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t");
+#define print_indent() printf("%.*s", (int)((p->indent)), "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t");
 
     if (token == NULL) {
         return;
@@ -118,7 +118,7 @@ prv_print_token(lwjson_token_print_t* p, const lwjson_token_t* token) {
  */
 void
 lwjson_print_token(const lwjson_token_t* token) {
-    lwjson_token_print_t p = { 0 };
+    lwjson_token_print_t p = {0};
     prv_print_token(&p, token);
 }
 
@@ -129,6 +129,6 @@ lwjson_print_token(const lwjson_token_t* token) {
  */
 void
 lwjson_print_json(const lwjson_t* lw) {
-    lwjson_token_print_t p = { 0 };
+    lwjson_token_print_t p = {0};
     prv_print_token(&p, lwjson_get_first_token(lw));
 }

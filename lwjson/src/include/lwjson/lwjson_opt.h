@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2020 Tilen MAJERLE
+ * Copyright (c) 2022 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.5.0
+ * Version:         v1.6.0
  */
 #ifndef LWJSON_HDR_OPT_H
 #define LWJSON_HDR_OPT_H
@@ -59,7 +59,7 @@ extern "C" {
  * This is used for numbers in \ref LWJSON_TYPE_NUM_REAL token data type.
  */
 #ifndef LWJSON_CFG_REAL_TYPE
-#define LWJSON_CFG_REAL_TYPE                float
+#define LWJSON_CFG_REAL_TYPE float
 #endif
 
 /**
@@ -69,7 +69,7 @@ extern "C" {
  * This is used for numbers in \ref LWJSON_TYPE_NUM_INT token data type.
  */
 #ifndef LWJSON_CFG_INT_TYPE
-#define LWJSON_CFG_INT_TYPE                 long long
+#define LWJSON_CFG_INT_TYPE long long
 #endif
 
 /**
@@ -78,8 +78,51 @@ extern "C" {
  * Default set to `0` to be JSON compliant
  */
 #ifndef LWJSON_CFG_COMMENTS
-#define LWJSON_CFG_COMMENTS                 0
+#define LWJSON_CFG_COMMENTS 0
 #endif
+
+/**
+ * \defgroup        LWJSON_OPT_STREAM JSON stream
+ * \brief           JSON streaming confiuration
+ * \{
+ */
+
+/**
+ * \brief           Max length of token key (object key name) to be available for stack storage
+ * 
+ */
+#ifndef LWJSON_CFG_STREAM_KEY_MAX_LEN
+#define LWJSON_CFG_STREAM_KEY_MAX_LEN 32
+#endif
+
+/**
+ * \brief           Max stack size (depth) in units of \ref lwjson_stream_stack_t structure
+ * 
+ */
+#ifndef LWJSON_CFG_STREAM_STACK_SIZE
+#define LWJSON_CFG_STREAM_STACK_SIZE 16
+#endif
+
+/**
+ * \brief           Max size of string for single parsing in units of bytes
+ * 
+ */
+#ifndef LWJSON_CFG_STREAM_STRING_MAX_LEN
+#define LWJSON_CFG_STREAM_STRING_MAX_LEN 256
+#endif
+
+/**
+ * \brief           Max number of bytes used to parse primitive.
+ * 
+ * Primitives are all numbers and logical values (null, true, false)
+ */
+#ifndef LWJSON_CFG_STREAM_PRIMITIVE_MAX_LEN
+#define LWJSON_CFG_STREAM_PRIMITIVE_MAX_LEN 32
+#endif
+
+/**
+ * \}
+ */
 
 /**
  * \}

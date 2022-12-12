@@ -22,6 +22,7 @@ Features
 * No recursion during parse operation
 * Re-entrant functions
 * Zero-copy, no ``malloc`` or ``free`` functions used
+* Supports streaming parsing as secondary option
 * Optional support for inline comments with `/* comment... */` syntax between any *blank* region of input string
 * Advanced find algorithm for tokens
 * Tests coverage is available
@@ -65,8 +66,30 @@ Table of contents
 
 .. toctree::
     :maxdepth: 2
+    :caption: Contents
 
     self
     get-started/index
     user-manual/index
     api-reference/index
+    changelog/index
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Other projects
+    :hidden:
+
+    LwBTN - Button manager <https://github.com/MaJerle/lwbtn>
+    LwDTC - DateTimeCron <https://github.com/MaJerle/lwdtc>
+    LwESP - ESP-AT library <https://github.com/MaJerle/lwesp>
+    LwEVT - Event manager <https://github.com/MaJerle/lwevt>
+    LwGPS - GPS NMEA parser <https://github.com/MaJerle/lwgps>
+    LwGSM - GSM-AT library <https://github.com/MaJerle/lwgsm>
+    LwJSON - JSON parser <https://github.com/MaJerle/lwjson>
+    LwMEM - Memory manager <https://github.com/MaJerle/lwmem>
+    LwOW - OneWire with UART <https://github.com/MaJerle/lwow>
+    LwPKT - Packet protocol <https://github.com/MaJerle/lwpkt>
+    LwPRINTF - Printf <https://github.com/MaJerle/lwprintf>
+    LwRB - Ring buffer <https://github.com/MaJerle/lwrb>
+    LwSHELL - Shell <https://github.com/MaJerle/lwshell>
+    LwUTIL - Utility functions <https://github.com/MaJerle/lwutil>

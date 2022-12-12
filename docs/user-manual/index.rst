@@ -9,3 +9,4 @@ User manual
     how-it-works
     token-design
     data-access
+    stream

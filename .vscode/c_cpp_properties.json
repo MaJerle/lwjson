@@ -1,22 +1,14 @@
 {
+    "version": 4,
     "configurations": [
         {
+            /*
+             * Full configuration is provided by CMake plugin for vscode,
+             * that shall be installed by user
+             */
             "name": "Win32",
-            "includePath": [
-                "${workspaceFolder}\\lwjson\\src\\include",
-                "${workspaceFolder}\\dev\\VisualStudio",
-                "${workspaceFolder}"
-            ],
-            "defines": [
-                "_DEBUG",
-                "UNICODE",
-                "_UNICODE"
-            ],
-            "compilerPath": "C:\\MinGW\\bin\\gcc.exe",
-            "cStandard": "gnu17",
-            "cppStandard": "gnu++14",
-            "intelliSenseMode": "windows-gcc-x86"
+            "intelliSenseMode": "${default}",
+            "configurationProvider": "ms-vscode.cmake-tools"
         }
-    ],
-    "version": 4
+    ]
 }

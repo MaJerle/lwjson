@@ -1,31 +1,33 @@
 {
-	"name": "LwJSON",
-	"version": "1.5.0",
-	"description": "Lightweight JSON parser for embedded systems with support for inline comments",
-	"keywords": "json, javascript, lightweight, parser, stm32, manager, library, comment, object, notation, object notation",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/MaJerle/lwjson.git"
-	},
-	"authors": [
-		{
-			"name": "Tilen Majerle",
-			"email": "tilen@majerle.eu",
-			"url": "https://majerle.eu"
-		}
-	],
-	"license": "MIT",
-	"homepage": "https://github.com/MaJerle/lwjson",
-	"dependencies": {
-
-	},
-	"frameworks": "*",
-	"platforms": "*",
-	"export": {
-		"exclude": [
-			"docs",
-			"**/.vs",
-			"**/Debug"
-		]
-	}
+    "name": "LwJSON",
+    "version": "1.6.0",
+    "description": "Lightweight JSON parser for embedded systems with support for inline comments",
+    "keywords": "json, javascript, lightweight, parser, stm32, manager, library, comment, object, notation, object notation",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/MaJerle/lwjson.git"
+    },
+    "authors": [
+        {
+            "name": "Tilen Majerle",
+            "email": "tilen@majerle.eu",
+            "url": "https://majerle.eu"
+        }
+    ],
+    "license": "MIT",
+    "homepage": "https://github.com/MaJerle/lwjson",
+    "dependencies": {},
+    "frameworks": "*",
+    "platforms": "*",
+    "export": {
+        "exclude": [
+            ".github",
+            "dev",
+            "docs",
+            "**/.vs",
+            "**/Debug",
+            "build",
+            "**/build"
+        ]
+    }
 }
