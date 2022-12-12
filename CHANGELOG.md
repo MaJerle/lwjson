@@ -2,12 +2,14 @@
 
 ## Develop
 
+## 1.6.0
+
 - Split CMakeLists.txt files between library and executable
 - Change license year to 2022
 - Fix GCC warning for incompatible comparison types
 - Update code style with astyle
 - Add support for stream parsing - first version
-- Add `.clang-format` draft
+- Add `.clang-format`
 - Add `lwjsonSTREAMDONE` return code when streamer well parsed some JSON and reached end of string
 - Add option to reset stream state machine
 
