@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.6.0
  */
-#ifndef LWJSON_HDR_OPT_H
-#define LWJSON_HDR_OPT_H
+#ifndef LWJSON_OPT_HDR_H
+#define LWJSON_OPT_HDR_H
 
 /* Uncomment to ignore user options (or set macro in compiler flags) */
 /* #define LWJSON_IGNORE_USER_OPTS */
@@ -132,4 +132,4 @@ extern "C" {
 }
 #endif /* __cplusplus */
 
-#endif /* LWJSON_HDR_OPT_H */
+#endif /* LWJSON_OPT_HDR_H */

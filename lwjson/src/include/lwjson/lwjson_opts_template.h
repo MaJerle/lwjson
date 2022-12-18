@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.6.0
  */
-#ifndef LWJSON_HDR_OPTS_H
-#define LWJSON_HDR_OPTS_H
+#ifndef LWJSON_OPTS_HDR_H
+#define LWJSON_OPTS_HDR_H
 
 /* Rename this file to "lwjson_opts.h" for your application */
 
@@ -41,4 +41,4 @@
  * copy & replace here settings you want to change values
  */
 
-#endif /* LWJSON_HDR_OPTS_H */
+#endif /* LWJSON_OPTS_HDR_H */
