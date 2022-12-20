@@ -134,15 +134,15 @@ typedef struct {
     } flags;                /*!< List of flags */
 } lwjson_t;
 
-lwjsonr_t lwjson_init(lwjson_t* lw, lwjson_token_t* tokens, size_t tokens_len);
-lwjsonr_t lwjson_parse_ex(lwjson_t* lw, const void* json_data, size_t len);
-lwjsonr_t lwjson_parse(lwjson_t* lw, const char* json_str);
-const lwjson_token_t* lwjson_find(lwjson_t* lw, const char* path);
-const lwjson_token_t* lwjson_find_ex(lwjson_t* lw, const lwjson_token_t* token, const char* path);
-lwjsonr_t lwjson_free(lwjson_t* lw);
+lwjsonr_t lwjson_init(lwjson_t* lwobj, lwjson_token_t* tokens, size_t tokens_len);
+lwjsonr_t lwjson_parse_ex(lwjson_t* lwobj, const void* json_data, size_t len);
+lwjsonr_t lwjson_parse(lwjson_t* lwobj, const char* json_str);
+const lwjson_token_t* lwjson_find(lwjson_t* lwobj, const char* path);
+const lwjson_token_t* lwjson_find_ex(lwjson_t* lwobj, const lwjson_token_t* token, const char* path);
+lwjsonr_t lwjson_free(lwjson_t* lwobj);
 
 void lwjson_print_token(const lwjson_token_t* token);
-void lwjson_print_json(const lwjson_t* lw);
+void lwjson_print_json(const lwjson_t* lwobj);
 
 /**
  * \brief           Object type for streaming parser
@@ -230,17 +230,17 @@ lwjsonr_t lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c);
 
 /**
  * \brief           Get number of tokens used to parse JSON
- * \param[in]       lw: Pointer to LwJSON instance
+ * \param[in]       lwobj: Pointer to LwJSON instance
  * \return          Number of tokens used to parse JSON
  */
-#define lwjson_get_tokens_used(lw) (((lw) != NULL) ? ((lw)->next_free_token_pos + 1) : 0)
+#define lwjson_get_tokens_used(lwobj) (((lwobj) != NULL) ? ((lwobj)->next_free_token_pos + 1) : 0)
 
 /**
  * \brief           Get very first token of LwJSON instance
- * \param[in]       lw: Pointer to LwJSON instance
+ * \param[in]       lwobj: Pointer to LwJSON instance
  * \return          Pointer to first token
  */
-#define lwjson_get_first_token(lw) (((lw) != NULL) ? (&(lw)->first_token) : NULL)
+#define lwjson_get_first_token(lwobj) (((lwobj) != NULL) ? (&(lwobj)->first_token) : NULL)
 
 /**
  * \brief           Get token value for \ref LWJSON_TYPE_NUM_INT type

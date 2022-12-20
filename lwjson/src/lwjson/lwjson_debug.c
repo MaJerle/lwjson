@@ -125,10 +125,10 @@ lwjson_print_token(const lwjson_token_t* token) {
 /**
  * \brief           Prints and outputs full parsed LwJSON instance
  * \note            This function is not re-entrant
- * \param[in]       lw: LwJSON instance to print
+ * \param[in]       lwobj: LwJSON instance to print
  */
 void
-lwjson_print_json(const lwjson_t* lw) {
+lwjson_print_json(const lwjson_t* lwobj) {
     lwjson_token_print_t p = {0};
-    prv_print_token(&p, lwjson_get_first_token(lw));
+    prv_print_token(&p, lwjson_get_first_token(lwobj));
 }
