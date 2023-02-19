@@ -200,8 +200,8 @@ static lwjsonr_t
 prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fout, lwjson_int_t* iout) {
     lwjsonr_t res;
     uint8_t is_minus;
-    lwjson_real_t real_num;
-    lwjson_int_t int_num;
+    lwjson_real_t real_num = 0;
+    lwjson_int_t int_num = 0;
     lwjson_type_t type = LWJSON_TYPE_NUM_INT;
 
     if ((res = prv_skip_blank(pobj)) != lwjsonOK) {
@@ -222,6 +222,9 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
     for (int_num = 0; *pobj->p >= '0' && *pobj->p <= '9'; ++pobj->p) {
         int_num = int_num * 10 + (*pobj->p - '0');
     }
+	
+	real_num = (lwjson_real_t)int_num;
+
     if (pobj->p != NULL && *pobj->p == '.') { /* Number has exponent */
         lwjson_real_t exp, dec_num;
 
