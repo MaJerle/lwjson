@@ -225,7 +225,7 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
     if (pobj->p != NULL && *pobj->p == '.') { /* Number has exponent */
         lwjson_real_t exp, dec_num;
 
-        real_num = int_num;
+        real_num = (lwjson_real_t)int_num;
 
         type = LWJSON_TYPE_NUM_REAL;            /* Format is real */
         ++pobj->p;                              /* Ignore comma character */
