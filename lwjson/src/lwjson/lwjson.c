@@ -200,7 +200,8 @@ static lwjsonr_t
 prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fout, lwjson_int_t* iout) {
     lwjsonr_t res;
     uint8_t is_minus;
-    lwjson_real_t num;
+    lwjson_real_t real_num = 0;
+    lwjson_int_t int_num = 0;
     lwjson_type_t type = LWJSON_TYPE_NUM_INT;
 
     if ((res = prv_skip_blank(pobj)) != lwjsonOK) {
@@ -218,11 +219,16 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
     }
 
     /* Parse number */
-    for (num = 0; *pobj->p >= '0' && *pobj->p <= '9'; ++pobj->p) {
-        num = num * 10 + (*pobj->p - '0');
+    for (int_num = 0; *pobj->p >= '0' && *pobj->p <= '9'; ++pobj->p) {
+        int_num = int_num * 10 + (*pobj->p - '0');
     }
+    
+    real_num = (lwjson_real_t)int_num;
+
     if (pobj->p != NULL && *pobj->p == '.') { /* Number has exponent */
         lwjson_real_t exp, dec_num;
+
+        real_num = (lwjson_real_t)int_num;
 
         type = LWJSON_TYPE_NUM_REAL;            /* Format is real */
         ++pobj->p;                              /* Ignore comma character */
@@ -233,7 +239,7 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
         for (exp = 1, dec_num = 0; *pobj->p >= '0' && *pobj->p <= '9'; ++pobj->p, exp *= 10) {
             dec_num = dec_num * 10 + (*pobj->p - '0');
         }
-        num += dec_num / exp; /* Add decimal part to number */
+        real_num += dec_num / exp; /* Add decimal part to number */
     }
     if (pobj->p != NULL && (*pobj->p == 'e' || *pobj->p == 'E')) { /* Engineering mode */
         uint8_t is_minus_exp;
@@ -255,13 +261,10 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
         }
         /* Calculate new value for exponent 10^exponent */
         if (is_minus_exp) {
-            for (; exp_cnt > 0; num /= 10, --exp_cnt) {}
+            for (; exp_cnt > 0; real_num /= 10, --exp_cnt) {}
         } else {
-            for (; exp_cnt > 0; num *= 10, --exp_cnt) {}
+            for (; exp_cnt > 0; real_num *= 10, --exp_cnt) {}
         }
-    }
-    if (is_minus) {
-        num = -num;
     }
 
     /* Write output values */
@@ -269,9 +272,9 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
         *tout = type;
     }
     if (type == LWJSON_TYPE_NUM_INT) {
-        *iout = (lwjson_int_t)num;
+        *iout = is_minus ? -int_num : int_num;
     } else {
-        *fout = num;
+        *fout = is_minus ? -real_num : real_num;
     }
     return lwjsonOK;
 }
