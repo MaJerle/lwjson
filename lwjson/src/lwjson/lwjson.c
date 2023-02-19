@@ -222,8 +222,8 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
     for (int_num = 0; *pobj->p >= '0' && *pobj->p <= '9'; ++pobj->p) {
         int_num = int_num * 10 + (*pobj->p - '0');
     }
-	
-	real_num = (lwjson_real_t)int_num;
+    
+    real_num = (lwjson_real_t)int_num;
 
     if (pobj->p != NULL && *pobj->p == '.') { /* Number has exponent */
         lwjson_real_t exp, dec_num;
