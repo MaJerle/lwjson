@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2022 Tilen MAJERLE
+ * Copyright (c) 2023 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -29,13 +29,13 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.6.0
+ * Version:         v1.6.1
  */
 #ifndef LWJSON_HDR_H
 #define LWJSON_HDR_H
 
-#include <string.h>
 #include <stdint.h>
+#include <string.h>
 #include "lwjson/lwjson_opt.h"
 
 #ifdef __cplusplus
@@ -95,8 +95,8 @@ typedef struct lwjson_token {
                 token_value_len; /*!< Length of token value (this is needed to support const input strings to parse) */
         } str;                   /*!< String data */
 
-        lwjson_real_t num_real;           /*!< Real number format */
-        lwjson_int_t num_int;             /*!< Int number format */
+        lwjson_real_t num_real;  /*!< Real number format */
+        lwjson_int_t num_int;    /*!< Int number format */
         struct lwjson_token* first_child; /*!< First children object for object or array type */
     } u;                                  /*!< Union with different data types */
 } lwjson_token_t;
@@ -105,20 +105,18 @@ typedef struct lwjson_token {
  * \brief           JSON result enumeration
  */
 typedef enum {
-    lwjsonOK = 0x00, /*!< Function returns successfully */
-    lwjsonERR,       /*!< Generic error message */
-    lwjsonERRJSON,   /*!< Error JSON format */
-    lwjsonERRMEM,    /*!< Memory error */
-    lwjsonERRPAR,    /*!< Parameter error */
+    lwjsonOK = 0x00,           /*!< Function returns successfully */
+    lwjsonERR,                 /*!< Generic error message */
+    lwjsonERRJSON,             /*!< Error JSON format */
+    lwjsonERRMEM,              /*!< Memory error */
+    lwjsonERRPAR,              /*!< Parameter error */
 
     lwjsonSTREAMWAITFIRSTCHAR, /*!< Streaming parser did not yet receive first valid character
-                        indicating start of JSON sequence */
+                                    indicating start of JSON sequence */
     lwjsonSTREAMDONE,          /*!< Streaming parser is done,
                                     closing character matched the stream opening one */
     lwjsonSTREAMINPROG,        /*!< Stream parsing is still in progress */
-}
-
-lwjsonr_t;
+} lwjsonr_t;
 
 /**
  * \brief           LwJSON instance
@@ -134,15 +132,15 @@ typedef struct {
     } flags;                /*!< List of flags */
 } lwjson_t;
 
-lwjsonr_t lwjson_init(lwjson_t* lw, lwjson_token_t* tokens, size_t tokens_len);
-lwjsonr_t lwjson_parse_ex(lwjson_t* lw, const void* json_data, size_t len);
-lwjsonr_t lwjson_parse(lwjson_t* lw, const char* json_str);
-const lwjson_token_t* lwjson_find(lwjson_t* lw, const char* path);
-const lwjson_token_t* lwjson_find_ex(lwjson_t* lw, const lwjson_token_t* token, const char* path);
-lwjsonr_t lwjson_free(lwjson_t* lw);
+lwjsonr_t lwjson_init(lwjson_t* lwobj, lwjson_token_t* tokens, size_t tokens_len);
+lwjsonr_t lwjson_parse_ex(lwjson_t* lwobj, const void* json_data, size_t len);
+lwjsonr_t lwjson_parse(lwjson_t* lwobj, const char* json_str);
+const lwjson_token_t* lwjson_find(lwjson_t* lwobj, const char* path);
+const lwjson_token_t* lwjson_find_ex(lwjson_t* lwobj, const lwjson_token_t* token, const char* path);
+lwjsonr_t lwjson_free(lwjson_t* lwobj);
 
 void lwjson_print_token(const lwjson_token_t* token);
-void lwjson_print_json(const lwjson_t* lw);
+void lwjson_print_json(const lwjson_t* lwobj);
 
 /**
  * \brief           Object type for streaming parser
@@ -198,7 +196,7 @@ typedef struct lwjson_stream_parser {
         stack[LWJSON_CFG_STREAM_STACK_SIZE]; /*!< Stack used for parsing. TODO: Add conditional compilation flag */
     size_t stack_pos;                        /*!< Current stack position */
 
-    lwjson_stream_state_t parse_state; /*!< Parser state */
+    lwjson_stream_state_t parse_state;       /*!< Parser state */
 
     lwjson_stream_parser_callback_fn evt_fn; /*!< Event function for user */
 
@@ -219,7 +217,7 @@ typedef struct lwjson_stream_parser {
         } prim; /*!< Primitive object. Used for all types, except key or string */
 
         /* Todo: Add other types */
-    } data; /*!< Data union used to parse various */
+    } data;      /*!< Data union used to parse various */
 
     char prev_c; /*!< History of characters */
 } lwjson_stream_parser_t;
@@ -230,17 +228,17 @@ lwjsonr_t lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c);
 
 /**
  * \brief           Get number of tokens used to parse JSON
- * \param[in]       lw: Pointer to LwJSON instance
+ * \param[in]       lwobj: Pointer to LwJSON instance
  * \return          Number of tokens used to parse JSON
  */
-#define lwjson_get_tokens_used(lw) (((lw) != NULL) ? ((lw)->next_free_token_pos + 1) : 0)
+#define lwjson_get_tokens_used(lwobj) (((lwobj) != NULL) ? ((lwobj)->next_free_token_pos + 1) : 0)
 
 /**
  * \brief           Get very first token of LwJSON instance
- * \param[in]       lw: Pointer to LwJSON instance
+ * \param[in]       lwobj: Pointer to LwJSON instance
  * \return          Pointer to first token
  */
-#define lwjson_get_first_token(lw) (((lw) != NULL) ? (&(lw)->first_token) : NULL)
+#define lwjson_get_first_token(lwobj) (((lwobj) != NULL) ? (&(lwobj)->first_token) : NULL)
 
 /**
  * \brief           Get token value for \ref LWJSON_TYPE_NUM_INT type

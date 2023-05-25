@@ -1,6 +1,6 @@
 {
     "name": "LwJSON",
-    "version": "1.6.0",
+    "version": "1.6.1",
     "description": "Lightweight JSON parser for embedded systems with support for inline comments",
     "keywords": "json, javascript, lightweight, parser, stm32, manager, library, comment, object, notation, object notation",
     "repository": {

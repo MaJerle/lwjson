@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2022 Tilen MAJERLE
+ * Copyright (c) 2023 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.6.0
+ * Version:         v1.6.1
  */
 #include <stdio.h>
 #include <string.h>
@@ -125,10 +125,10 @@ lwjson_print_token(const lwjson_token_t* token) {
 /**
  * \brief           Prints and outputs full parsed LwJSON instance
  * \note            This function is not re-entrant
- * \param[in]       lw: LwJSON instance to print
+ * \param[in]       lwobj: LwJSON instance to print
  */
 void
-lwjson_print_json(const lwjson_t* lw) {
+lwjson_print_json(const lwjson_t* lwobj) {
     lwjson_token_print_t p = {0};
-    prv_print_token(&p, lwjson_get_first_token(lw));
+    prv_print_token(&p, lwjson_get_first_token(lwobj));
 }

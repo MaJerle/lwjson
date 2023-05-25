@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2022 Tilen MAJERLE
+ * Copyright (c) 2023 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -29,10 +29,10 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.6.0
+ * Version:         v1.6.1
  */
-#ifndef LWJSON_HDR_OPT_H
-#define LWJSON_HDR_OPT_H
+#ifndef LWJSON_OPT_HDR_H
+#define LWJSON_OPT_HDR_H
 
 /* Uncomment to ignore user options (or set macro in compiler flags) */
 /* #define LWJSON_IGNORE_USER_OPTS */
@@ -132,4 +132,4 @@ extern "C" {
 }
 #endif /* __cplusplus */
 
-#endif /* LWJSON_HDR_OPT_H */
+#endif /* LWJSON_OPT_HDR_H */

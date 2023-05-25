@@ -2,6 +2,10 @@
 
 ## Develop
 
+## 1.6.1
+
+- Fix critical issue - missing correct return when waiting for first character. Should be `lwjsonSTREAMWAITFIRSTCHAR`
+
 ## 1.6.0
 
 - Split CMakeLists.txt files between library and executable
