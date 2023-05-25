@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.6.0
+ * Version:         v1.6.1
  */
 #include <string.h>
 #include "lwjson/lwjson.h"
@@ -162,14 +162,16 @@ lwjson_stream_reset(lwjson_stream_parser_t* jsp) {
  * \brief           Parse JSON string in streaming mode
  * \param[in,out]   jsp: Stream JSON structure 
  * \param[in]       c: Character to parse
- * \return          \ref lwjsonOK if parsing is in progress and no hard error detected
- *                  \ref lwjsonSTREAMDONE when valid JSON was detected and stack level reached back `0` level
+ * \return          \ref lwjsonSTREAMWAITFIRSTCHAR when stream did not start parsing since no valid start character has been received
+ * \return          \ref lwjsonSTREAMINPROG if parsing is in progress and no hard error detected
+ * \return          \ref lwjsonSTREAMDONE when valid JSON was detected and stack level reached back `0` level
+ * \return          \ref One of enumeration otherwise
  */
 lwjsonr_t
 lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c) {
     /* Get first character first */
     if (jsp->parse_state == LWJSON_STREAM_STATE_WAITINGFIRSTCHAR && c != '{' && c != '[') {
-        return lwjsonSTREAMDONE;
+        return lwjsonSTREAMWAITFIRSTCHAR;
     }
 
 start_over:
