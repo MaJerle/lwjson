@@ -132,8 +132,7 @@ prv_parse_string(lwjson_int_str_t* pobj, const char** pout, size_t* poutlen) {
                 case 'f':
                 case 'n':
                 case 'r':
-                case 't':
-                    break;
+                case 't': break;
                 case 'u':
                     ++pobj->p;
                     for (size_t i = 0; i < 4; ++i, ++len) {
@@ -146,8 +145,7 @@ prv_parse_string(lwjson_int_str_t* pobj, const char** pout, size_t* poutlen) {
                         }
                     }
                     break;
-                default:
-                    return lwjsonERRJSON;
+                default: return lwjsonERRJSON;
             }
         } else if (*pobj->p == '"') {
             ++pobj->p;
@@ -222,7 +220,7 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
     for (int_num = 0; *pobj->p >= '0' && *pobj->p <= '9'; ++pobj->p) {
         int_num = int_num * 10 + (*pobj->p - '0');
     }
-    
+
     real_num = (lwjson_real_t)int_num;
 
     if (pobj->p != NULL && *pobj->p == '.') { /* Number has exponent */

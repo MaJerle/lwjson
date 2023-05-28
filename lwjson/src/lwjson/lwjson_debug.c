@@ -102,8 +102,7 @@ prv_print_token(lwjson_token_print_t* p, const lwjson_token_t* token) {
             printf("NULL");
             break;
         }
-        default:
-            break;
+        default: break;
     }
     if (token->next != NULL) {
         printf(",");

@@ -430,8 +430,7 @@ start_over:
         }
 
         /* TODO: Add other case statements */
-        default:
-            break;
+        default: break;
     }
     jsp->prev_c = c; /* Save current c as previous for next round */
     return lwjsonSTREAMINPROG;

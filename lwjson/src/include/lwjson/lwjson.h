@@ -95,8 +95,8 @@ typedef struct lwjson_token {
                 token_value_len; /*!< Length of token value (this is needed to support const input strings to parse) */
         } str;                   /*!< String data */
 
-        lwjson_real_t num_real;  /*!< Real number format */
-        lwjson_int_t num_int;    /*!< Int number format */
+        lwjson_real_t num_real;           /*!< Real number format */
+        lwjson_int_t num_int;             /*!< Int number format */
         struct lwjson_token* first_child; /*!< First children object for object or array type */
     } u;                                  /*!< Union with different data types */
 } lwjson_token_t;
@@ -105,11 +105,11 @@ typedef struct lwjson_token {
  * \brief           JSON result enumeration
  */
 typedef enum {
-    lwjsonOK = 0x00,           /*!< Function returns successfully */
-    lwjsonERR,                 /*!< Generic error message */
-    lwjsonERRJSON,             /*!< Error JSON format */
-    lwjsonERRMEM,              /*!< Memory error */
-    lwjsonERRPAR,              /*!< Parameter error */
+    lwjsonOK = 0x00, /*!< Function returns successfully */
+    lwjsonERR,       /*!< Generic error message */
+    lwjsonERRJSON,   /*!< Error JSON format */
+    lwjsonERRMEM,    /*!< Memory error */
+    lwjsonERRPAR,    /*!< Parameter error */
 
     lwjsonSTREAMWAITFIRSTCHAR, /*!< Streaming parser did not yet receive first valid character
                                     indicating start of JSON sequence */
@@ -196,7 +196,7 @@ typedef struct lwjson_stream_parser {
         stack[LWJSON_CFG_STREAM_STACK_SIZE]; /*!< Stack used for parsing. TODO: Add conditional compilation flag */
     size_t stack_pos;                        /*!< Current stack position */
 
-    lwjson_stream_state_t parse_state;       /*!< Parser state */
+    lwjson_stream_state_t parse_state; /*!< Parser state */
 
     lwjson_stream_parser_callback_fn evt_fn; /*!< Event function for user */
 
@@ -217,7 +217,7 @@ typedef struct lwjson_stream_parser {
         } prim; /*!< Primitive object. Used for all types, except key or string */
 
         /* Todo: Add other types */
-    } data;      /*!< Data union used to parse various */
+    } data; /*!< Data union used to parse various */
 
     char prev_c; /*!< History of characters */
 } lwjson_stream_parser_t;
