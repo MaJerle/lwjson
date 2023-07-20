@@ -8,7 +8,7 @@ First one being optimized for ultra small microcontrollers, second one being rea
 
 ## Features
 
-* Written in ANSI C99, compatible with ``size_t`` for size data types
+* Written in C (C11), compatible with ``size_t`` for size data types
 * RFC 4627 and RFC 8259 compliant
 * Based on static token allocation with optional application dynamic pre-allocation
 * No recursion during parse operation
