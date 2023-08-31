@@ -68,7 +68,7 @@ main() {
     }
 
     /* Now parse as a stream */
-    lwjson_stream_init(&stream_parser, jsp_stream_callback);
+    lwjson_stream_init(&stream_parser, jsp_stream_callback,NULL);
     for (const char* str = json_text; str != NULL && *str != '\0'; ++str) {
         lwjsonr_t res = lwjson_stream_parse(&stream_parser, *str);
         if (res == lwjsonSTREAMWAITFIRSTCHAR) {

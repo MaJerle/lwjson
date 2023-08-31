@@ -138,10 +138,11 @@ prv_stack_get_top(lwjson_stream_parser_t* jsp) {
  * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
  */
 lwjsonr_t
-lwjson_stream_init(lwjson_stream_parser_t* jsp, lwjson_stream_parser_callback_fn evt_fn) {
+lwjson_stream_init(lwjson_stream_parser_t* jsp, lwjson_stream_parser_callback_fn evt_fn, void* user_data) {
     memset(jsp, 0x00, sizeof(*jsp));
     jsp->parse_state = LWJSON_STREAM_STATE_WAITINGFIRSTCHAR;
     jsp->evt_fn = evt_fn;
+    jsp->user_data = user_data;
     return lwjsonOK;
 }
 

@@ -200,6 +200,7 @@ typedef struct lwjson_stream_parser {
 
     lwjson_stream_parser_callback_fn evt_fn; /*!< Event function for user */
 
+    void *user_data; /*!< User data for callback function */
     /* State */
     union {
         struct {
@@ -222,7 +223,7 @@ typedef struct lwjson_stream_parser {
     char prev_c; /*!< History of characters */
 } lwjson_stream_parser_t;
 
-lwjsonr_t lwjson_stream_init(lwjson_stream_parser_t* jsp, lwjson_stream_parser_callback_fn evt_fn);
+lwjsonr_t lwjson_stream_init(lwjson_stream_parser_t* jsp, lwjson_stream_parser_callback_fn evt_fn, void* user_data);
 lwjsonr_t lwjson_stream_reset(lwjson_stream_parser_t* jsp);
 lwjsonr_t lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c);
 
