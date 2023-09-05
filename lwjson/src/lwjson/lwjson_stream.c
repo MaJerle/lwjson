@@ -167,9 +167,21 @@ lwjson_stream_reset(lwjson_stream_parser_t* jsp) {
  * \param           jsp: LwJSON stream parser
  * \param           user_data: user data
 */
-void
+lwjsonr_t 
 lwjson_stream_set_user_data(lwjson_stream_parser_t* jsp, void* user_data) {
     jsp->user_data = user_data;
+    return lwjsonOK;
+}
+
+/**
+ * \brief get user_data in stream parser
+ * 
+ * \param           jsp: LwJSON stream parser
+ * \return          pointer user data
+ * */
+void *
+lwjson_stream_get_user_data(lwjson_stream_parser_t* jsp) {
+    return jsp->user_data;
 }
 
 /**

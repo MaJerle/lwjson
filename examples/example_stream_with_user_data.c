@@ -21,8 +21,8 @@ static lwjson_stream_parser_t stream_parser;
  */
 void
 prv_example_callback_func(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type) {
-    /* Get a value corresponsing to "k1" key */
-    example_data_struct_t* data = (example_data_struct_t *)jsp->user_data;
+    //Get the data struct from user data
+    example_data_struct_t* data = (example_data_struct_t *)lwjson_stream_get_user_data(jsp);
 
     if (jsp->stack_pos >= 2                                /* Number of stack entries must be high */
         && jsp->stack[0].type == LWJSON_STREAM_TYPE_OBJECT /* First must be object */
