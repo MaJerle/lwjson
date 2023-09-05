@@ -138,19 +138,15 @@ prv_stack_get_top(lwjson_stream_parser_t* jsp) {
  * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
  */
 lwjsonr_t
-lwjson_stream_init_with_user_data(lwjson_stream_parser_t* jsp, lwjson_stream_parser_callback_fn evt_fn, void* user_data) {
+lwjson_stream_init(lwjson_stream_parser_t* jsp, lwjson_stream_parser_callback_fn evt_fn) {
+
     memset(jsp, 0x00, sizeof(*jsp));
     jsp->parse_state = LWJSON_STREAM_STATE_WAITINGFIRSTCHAR;
     jsp->evt_fn = evt_fn;
-    jsp->user_data = user_data;
+    jsp->user_data = NULL;
     return lwjsonOK;
 }
 
-lwjsonr_t 
-lwjson_stream_init(lwjson_stream_parser_t* jsp, lwjson_stream_parser_callback_fn evt_fn)
-{
-    return lwjson_stream_init_with_user_data(jsp, evt_fn, NULL);
-}
 /**
  * \brief           Reset LwJSON stream structure
  * 
@@ -161,7 +157,19 @@ lwjsonr_t
 lwjson_stream_reset(lwjson_stream_parser_t* jsp) {
     jsp->parse_state = LWJSON_STREAM_STATE_WAITINGFIRSTCHAR;
     jsp->stack_pos = 0;
+    jsp->user_data = NULL;
     return lwjsonOK;
+}
+
+/**
+ * \brief set user_data in stream parser
+ * 
+ * \param           jsp: LwJSON stream parser
+ * \param           user_data: user data
+*/
+void
+lwjson_stream_set_user_data(lwjson_stream_parser_t* jsp, void* user_data) {
+    jsp->user_data = user_data;
 }
 
 /**

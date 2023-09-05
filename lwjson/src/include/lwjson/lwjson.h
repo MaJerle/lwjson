@@ -224,7 +224,7 @@ typedef struct lwjson_stream_parser {
 } lwjson_stream_parser_t;
 
 lwjsonr_t lwjson_stream_init(lwjson_stream_parser_t* jsp, lwjson_stream_parser_callback_fn evt_fn);
-lwjsonr_t lwjson_stream_init_with_user_data(lwjson_stream_parser_t* jsp, lwjson_stream_parser_callback_fn evt_fn, void* user_data);
+void lwjson_stream_set_user_data(lwjson_stream_parser_t* jsp, void* user_data);
 lwjsonr_t lwjson_stream_reset(lwjson_stream_parser_t* jsp);
 lwjsonr_t lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c);
 

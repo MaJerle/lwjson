@@ -56,8 +56,8 @@ example_stream_run(void) {
     data.k2 = k2_buff;
     data.k2_len = sizeof(k2_buff);
     data.k2_pos = 0;
-    lwjson_stream_init_with_user_data(&stream_parser, prv_example_callback_func, &data);
-
+    lwjson_stream_init(&stream_parser, prv_example_callback_func);
+    lwjson_stream_set_user_data(&stream_parser, &data);
     /* Demonstrate as stream inputs */
     for (const char* c = json_str; *c != '\0'; ++c) {
         res = lwjson_stream_parse(&stream_parser, *c);
