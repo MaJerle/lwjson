@@ -139,9 +139,11 @@ prv_stack_get_top(lwjson_stream_parser_t* jsp) {
  */
 lwjsonr_t
 lwjson_stream_init(lwjson_stream_parser_t* jsp, lwjson_stream_parser_callback_fn evt_fn) {
+
     memset(jsp, 0x00, sizeof(*jsp));
     jsp->parse_state = LWJSON_STREAM_STATE_WAITINGFIRSTCHAR;
     jsp->evt_fn = evt_fn;
+    jsp->user_data = NULL;
     return lwjsonOK;
 }
 
@@ -155,7 +157,31 @@ lwjsonr_t
 lwjson_stream_reset(lwjson_stream_parser_t* jsp) {
     jsp->parse_state = LWJSON_STREAM_STATE_WAITINGFIRSTCHAR;
     jsp->stack_pos = 0;
+    jsp->user_data = NULL;
     return lwjsonOK;
+}
+
+/**
+ * \brief set user_data in stream parser
+ * 
+ * \param           jsp: LwJSON stream parser
+ * \param           user_data: user data
+*/
+lwjsonr_t 
+lwjson_stream_set_user_data(lwjson_stream_parser_t* jsp, void* user_data) {
+    jsp->user_data = user_data;
+    return lwjsonOK;
+}
+
+/**
+ * \brief get user_data in stream parser
+ * 
+ * \param           jsp: LwJSON stream parser
+ * \return          pointer to user data
+ */
+void *
+lwjson_stream_get_user_data(lwjson_stream_parser_t* jsp) {
+    return jsp->user_data;
 }
 
 /**
