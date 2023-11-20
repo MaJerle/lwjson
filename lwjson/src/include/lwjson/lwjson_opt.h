@@ -82,6 +82,24 @@ extern "C" {
 #endif
 
 /**
+ * \brief           Memory set function
+ * 
+ * \note            Function footprint is the same as \ref memset
+ */
+#ifndef LWJSON_MEMSET
+#define LWJSON_MEMSET(dst, val, len) memset((dst), (val), (len))
+#endif
+
+/**
+ * \brief           Memory copy function
+ * 
+ * \note            Function footprint is the same as \ref memcpy
+ */
+#ifndef LWJSON_MEMCPY
+#define LWJSON_MEMCPY(dst, src, len) memcpy((dst), (src), (len))
+#endif
+
+/**
  * \defgroup        LWJSON_OPT_STREAM JSON stream
  * \brief           JSON streaming confiuration
  * \{

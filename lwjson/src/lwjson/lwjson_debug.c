@@ -44,12 +44,12 @@ typedef struct {
 
 /**
  * \brief           Print token value
- * \param[in]       p: Token print instance
+ * \param[in]       prt: Token print instance
  * \param[in]       token: Token to print
  */
 static void
-prv_print_token(lwjson_token_print_t* p, const lwjson_token_t* token) {
-#define print_indent() printf("%.*s", (int)((p->indent)), "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t");
+prv_print_token(lwjson_token_print_t* prt, const lwjson_token_t* token) {
+#define print_indent() printf("%.*s", (int)((prt->indent)), "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t");
 
     if (token == NULL) {
         return;
@@ -68,11 +68,11 @@ prv_print_token(lwjson_token_print_t* p, const lwjson_token_t* token) {
             printf("%c", token->type == LWJSON_TYPE_OBJECT ? '{' : '[');
             if (token->u.first_child != NULL) {
                 printf("\n");
-                ++p->indent;
+                ++prt->indent;
                 for (const lwjson_token_t* t = lwjson_get_first_child(token); t != NULL; t = t->next) {
-                    prv_print_token(p, t);
+                    prv_print_token(prt, t);
                 }
-                --p->indent;
+                --prt->indent;
                 print_indent();
             }
             printf("%c", token->type == LWJSON_TYPE_OBJECT ? '}' : ']');
@@ -117,8 +117,8 @@ prv_print_token(lwjson_token_print_t* p, const lwjson_token_t* token) {
  */
 void
 lwjson_print_token(const lwjson_token_t* token) {
-    lwjson_token_print_t p = {0};
-    prv_print_token(&p, token);
+    lwjson_token_print_t prt = {0};
+    prv_print_token(&prt, token);
 }
 
 /**
@@ -128,6 +128,6 @@ lwjson_print_token(const lwjson_token_t* token) {
  */
 void
 lwjson_print_json(const lwjson_t* lwobj) {
-    lwjson_token_print_t p = {0};
-    prv_print_token(&p, lwjson_get_first_token(lwobj));
+    lwjson_token_print_t prt = {0};
+    prv_print_token(&prt, lwjson_get_first_token(lwobj));
 }

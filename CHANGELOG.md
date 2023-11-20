@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Add clang-tidy
+
 ## 1.6.1
 
 - Fix critical issue - missing correct return when waiting for first character. Should be `lwjsonSTREAMWAITFIRSTCHAR`

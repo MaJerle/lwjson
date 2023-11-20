@@ -6,6 +6,8 @@ project(LwLibPROJECT)
 if(NOT PROJECT_IS_TOP_LEVEL)
     add_subdirectory(lwjson)
 else()
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
     # Set as executable
     add_executable(${PROJECT_NAME})
 
