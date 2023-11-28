@@ -29,5 +29,8 @@
             "build",
             "**/build"
         ]
+    },
+    "build": {
+        "includeDir": "lwjson/src/include"
     }
 }
