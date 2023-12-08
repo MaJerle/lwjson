@@ -41,6 +41,7 @@ else()
     )
 
     # Add subdir with lwjson and link to project
+    set(LWJSON_OPTS_DIR ${CMAKE_CURRENT_LIST_DIR}/dev)
     add_subdirectory(lwjson)
     target_link_libraries(${PROJECT_NAME} lwjson)
     target_link_libraries(${PROJECT_NAME} lwjson_debug)
