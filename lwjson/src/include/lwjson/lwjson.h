@@ -200,7 +200,8 @@ typedef struct lwjson_stream_parser {
 
     lwjson_stream_parser_callback_fn evt_fn; /*!< Event function for user */
 
-    void *user_data; /*!< User data for callback function */
+    void* user_data; /*!< User data for callback function */
+
     /* State */
     union {
         struct {
@@ -225,7 +226,7 @@ typedef struct lwjson_stream_parser {
 
 lwjsonr_t lwjson_stream_init(lwjson_stream_parser_t* jsp, lwjson_stream_parser_callback_fn evt_fn);
 lwjsonr_t lwjson_stream_set_user_data(lwjson_stream_parser_t* jsp, void* user_data);
-void *lwjson_stream_get_user_data(lwjson_stream_parser_t* jsp);
+void* lwjson_stream_get_user_data(lwjson_stream_parser_t* jsp);
 lwjsonr_t lwjson_stream_reset(lwjson_stream_parser_t* jsp);
 lwjsonr_t lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c);
 
@@ -323,6 +324,52 @@ lwjson_string_compare_n(const lwjson_token_t* token, const char* str, size_t len
     }
     return 0;
 }
+
+/**
+ * \name            LWJSON_STREAM_SEQ
+ * \brief           Helper functions for stack analysis in a callback function
+ * \note            Useful exclusively for streaming functions
+ * \{
+ */
+
+/**
+ * \brief           Check the sequence of JSON stack, starting from start_number index
+ * \note            This applies only to one sequence element. Other macros, starting with
+ *                      `lwjson_stack_seq_X` (where X is the sequence length), provide
+ *                      more parameters for longer sequences.
+ * 
+ * \param[in]       jsp: LwJSON stream instance
+ * \param[in]       start_num: Start number in the stack. Typically starts with `0`, but user may choose another
+ *                      number, if intention is to check partial sequence only
+ * \param[in]       sp0: Stream stack type. Value of \ref lwjson_stream_type_t, but only last part of the enum.
+ *                      If user is interested in the \ref LWJSON_STREAM_TYPE_OBJECT,
+ *                      you should only write `OBJECT` as parameter.
+ *                      Idea behind is to make code smaller and easier to read, especially when
+ *                      using other sequence values with more parameters.
+ * \return          `0` if sequence doesn't match, non-zero otherwise
+ */
+#define lwjson_stack_seq_1(jsp, start_num, sp0) ((jsp)->stack[(start_num)].type == LWJSON_STREAM_TYPE_##sp0)
+#define lwjson_stack_seq_2(jsp, start_num, sp0, sp1)                                                                   \
+    (lwjson_stack_seq_1((jsp), (start_num) + 0, sp0) && lwjson_stack_seq_1((jsp), (start_num) + 1, sp1))
+#define lwjson_stack_seq_3(jsp, start_num, sp0, sp1, sp2)                                                              \
+    (lwjson_stack_seq_1((jsp), (start_num) + 0, sp0) && lwjson_stack_seq_2((jsp), (start_num) + 1, sp1, sp2))
+#define lwjson_stack_seq_4(jsp, start_num, sp0, sp1, sp2, sp3)                                                         \
+    (lwjson_stack_seq_1((jsp), (start_num) + 0, sp0) && lwjson_stack_seq_3((jsp), (start_num) + 1, sp1, sp2, sp3))
+#define lwjson_stack_seq_5(jsp, start_num, sp0, sp1, sp2, sp3, sp4)                                                    \
+    (lwjson_stack_seq_1((jsp), (start_num) + 0, sp0) && lwjson_stack_seq_4((jsp), (start_num) + 1, sp1, sp2, sp3, sp4))
+#define lwjson_stack_seq_6(jsp, start_num, sp0, sp1, sp2, sp3, sp4, sp5)                                               \
+    (lwjson_stack_seq_1((jsp), (start_num) + 0, sp0)                                                                   \
+     && lwjson_stack_seq_5((jsp), (start_num) + 1, sp1, sp2, sp3, sp4, sp5))
+#define lwjson_stack_seq_7(jsp, start_num, sp0, sp1, sp2, sp3, sp4, sp5, sp6)                                          \
+    (lwjson_stack_seq_1((jsp), (start_num) + 0, sp0)                                                                   \
+     && lwjson_stack_seq_6((jsp), (start_num) + 1, sp1, sp2, sp3, sp4, sp5, sp6))
+#define lwjson_stack_seq_8(jsp, start_num, sp0, sp1, sp2, sp3, sp4, sp5, sp6, sp7)                                     \
+    (lwjson_stack_seq_1((jsp), (start_num) + 0, sp0)                                                                   \
+     && lwjson_stack_seq_7((jsp), (start_num) + 1, sp1, sp2, sp3, sp4, sp5, sp6, sp7))
+
+/**
+ * \}
+ */
 
 /**
  * \}

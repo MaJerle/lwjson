@@ -3,6 +3,7 @@
 ## Develop
 
 - Add clang-tidy
+- Add helper functions for sequence check in stream parsing
 
 ## 1.6.1
 
