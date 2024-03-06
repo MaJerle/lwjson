@@ -12,7 +12,7 @@ static lwjson_stream_parser_t stream_parser;
  * \param           jsp: JSON stream parser object
  * \param           type: Event type
  */
-void
+static void
 prv_example_callback_func(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type) {
     /* Get a value corresponsing to "k1" key */
     if (jsp->stack_pos >= 2                                /* Number of stack entries must be high */

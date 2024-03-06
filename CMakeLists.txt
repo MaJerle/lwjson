@@ -18,6 +18,8 @@ else()
         ${CMAKE_CURRENT_LIST_DIR}/examples/example_minimal.c
         ${CMAKE_CURRENT_LIST_DIR}/examples/example_traverse.c
         ${CMAKE_CURRENT_LIST_DIR}/examples/example_stream.c
+        ${CMAKE_CURRENT_LIST_DIR}/trial_env/trial_run.c
+
     )
 
     # Add key include paths

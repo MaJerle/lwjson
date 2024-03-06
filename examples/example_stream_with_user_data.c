@@ -1,9 +1,10 @@
 #include <stdio.h>
-#include "lwjson/lwjson.h"
 #include <string.h>
+#include "lwjson/lwjson.h"
+
 typedef struct example_data_struct_t {
     uint8_t k1[10];
-    char *k2;
+    char* k2;
     int k2_len;
     int k2_pos;
 } example_data_struct_t;
@@ -19,7 +20,7 @@ static lwjson_stream_parser_t stream_parser;
  * \param           jsp: JSON stream parser object
  * \param           type: Event type
  */
-void
+static void
 prv_example_callback_func(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type) {
     //Get the data struct from user data
     example_data_struct_t* data = lwjson_stream_get_user_data(jsp);
@@ -29,15 +30,15 @@ prv_example_callback_func(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type
         && jsp->stack[1].type == LWJSON_STREAM_TYPE_KEY    /* We need key to be before */
         && strcmp(jsp->stack[1].meta.name, "k1") == 0) {
         printf("Got key '%s' with value '%s'\r\n", jsp->stack[1].meta.name, jsp->data.str.buff);
-        strncpy((char *)data->k1, jsp->data.str.buff, sizeof(data->k1) - 1);
+        strncpy((char*)data->k1, jsp->data.str.buff, sizeof(data->k1) - 1);
     }
     if (jsp->stack_pos >= 2                                /* Number of stack entries must be high */
         && jsp->stack[0].type == LWJSON_STREAM_TYPE_OBJECT /* First must be object */
         && jsp->stack[1].type == LWJSON_STREAM_TYPE_KEY    /* We need key to be before */
         && strcmp(jsp->stack[1].meta.name, "k2") == 0) {
         printf("Got key '%s' with value '%s'\r\n", jsp->stack[1].meta.name, jsp->data.str.buff);
-        if (jsp->stack_pos >= 3
-            && jsp->stack[2].type == LWJSON_STREAM_TYPE_ARRAY && jsp->stack[2].meta.index < data->k2_len) {
+        if (jsp->stack_pos >= 3 && jsp->stack[2].type == LWJSON_STREAM_TYPE_ARRAY
+            && jsp->stack[2].meta.index < data->k2_len) {
             printf("Got array value '%s' index = %d \r\n", jsp->data.str.buff, jsp->stack[2].meta.index);
             data->k2[jsp->stack[2].meta.index] = (strncmp(jsp->data.str.buff, "true", 4) == 0);
             data->k2_pos = jsp->stack[2].meta.index + 1;
@@ -73,12 +74,13 @@ example_stream_run(void) {
     }
     printf("Parsing completed\r\n");
     printf("data: k1 = '%s'\r\n", data.k1);
-    for(int i = 0; i < data.k2_pos; i++) {
+    for (int i = 0; i < data.k2_pos; i++) {
         printf("data: k2[%d] = %d\r\n", i, data.k2[i]);
     }
 }
 
-int main(void) {
+int
+main(void) {
     example_stream_run();
     return 0;
 }

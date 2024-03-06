@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
-#include "windows.h"
 #include "lwjson/lwjson.h"
+#include "windows.h"
 
 /* Classic parser */
 static lwjson_token_t tokens[4096];
@@ -16,6 +16,9 @@ extern void example_minimal_run(void);
 extern void example_traverse_run(void);
 extern void example_stream_run(void);
 
+/* Trial stream -> for a user to try its own code... */
+extern void trial_stream_run(void);
+
 static void jsp_stream_callback(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type);
 
 int
@@ -27,6 +30,10 @@ main() {
     const lwjson_token_t* tkn;
 
     (void)token_cnt;
+#if 1
+    trial_stream_run();
+    return 0;
+#endif
 #if 0
     test_run();
     example_minimal_run();
