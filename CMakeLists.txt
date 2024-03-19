@@ -19,7 +19,6 @@ else()
         ${CMAKE_CURRENT_LIST_DIR}/examples/example_traverse.c
         ${CMAKE_CURRENT_LIST_DIR}/examples/example_stream.c
         ${CMAKE_CURRENT_LIST_DIR}/trial_env/trial_run.c
-
     )
 
     # Add key include paths
@@ -32,7 +31,6 @@ else()
         WIN32
         _DEBUG
         CONSOLE
-        LWJSON_DEV
     )
 
     # Compiler options
@@ -43,7 +41,7 @@ else()
     )
 
     # Add subdir with lwjson and link to project
-    set(LWJSON_OPTS_DIR ${CMAKE_CURRENT_LIST_DIR}/dev)
+    set(LWJSON_OPTS_FILE ${CMAKE_CURRENT_LIST_DIR}/dev/lwjson_opts.h)
     add_subdirectory(lwjson)
     target_link_libraries(${PROJECT_NAME} lwjson)
     target_link_libraries(${PROJECT_NAME} lwjson_debug)

@@ -1,13 +1,18 @@
 # 
+# LIB_PREFIX: LWJSON
+#
 # This file provides set of variables for end user
 # and also generates one (or more) libraries, that can be added to the project using target_link_libraries(...)
 #
 # Before this file is included to the root CMakeLists file (using include() function), user can set some variables:
 #
-# LWJSON_OPTS_DIR: If defined, it should set the folder path where options file shall be generated.
+# LWJSON_OPTS_FILE: If defined, it is the path to the user options file. If not defined, one will be generated for you automatically
 # LWJSON_COMPILE_OPTIONS: If defined, it provide compiler options for generated library.
 # LWJSON_COMPILE_DEFINITIONS: If defined, it provides "-D" definitions to the library build
 #
+
+# Custom include directory
+set(LWJSON_CUSTOM_INC_DIR ${CMAKE_CURRENT_BINARY_DIR}/lib_inc)
 
 # Setup generic source files
 set(lwjson_core_SRCS
@@ -23,6 +28,7 @@ set(lwjson_debug_SRCS
 # Setup include directories
 set(lwjson_include_DIRS
     ${CMAKE_CURRENT_LIST_DIR}/src/include
+    ${LWJSON_CUSTOM_INC_DIR}
 )
 
 # Register core library to the system
@@ -39,7 +45,11 @@ target_include_directories(lwjson_debug INTERFACE ${lwjson_include_DIRS})
 target_compile_options(lwjson_debug PRIVATE ${LWJSON_COMPILE_OPTIONS})
 target_compile_definitions(lwjson_debug PRIVATE ${LWJSON_COMPILE_DEFINITIONS})
 
-# Create config file
-if(DEFINED LWJSON_OPTS_DIR AND NOT EXISTS ${LWJSON_OPTS_DIR}/lwjson_opts.h)
-    configure_file(${CMAKE_CURRENT_LIST_DIR}/src/include/lwjson/lwjson_opts_template.h ${LWJSON_OPTS_DIR}/lwjson_opts.h COPYONLY)
+# Create config file if user didn't provide one info himself
+if(NOT LWJSON_OPTS_FILE)
+    message(STATUS "Using default lwjson_opts.h file")
+    set(LWJSON_OPTS_FILE ${CMAKE_CURRENT_LIST_DIR}/src/include/lwjson/lwjson_opts_template.h)
+else()
+    message(STATUS "Using custom lwjson_opts.h file from ${LWJSON_OPTS_FILE}")
 endif()
+configure_file(${LWJSON_OPTS_FILE} ${LWJSON_CUSTOM_INC_DIR}/lwjson_opts.h COPYONLY)
