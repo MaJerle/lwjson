@@ -4,6 +4,7 @@
 
 - Add clang-tidy
 - Add helper functions for sequence check in stream parsing
+- Add support to discard invalid JSON stream
 
 ## 1.6.1
 
