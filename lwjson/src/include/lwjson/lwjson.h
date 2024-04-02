@@ -177,6 +177,8 @@ typedef enum {
     LWJSON_STREAM_STATE_PARSING,        /*!< In parsing of the first char state - detecting next character state */
     LWJSON_STREAM_STATE_PARSING_STRING, /*!< Parse string primitive */
     LWJSON_STREAM_STATE_PARSING_PRIMITIVE, /*!< Parse any primitive that is non-string, either "true", "false", "null" or a number */
+    LWJSON_STREAM_STATE_EXPECTING_COMMA_OR_END, /*!< Expecting ',', '}' or ']' */
+    LWJSON_STREAM_STATE_EXPECTING_COLON, /*!< Expecting ':' */
 } lwjson_stream_state_t;
 
 /* Forward declaration */
