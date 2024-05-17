@@ -58,7 +58,17 @@ Add library to project
 ^^^^^^^^^^^^^^^^^^^^^^
 
 At this point it is assumed that you have successfully download library, either cloned it or from releases page.
-Next step is to add the library to the project, by means of source files to compiler inputs and header files in search path
+Next step is to add the library to the project, by means of source files to compiler inputs and header files in search path.
+
+*CMake* is the main supported build system. Package comes with the ``CMakeLists.txt`` and ``library.cmake`` files, both located in the ``lwjson`` directory:
+
+* ``CMakeLists.txt``: Is a wrapper and only includes ``library.cmake`` file. It is used if target application uses ``add_subdirectory`` and then uses ``target_link_libraries`` to include the library in the project
+* ``library.cmake``: It is a fully configured set of variables. User must use ``include(path/to/library.cmake)`` to include the library and must manually add files/includes to the final target
+
+.. tip::
+    Open ``library.cmake`` file and manually analyze all the possible variables you can set for full functionality.
+
+If you do not use the *CMake*, you can do the following:
 
 * Copy ``lwjson`` folder to your project, it contains library files
 * Add ``lwjson/src/include`` folder to `include path` of your toolchain. This is where `C/C++` compiler can find the files during compilation process. Usually using ``-I`` flag
@@ -70,7 +80,7 @@ Configuration file
 ^^^^^^^^^^^^^^^^^^
 
 Configuration file is used to overwrite default settings defined for the essential use case.
-Library comes with template config file, which can be modified according to needs.
+Library comes with template config file, which can be modified according to the application needs.
 and it should be copied (or simply renamed in-place) and named ``lwjson_opts.h``
 
 .. note::
@@ -78,7 +88,11 @@ and it should be copied (or simply renamed in-place) and named ``lwjson_opts.h``
     File must be renamed to ``lwjson_opts.h`` first and then copied to the project directory where compiler
     include paths have access to it by using ``#include "lwjson_opts.h"``.
 
-List of configuration options are available in the :ref:`api_lwjson_opt` section.
+.. tip::
+    If you are using *CMake* build system, define the variable ``LWJSON_OPTS_FILE`` before adding library's directory to the *CMake* project.
+    Variable must contain the path to the user options file. If not provided and to avoid build error, one will be generated in the build directory.
+
+Configuration options list is available available in the :ref:`api_lwjson_opt` section.
 If any option is about to be modified, it should be done in configuration file
 
 .. literalinclude:: ../../lwjson/src/include/lwjson/lwjson_opts_template.h

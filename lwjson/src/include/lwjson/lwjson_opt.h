@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2023 Tilen MAJERLE
+ * Copyright (c) 2024 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.6.1
+ * Version:         v1.7.0
  */
 #ifndef LWJSON_OPT_HDR_H
 #define LWJSON_OPT_HDR_H
@@ -79,6 +79,24 @@ extern "C" {
  */
 #ifndef LWJSON_CFG_COMMENTS
 #define LWJSON_CFG_COMMENTS 0
+#endif
+
+/**
+ * \brief           Memory set function
+ * 
+ * \note            Function footprint is the same as \ref memset
+ */
+#ifndef LWJSON_MEMSET
+#define LWJSON_MEMSET(dst, val, len) memset((dst), (val), (len))
+#endif
+
+/**
+ * \brief           Memory copy function
+ * 
+ * \note            Function footprint is the same as \ref memcpy
+ */
+#ifndef LWJSON_MEMCPY
+#define LWJSON_MEMCPY(dst, src, len) memcpy((dst), (src), (len))
 #endif
 
 /**

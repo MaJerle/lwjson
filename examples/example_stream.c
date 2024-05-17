@@ -12,13 +12,11 @@ static lwjson_stream_parser_t stream_parser;
  * \param           jsp: JSON stream parser object
  * \param           type: Event type
  */
-void
+static void
 prv_example_callback_func(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type) {
     /* Get a value corresponsing to "k1" key */
-    if (jsp->stack_pos >= 2                                /* Number of stack entries must be high */
-        && jsp->stack[0].type == LWJSON_STREAM_TYPE_OBJECT /* First must be object */
-        && jsp->stack[1].type == LWJSON_STREAM_TYPE_KEY    /* We need key to be before */
-        && strcmp(jsp->stack[1].meta.name, "k1") == 0) {
+    if (jsp->stack_pos >= 2 /* Number of stack entries must be high */
+        && lwjson_stack_seq_2(jsp, 0, OBJECT, KEY) && strcmp(jsp->stack[1].meta.name, "k1") == 0) {
         printf("Got key '%s' with value '%s'\r\n", jsp->stack[1].meta.name, jsp->data.str.buff);
     }
     (void)type;

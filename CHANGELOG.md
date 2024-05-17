@@ -2,6 +2,13 @@
 
 ## Develop
 
+## 1.7.0
+
+- Add clang-tidy
+- Add helper functions for sequence check in stream parsing
+- Add support to discard invalid JSON stream
+- Fixed some invalid JSON parsing in the streaming module
+
 ## 1.6.1
 
 - Fix critical issue - missing correct return when waiting for first character. Should be `lwjsonSTREAMWAITFIRSTCHAR`

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2023 Tilen MAJERLE
+ * Copyright (c) 2024 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.6.1
+ * Version:         v1.7.0
  */
 #ifndef LWJSON_HDR_H
 #define LWJSON_HDR_H
@@ -95,8 +95,8 @@ typedef struct lwjson_token {
                 token_value_len; /*!< Length of token value (this is needed to support const input strings to parse) */
         } str;                   /*!< String data */
 
-        lwjson_real_t num_real;  /*!< Real number format */
-        lwjson_int_t num_int;    /*!< Int number format */
+        lwjson_real_t num_real;           /*!< Real number format */
+        lwjson_int_t num_int;             /*!< Int number format */
         struct lwjson_token* first_child; /*!< First children object for object or array type */
     } u;                                  /*!< Union with different data types */
 } lwjson_token_t;
@@ -105,11 +105,11 @@ typedef struct lwjson_token {
  * \brief           JSON result enumeration
  */
 typedef enum {
-    lwjsonOK = 0x00,           /*!< Function returns successfully */
-    lwjsonERR,                 /*!< Generic error message */
-    lwjsonERRJSON,             /*!< Error JSON format */
-    lwjsonERRMEM,              /*!< Memory error */
-    lwjsonERRPAR,              /*!< Parameter error */
+    lwjsonOK = 0x00, /*!< Function returns successfully */
+    lwjsonERR,       /*!< Generic error message */
+    lwjsonERRJSON,   /*!< Error JSON format */
+    lwjsonERRMEM,    /*!< Memory error */
+    lwjsonERRPAR,    /*!< Parameter error */
 
     lwjsonSTREAMWAITFIRSTCHAR, /*!< Streaming parser did not yet receive first valid character
                                     indicating start of JSON sequence */
@@ -177,6 +177,8 @@ typedef enum {
     LWJSON_STREAM_STATE_PARSING,        /*!< In parsing of the first char state - detecting next character state */
     LWJSON_STREAM_STATE_PARSING_STRING, /*!< Parse string primitive */
     LWJSON_STREAM_STATE_PARSING_PRIMITIVE, /*!< Parse any primitive that is non-string, either "true", "false", "null" or a number */
+    LWJSON_STREAM_STATE_EXPECTING_COMMA_OR_END, /*!< Expecting ',', '}' or ']' */
+    LWJSON_STREAM_STATE_EXPECTING_COLON,        /*!< Expecting ':' */
 } lwjson_stream_state_t;
 
 /* Forward declaration */
@@ -196,9 +198,11 @@ typedef struct lwjson_stream_parser {
         stack[LWJSON_CFG_STREAM_STACK_SIZE]; /*!< Stack used for parsing. TODO: Add conditional compilation flag */
     size_t stack_pos;                        /*!< Current stack position */
 
-    lwjson_stream_state_t parse_state;       /*!< Parser state */
+    lwjson_stream_state_t parse_state; /*!< Parser state */
 
     lwjson_stream_parser_callback_fn evt_fn; /*!< Event function for user */
+
+    void* user_data; /*!< User data for callback function */
 
     /* State */
     union {
@@ -217,12 +221,14 @@ typedef struct lwjson_stream_parser {
         } prim; /*!< Primitive object. Used for all types, except key or string */
 
         /* Todo: Add other types */
-    } data;      /*!< Data union used to parse various */
+    } data; /*!< Data union used to parse various */
 
     char prev_c; /*!< History of characters */
 } lwjson_stream_parser_t;
 
 lwjsonr_t lwjson_stream_init(lwjson_stream_parser_t* jsp, lwjson_stream_parser_callback_fn evt_fn);
+lwjsonr_t lwjson_stream_set_user_data(lwjson_stream_parser_t* jsp, void* user_data);
+void* lwjson_stream_get_user_data(lwjson_stream_parser_t* jsp);
 lwjsonr_t lwjson_stream_reset(lwjson_stream_parser_t* jsp);
 lwjsonr_t lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c);
 
@@ -320,6 +326,52 @@ lwjson_string_compare_n(const lwjson_token_t* token, const char* str, size_t len
     }
     return 0;
 }
+
+/**
+ * \name            LWJSON_STREAM_SEQ
+ * \brief           Helper functions for stack analysis in a callback function
+ * \note            Useful exclusively for streaming functions
+ * \{
+ */
+
+/**
+ * \brief           Check the sequence of JSON stack, starting from start_number index
+ * \note            This applies only to one sequence element. Other macros, starting with
+ *                      `lwjson_stack_seq_X` (where X is the sequence length), provide
+ *                      more parameters for longer sequences.
+ * 
+ * \param[in]       jsp: LwJSON stream instance
+ * \param[in]       start_num: Start number in the stack. Typically starts with `0`, but user may choose another
+ *                      number, if intention is to check partial sequence only
+ * \param[in]       sp0: Stream stack type. Value of \ref lwjson_stream_type_t, but only last part of the enum.
+ *                      If user is interested in the \ref LWJSON_STREAM_TYPE_OBJECT,
+ *                      you should only write `OBJECT` as parameter.
+ *                      Idea behind is to make code smaller and easier to read, especially when
+ *                      using other sequence values with more parameters.
+ * \return          `0` if sequence doesn't match, non-zero otherwise
+ */
+#define lwjson_stack_seq_1(jsp, start_num, sp0) ((jsp)->stack[(start_num)].type == LWJSON_STREAM_TYPE_##sp0)
+#define lwjson_stack_seq_2(jsp, start_num, sp0, sp1)                                                                   \
+    (lwjson_stack_seq_1((jsp), (start_num) + 0, sp0) && lwjson_stack_seq_1((jsp), (start_num) + 1, sp1))
+#define lwjson_stack_seq_3(jsp, start_num, sp0, sp1, sp2)                                                              \
+    (lwjson_stack_seq_1((jsp), (start_num) + 0, sp0) && lwjson_stack_seq_2((jsp), (start_num) + 1, sp1, sp2))
+#define lwjson_stack_seq_4(jsp, start_num, sp0, sp1, sp2, sp3)                                                         \
+    (lwjson_stack_seq_1((jsp), (start_num) + 0, sp0) && lwjson_stack_seq_3((jsp), (start_num) + 1, sp1, sp2, sp3))
+#define lwjson_stack_seq_5(jsp, start_num, sp0, sp1, sp2, sp3, sp4)                                                    \
+    (lwjson_stack_seq_1((jsp), (start_num) + 0, sp0) && lwjson_stack_seq_4((jsp), (start_num) + 1, sp1, sp2, sp3, sp4))
+#define lwjson_stack_seq_6(jsp, start_num, sp0, sp1, sp2, sp3, sp4, sp5)                                               \
+    (lwjson_stack_seq_1((jsp), (start_num) + 0, sp0)                                                                   \
+     && lwjson_stack_seq_5((jsp), (start_num) + 1, sp1, sp2, sp3, sp4, sp5))
+#define lwjson_stack_seq_7(jsp, start_num, sp0, sp1, sp2, sp3, sp4, sp5, sp6)                                          \
+    (lwjson_stack_seq_1((jsp), (start_num) + 0, sp0)                                                                   \
+     && lwjson_stack_seq_6((jsp), (start_num) + 1, sp1, sp2, sp3, sp4, sp5, sp6))
+#define lwjson_stack_seq_8(jsp, start_num, sp0, sp1, sp2, sp3, sp4, sp5, sp6, sp7)                                     \
+    (lwjson_stack_seq_1((jsp), (start_num) + 0, sp0)                                                                   \
+     && lwjson_stack_seq_7((jsp), (start_num) + 1, sp1, sp2, sp3, sp4, sp5, sp6, sp7))
+
+/**
+ * \}
+ */
 
 /**
  * \}

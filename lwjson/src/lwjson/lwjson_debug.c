@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2023 Tilen MAJERLE
+ * Copyright (c) 2024 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.6.1
+ * Version:         v1.7.0
  */
 #include <stdio.h>
 #include <string.h>
@@ -44,12 +44,12 @@ typedef struct {
 
 /**
  * \brief           Print token value
- * \param[in]       p: Token print instance
+ * \param[in]       prt: Token print instance
  * \param[in]       token: Token to print
  */
 static void
-prv_print_token(lwjson_token_print_t* p, const lwjson_token_t* token) {
-#define print_indent() printf("%.*s", (int)((p->indent)), "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t");
+prv_print_token(lwjson_token_print_t* prt, const lwjson_token_t* token) {
+#define print_indent() printf("%.*s", (int)((prt->indent)), "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t");
 
     if (token == NULL) {
         return;
@@ -68,11 +68,11 @@ prv_print_token(lwjson_token_print_t* p, const lwjson_token_t* token) {
             printf("%c", token->type == LWJSON_TYPE_OBJECT ? '{' : '[');
             if (token->u.first_child != NULL) {
                 printf("\n");
-                ++p->indent;
+                ++prt->indent;
                 for (const lwjson_token_t* t = lwjson_get_first_child(token); t != NULL; t = t->next) {
-                    prv_print_token(p, t);
+                    prv_print_token(prt, t);
                 }
-                --p->indent;
+                --prt->indent;
                 print_indent();
             }
             printf("%c", token->type == LWJSON_TYPE_OBJECT ? '}' : ']');
@@ -102,8 +102,7 @@ prv_print_token(lwjson_token_print_t* p, const lwjson_token_t* token) {
             printf("NULL");
             break;
         }
-        default:
-            break;
+        default: break;
     }
     if (token->next != NULL) {
         printf(",");
@@ -118,8 +117,8 @@ prv_print_token(lwjson_token_print_t* p, const lwjson_token_t* token) {
  */
 void
 lwjson_print_token(const lwjson_token_t* token) {
-    lwjson_token_print_t p = {0};
-    prv_print_token(&p, token);
+    lwjson_token_print_t prt = {0};
+    prv_print_token(&prt, token);
 }
 
 /**
@@ -129,6 +128,6 @@ lwjson_print_token(const lwjson_token_t* token) {
  */
 void
 lwjson_print_json(const lwjson_t* lwobj) {
-    lwjson_token_print_t p = {0};
-    prv_print_token(&p, lwjson_get_first_token(lwobj));
+    lwjson_token_print_t prt = {0};
+    prv_print_token(&prt, lwjson_get_first_token(lwobj));
 }

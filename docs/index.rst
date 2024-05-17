@@ -16,7 +16,7 @@ LwJSON is a generic JSON parser library optimized for embedded systems.
 Features
 ^^^^^^^^
 
-* Written in ANSI C99, compatible with ``size_t`` for size data types
+* Written in C (C11), compatible with ``size_t`` for size data types
 * RFC 4627 and RFC 8259 compliant
 * Based on static token allocation with optional application dynamic pre-allocation
 * No recursion during parse operation
@@ -73,6 +73,7 @@ Table of contents
     user-manual/index
     api-reference/index
     changelog/index
+    authors/index
 
 .. toctree::
     :maxdepth: 2
@@ -84,7 +85,7 @@ Table of contents
     LwESP - ESP-AT library <https://github.com/MaJerle/lwesp>
     LwEVT - Event manager <https://github.com/MaJerle/lwevt>
     LwGPS - GPS NMEA parser <https://github.com/MaJerle/lwgps>
-    LwGSM - GSM-AT library <https://github.com/MaJerle/lwgsm>
+    LwCELL - Cellular modem host AT library <https://github.com/MaJerle/lwcell>
     LwJSON - JSON parser <https://github.com/MaJerle/lwjson>
     LwMEM - Memory manager <https://github.com/MaJerle/lwmem>
     LwOW - OneWire with UART <https://github.com/MaJerle/lwow>
