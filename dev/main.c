@@ -30,15 +30,17 @@ main() {
     const lwjson_token_t* tkn;
 
     (void)token_cnt;
-#if 1
+#if 0
     trial_stream_run();
     return 0;
 #endif
-#if 0
+#if 1
     test_run();
+#if 1
     example_minimal_run();
     example_traverse_run();
     example_stream_run();
+#endif
     return 0;
 #endif
 

@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.6.1
+ * Version:         v1.7.0
  */
 #include <string.h>
 #include "lwjson/lwjson.h"
@@ -215,8 +215,8 @@ start_over:
             if (prv_is_space_char_ext(chr)) {
                 break;
 
-            /* Determine value separator */
-            } else if ( chr == ',') {
+                /* Determine value separator */
+            } else if (chr == ',') {
                 if (jsp->parse_state == LWJSON_STREAM_STATE_EXPECTING_COMMA_OR_END) {
                     jsp->parse_state = LWJSON_STREAM_STATE_PARSING;
                 } else {
@@ -274,8 +274,8 @@ start_over:
 
                 /* If comma or end was expected, then it is already error here */
             } else if (jsp->parse_state == LWJSON_STREAM_STATE_EXPECTING_COMMA_OR_END) {
-                    LWJSON_DEBUG(jsp, "ERROR - ',', '}' or ']' was expected\r\n");
-                    return lwjsonERRJSON;
+                LWJSON_DEBUG(jsp, "ERROR - ',', '}' or ']' was expected\r\n");
+                return lwjsonERRJSON;
 
                 /* Determine start of string - can be key or regular string (in array or after key) */
             } else if (chr == '"') {
