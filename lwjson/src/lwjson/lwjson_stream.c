@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.7.0
+ * Version:         v1.8.0
  */
 #include <string.h>
 #include "lwjson/lwjson.h"
@@ -47,7 +47,7 @@
     } while (0)
 
 /* Strings for debug */
-static const char* const type_strings[] = {
+const char* const lwjson_type_strings[] = {
     [LWJSON_STREAM_TYPE_NONE] = "none",
     [LWJSON_STREAM_TYPE_OBJECT] = "object",
     [LWJSON_STREAM_TYPE_OBJECT_END] = "object_end",
@@ -91,7 +91,7 @@ prv_stack_push(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type) {
     if (jsp->stack_pos < LWJSON_ARRAYSIZE(jsp->stack)) {
         jsp->stack[jsp->stack_pos].type = type;
         jsp->stack[jsp->stack_pos].meta.index = 0;
-        LWJSON_DEBUG(jsp, "Pushed to stack: %s\r\n", type_strings[type]);
+        LWJSON_DEBUG(jsp, "Pushed to stack: %s\r\n", lwjson_type_strings[type]);
         jsp->stack_pos++;
         return 1;
     }
@@ -109,7 +109,7 @@ prv_stack_pop(lwjson_stream_parser_t* jsp) {
         lwjson_stream_type_t type = jsp->stack[--jsp->stack_pos].type;
 
         jsp->stack[jsp->stack_pos].type = LWJSON_STREAM_TYPE_NONE;
-        LWJSON_DEBUG(jsp, "Popped from stack: %s\r\n", type_strings[type]);
+        LWJSON_DEBUG(jsp, "Popped from stack: %s\r\n", lwjson_type_strings[type]);
 
         /* Take care of array to indicate number of entries */
         if (jsp->stack_pos > 0 && jsp->stack[jsp->stack_pos - 1].type == LWJSON_STREAM_TYPE_ARRAY) {
@@ -244,7 +244,7 @@ start_over:
                 if ((chr == '}' && type != LWJSON_STREAM_TYPE_OBJECT)
                     || (chr == ']' && type != LWJSON_STREAM_TYPE_ARRAY)) {
                     LWJSON_DEBUG(jsp, "ERROR - closing character '%c' does not match stack element \"%s\"\r\n", chr,
-                                 type_strings[type]);
+                                 lwjson_type_strings[type]);
                     return lwjsonERRJSON;
                 }
 
@@ -252,6 +252,8 @@ start_over:
                 if (prv_stack_pop(jsp) == LWJSON_STREAM_TYPE_NONE) {
                     return lwjsonERRJSON;
                 }
+
+                SEND_EVT(jsp, chr == '}' ? LWJSON_STREAM_TYPE_OBJECT_END : LWJSON_STREAM_TYPE_ARRAY_END);
 
                 /*
                  * Check if above is a key type
@@ -262,7 +264,6 @@ start_over:
                 if (prv_stack_get_top(jsp) == LWJSON_STREAM_TYPE_KEY) {
                     prv_stack_pop(jsp);
                 }
-                SEND_EVT(jsp, chr == '}' ? LWJSON_STREAM_TYPE_OBJECT_END : LWJSON_STREAM_TYPE_ARRAY_END);
 
                 /* If that is the end of JSON */
                 if (jsp->stack_pos == 0) {
@@ -304,12 +305,12 @@ start_over:
                 if (jsp->parse_state == LWJSON_STREAM_STATE_WAITINGFIRSTCHAR) {
                     jsp->stack_pos = 0;
                 }
+                SEND_EVT(jsp, chr == '{' ? LWJSON_STREAM_TYPE_OBJECT : LWJSON_STREAM_TYPE_ARRAY);
                 if (!prv_stack_push(jsp, chr == '{' ? LWJSON_STREAM_TYPE_OBJECT : LWJSON_STREAM_TYPE_ARRAY)) {
                     LWJSON_DEBUG(jsp, "Cannot push object/array to stack\r\n");
                     return lwjsonERRMEM;
                 }
                 jsp->parse_state = LWJSON_STREAM_STATE_PARSING;
-                SEND_EVT(jsp, chr == '{' ? LWJSON_STREAM_TYPE_OBJECT : LWJSON_STREAM_TYPE_ARRAY);
 
                 /* Check if this is start of number or "true", "false" or "null" */
             } else if (chr == '-' || (chr >= '0' && chr <= '9') || chr == 't' || chr == 'f' || chr == 'n') {

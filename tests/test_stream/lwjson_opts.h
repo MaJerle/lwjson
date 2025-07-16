@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.7.0
+ * Version:         v1.8.0
  */
 #ifndef LWJSON_OPTS_HDR_H
 #define LWJSON_OPTS_HDR_H
@@ -40,7 +40,9 @@
  * Open "include/lwjson/lwjson_opt.h" and
  * copy & replace here settings you want to change values
  */
-#define LWJSON_CFG_JSON5    1
-#define LWJSON_CFG_COMMENTS 1
+#define LWJSON_CFG_JSON5                 1
+#define LWJSON_CFG_COMMENTS              1
+
+#define LWJSON_CFG_STREAM_STRING_MAX_LEN 16
 
 #endif /* LWJSON_OPTS_HDR_H */

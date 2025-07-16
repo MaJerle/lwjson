@@ -1,4 +1,4 @@
-# 
+#
 # LIB_PREFIX: LWJSON
 #
 # This file provides set of variables for end user
@@ -32,18 +32,19 @@ set(lwjson_include_DIRS
 )
 
 # Register core library to the system
-add_library(lwjson INTERFACE)
-target_sources(lwjson PUBLIC ${lwjson_core_SRCS})
-target_include_directories(lwjson INTERFACE ${lwjson_include_DIRS})
+add_library(lwjson)
+target_sources(lwjson PRIVATE ${lwjson_core_SRCS})
+target_include_directories(lwjson PUBLIC ${lwjson_include_DIRS})
 target_compile_options(lwjson PRIVATE ${LWJSON_COMPILE_OPTIONS})
 target_compile_definitions(lwjson PRIVATE ${LWJSON_COMPILE_DEFINITIONS})
 
 # Register lwjson debug module
-add_library(lwjson_debug INTERFACE)
-target_sources(lwjson_debug PUBLIC ${lwjson_debug_SRCS})
-target_include_directories(lwjson_debug INTERFACE ${lwjson_include_DIRS})
+add_library(lwjson_debug)
+target_sources(lwjson_debug PRIVATE ${lwjson_debug_SRCS})
+target_include_directories(lwjson_debug PUBLIC ${lwjson_include_DIRS})
 target_compile_options(lwjson_debug PRIVATE ${LWJSON_COMPILE_OPTIONS})
 target_compile_definitions(lwjson_debug PRIVATE ${LWJSON_COMPILE_DEFINITIONS})
+target_link_libraries(lwjson_debug PUBLIC lwjson)
 
 # Create config file if user didn't provide one info himself
 if(NOT LWJSON_OPTS_FILE)
@@ -52,4 +53,5 @@ if(NOT LWJSON_OPTS_FILE)
 else()
     message(STATUS "Using custom lwjson_opts.h file from ${LWJSON_OPTS_FILE}")
 endif()
+
 configure_file(${LWJSON_OPTS_FILE} ${LWJSON_CUSTOM_INC_DIR}/lwjson_opts.h COPYONLY)

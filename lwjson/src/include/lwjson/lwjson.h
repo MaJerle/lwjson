@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.7.0
+ * Version:         v1.8.0
  */
 #ifndef LWJSON_HDR_H
 #define LWJSON_HDR_H
@@ -68,6 +68,10 @@ typedef enum {
     LWJSON_TYPE_FALSE,    /*!< False boolean value */
     LWJSON_TYPE_NULL,     /*!< Null value */
 } lwjson_type_t;
+
+#if defined(LWJSON_DEV)
+extern const char* const lwjson_type_strings[];
+#endif
 
 /**
  * \brief           Real data type

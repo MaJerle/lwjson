@@ -1,12 +1,17 @@
 {
     "files.associations": {
+        "*.lcdjson": "json",
         "lwevt_types.h": "c",
         "lwevt_type.h": "c",
         "lwevt.h": "c",
         "string.h": "c",
         "lwevt_opt.h": "c",
         "lwjson.h": "c",
-        "lwjson_opt.h": "c"
+        "lwjson_opt.h": "c",
+        "math.h": "c",
+        "cstdlib": "c",
+        "*.def": "c",
+        "lwjson_opts.h": "c"
     },
     "esbonio.sphinx.confDir": "",
     "C_Cpp.codeAnalysis.clangTidy.useBuildPath": true
