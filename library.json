@@ -1,6 +1,6 @@
 {
     "name": "LwJSON",
-    "version": "1.8.0",
+    "version": "1.8.1",
     "description": "Lightweight JSON parser for embedded systems with support for inline comments",
     "keywords": "json, javascript, lightweight, parser, stm32, manager, library, comment, object, notation, object notation",
     "repository": {
@@ -31,6 +31,8 @@
         ]
     },
     "build": {
-        "includeDir": "lwjson/src/include"
+        "includeDir": "lwjson/src/include",
+        "srcDir": ".",
+        "srcFilter": "+<lwjson>"
     }
 }

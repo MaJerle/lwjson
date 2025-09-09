@@ -2,6 +2,10 @@
 
 ## Develop
 
+## 1.8.1
+
+- Fix the platformio library package description
+
 ## 1.8.0
 
 - Rework library CMake with removed INTERFACE type
