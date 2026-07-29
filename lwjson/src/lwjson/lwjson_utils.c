@@ -3,7 +3,7 @@
  * \brief           JSON string utility functions for character escaping and unescaping
  */
 
- /*
+/*
  * Copyright (c) 2025 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.8.1
+ * Version:         v1.9.0
  */
 /* Include lwjson headers */
 #include "lwjson/lwjson_utils.h"
@@ -40,20 +40,20 @@
  *                  [1] = second char of escape sequence
  */
 static const char escape_map[][2] = {
-    {'"',  '"'},   /* " -> \" */
-    {'/',  '/'},   /* / -> \/ */
-    {'\\', '\\'},  /* \ -> \\ */
-    {'\b', 'b'},   /* backspace -> \b */
-    {'\f', 'f'},   /* form feed -> \f */
-    {'\n', 'n'},   /* newline -> \n */
-    {'\r', 'r'},   /* carriage return -> \r */
-    {'\t', 't'},   /* tab -> \t */
+    {'"', '"'},   /* " -> \" */
+    {'/', '/'},   /* / -> \/ */
+    {'\\', '\\'}, /* \ -> \\ */
+    {'\b', 'b'},  /* backspace -> \b */
+    {'\f', 'f'},  /* form feed -> \f */
+    {'\n', 'n'},  /* newline -> \n */
+    {'\r', 'r'},  /* carriage return -> \r */
+    {'\t', 't'},  /* tab -> \t */
 };
 
 /**
  * \brief           Number of escape character mappings
  */
-#define ESCAPE_CHARS_COUNT  (sizeof(escape_map) / sizeof(escape_map[0]))
+#define ESCAPE_CHARS_COUNT (sizeof(escape_map) / sizeof(escape_map[0]))
 
 /**
  * \brief           Check if character needs to be escaped
@@ -81,7 +81,8 @@ prv_char_needs_escape(char* ch) {
  * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
  */
 lwjsonr_t
-lwjson_utils_escape_string(const char* input, size_t input_len, char* output, size_t output_capacity, size_t* bytes_written) {
+lwjson_utils_escape_string(const char* input, size_t input_len, char* output, size_t output_capacity,
+                           size_t* bytes_written) {
     /* Parameter validation */
     if (input == NULL || output == NULL || bytes_written == NULL) {
         return lwjsonERRNULL;
@@ -150,7 +151,8 @@ lwjson_utils_escape_string_cb(const char* input, size_t input_len, lwjson_serial
  * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
  */
 lwjsonr_t
-lwjson_utils_unescape_string(const char* input, size_t input_len, char* output, size_t output_capacity, size_t* bytes_written) {
+lwjson_utils_unescape_string(const char* input, size_t input_len, char* output, size_t output_capacity,
+                             size_t* bytes_written) {
     uint8_t escaped = 0;
 
     /* Parameter validation */

@@ -7,7 +7,7 @@
  *
  */
 
- /*
+/*
  * Copyright (c) 2025 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
@@ -33,7 +33,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.8.1
+ * Version:         v1.9.0
  */
 /* Include system headers */
 #include <inttypes.h>
@@ -135,7 +135,7 @@ prv_add_key(lwjson_serializer_t* serializer, const char* key, size_t key_len) {
 static lwjsonr_t
 prv_stack_push(lwjson_serializer_t* serializer, lwjson_serializer_stack_type_t type) {
     if (serializer->top >= LWJSON_CFG_SERIALIZER_MAX_STACK_DEPTH - 1) {
-        return lwjsonERRINVAL;  /* Stack overflow */
+        return lwjsonERRINVAL; /* Stack overflow */
     }
 
     ++serializer->top;
@@ -154,7 +154,8 @@ prv_stack_push(lwjson_serializer_t* serializer, lwjson_serializer_stack_type_t t
  * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
  */
 static lwjsonr_t
-prv_add_element(lwjson_serializer_t* serializer, const char* key, size_t key_len, const char* value, size_t value_len, lwjson_type_t type) {
+prv_add_element(lwjson_serializer_t* serializer, const char* key, size_t key_len, const char* value, size_t value_len,
+                lwjson_type_t type) {
     lwjsonr_t res;
 
     /* Parameter validation */
@@ -223,7 +224,7 @@ prv_add_element(lwjson_serializer_t* serializer, const char* key, size_t key_len
 static lwjsonr_t
 prv_stack_pop(lwjson_serializer_t* serializer, lwjson_serializer_stack_type_t* type) {
     if (serializer->top < 0) {
-        return lwjsonERRINVAL;  /* Stack underflow */
+        return lwjsonERRINVAL; /* Stack underflow */
     }
 
     if (type != NULL) {
@@ -257,13 +258,13 @@ prv_end_container(lwjson_serializer_t* serializer, lwjson_serializer_stack_type_
 
     /* Check for type mismatch */
     if (stack_type != type) {
-        return lwjsonERRJSON;  /* Type mismatch */
+        return lwjsonERRJSON; /* Type mismatch */
     }
 
     /* Add closing bracket for object/array */
     if (type == LWJSON_SERIALIZER_TYPE_OBJECT) {
         res = prv_append_string(serializer, "}", 1);
-    } else{
+    } else {
         res = prv_append_string(serializer, "]", 1);
     }
     if (res != lwjsonOK) {
@@ -337,7 +338,7 @@ lwjson_serializer_finalize(lwjson_serializer_t* serializer, size_t* total_length
     }
 
     if (serializer->top != -1) {
-        return lwjsonERRINVAL;  /* Not all objects/arrays are closed */
+        return lwjsonERRINVAL; /* Not all objects/arrays are closed */
     }
 
     /* Return length only if total_length is requested */
@@ -382,7 +383,7 @@ lwjson_serializer_init_callback(lwjson_serializer_t* serializer, lwjson_serializ
  */
 lwjsonr_t
 lwjson_serializer_start_object(lwjson_serializer_t* serializer, const char* key, size_t key_len) {
-    return prv_add_element(serializer, key, key_len,  "{", 1U, LWJSON_TYPE_OBJECT);
+    return prv_add_element(serializer, key, key_len, "{", 1U, LWJSON_TYPE_OBJECT);
 }
 
 /**
@@ -398,7 +399,7 @@ lwjson_serializer_start_object(lwjson_serializer_t* serializer, const char* key,
  */
 lwjsonr_t
 lwjson_serializer_start_array(lwjson_serializer_t* serializer, const char* key, size_t key_len) {
-    return prv_add_element(serializer, key, key_len,  "[", 1U, LWJSON_TYPE_ARRAY);
+    return prv_add_element(serializer, key, key_len, "[", 1U, LWJSON_TYPE_ARRAY);
 }
 
 /**
@@ -446,7 +447,8 @@ lwjson_serializer_end_array(lwjson_serializer_t* serializer) {
  * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
  */
 lwjsonr_t
-lwjson_serializer_add_string(lwjson_serializer_t* serializer, const char* key, size_t key_len, const char* value, size_t value_len) {
+lwjson_serializer_add_string(lwjson_serializer_t* serializer, const char* key, size_t key_len, const char* value,
+                             size_t value_len) {
     return prv_add_element(serializer, key, key_len, value, value_len, LWJSON_TYPE_STRING);
 }
 
@@ -466,7 +468,7 @@ lwjsonr_t
 lwjson_serializer_add_uint(lwjson_serializer_t* serializer, const char* key, size_t key_len, uint64_t value) {
     char number_str[32]; /* Large enough for uint64_t */
     int32_t num_len;
-    
+
     /* Convert number to string */
     num_len = snprintf(number_str, sizeof(number_str), "%" PRIu64, value);
     if (num_len < 0) {
@@ -562,5 +564,5 @@ lwjson_serializer_add_bool(lwjson_serializer_t* serializer, const char* key, siz
  */
 lwjsonr_t
 lwjson_serializer_add_null(lwjson_serializer_t* serializer, const char* key, size_t key_len) {
-   return prv_add_element(serializer, key, key_len, "null", 4, LWJSON_TYPE_NULL);
+    return prv_add_element(serializer, key, key_len, "null", 4, LWJSON_TYPE_NULL);
 }
