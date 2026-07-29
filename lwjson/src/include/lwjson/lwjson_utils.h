@@ -1,10 +1,10 @@
 /**
- * \file            lwjson_opts_template.h
- * \brief           Template config file
+ * \file            lwjson_utils.h
+ * \brief           JSON string utility functions for character escaping and unescaping
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2025 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -31,14 +31,39 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.9.0
  */
-#ifndef LWJSON_OPTS_HDR_H
-#define LWJSON_OPTS_HDR_H
+#ifndef LWJSON_UTILS_HDR_H
+#define LWJSON_UTILS_HDR_H
 
-/* Rename this file to "lwjson_opts.h" for your application */
+/* Include system headers */
+#include <stddef.h>
+#include <stdint.h>
 
-/*
- * Open "include/lwjson/lwjson_opt.h" and
- * copy & replace here settings you want to change values
+/* Include lwjson library */
+#include "lwjson.h"
+#include "lwjson_serializer.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * \ingroup         LWJSON
+ * \{
  */
 
-#endif /* LWJSON_OPTS_HDR_H */
+lwjsonr_t lwjson_utils_escape_string(const char* input, size_t input_len, char* output, size_t output_capacity,
+                                     size_t* bytes_written);
+lwjsonr_t lwjson_utils_escape_string_cb(const char* input, size_t input_len, lwjson_serializer_callback_fn callback,
+                                        void* ctx);
+lwjsonr_t lwjson_utils_unescape_string(const char* input, size_t input_len, char* output, size_t output_capacity,
+                                       size_t* bytes_written);
+
+/**
+ * \}
+ */
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* LWJSON_UTILS_HDR_H */

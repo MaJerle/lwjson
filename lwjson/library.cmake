@@ -18,6 +18,8 @@ set(LWJSON_CUSTOM_INC_DIR ${CMAKE_CURRENT_BINARY_DIR}/lib_inc)
 set(lwjson_core_SRCS
     ${CMAKE_CURRENT_LIST_DIR}/src/lwjson/lwjson.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwjson/lwjson_stream.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/lwjson/lwjson_serializer.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/lwjson/lwjson_utils.c
 )
 
 # Debug sources

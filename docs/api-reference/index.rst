@@ -10,3 +10,4 @@ List of all the modules:
 
 	lwjson
 	lwjson_opt
+	lwjson_serializer

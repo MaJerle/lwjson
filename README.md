@@ -16,6 +16,7 @@ First one being optimized for ultra small microcontrollers, second one being rea
 * Zero-copy, no ``malloc`` or ``free`` functions used
 * Supports streaming parsing as secondary option
 * Optional support for inline comments with `/* comment... */` syntax between any *blank* region of input string
+* JSON serializer separate module
 * Advanced find algorithm for tokens
 * Test coverage is available
 * User friendly MIT license

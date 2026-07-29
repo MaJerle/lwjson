@@ -29,10 +29,11 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.8.1
+ * Version:         v1.9.0
  */
 #include <string.h>
 #include "lwjson/lwjson.h"
+#include "lwjson/lwjson_utils.h"
 
 #if defined(LWJSON_DEV)
 #include <stdio.h>
@@ -157,6 +158,7 @@ lwjsonr_t
 lwjson_stream_reset(lwjson_stream_parser_t* jsp) {
     jsp->parse_state = LWJSON_STREAM_STATE_WAITINGFIRSTCHAR;
     jsp->stack_pos = 0;
+    jsp->is_escaped = 0;
     return lwjsonOK;
 }
 
@@ -292,6 +294,7 @@ start_over:
                 }
 #endif /* defined(LWJSON_DEV) */
                 jsp->parse_state = LWJSON_STREAM_STATE_PARSING_STRING;
+                jsp->is_escaped = 0;
                 LWJSON_MEMSET(&jsp->data.str, 0x00, sizeof(jsp->data.str));
 
             } else if (prv_stack_get_top(jsp) == LWJSON_STREAM_TYPE_OBJECT) {
@@ -355,13 +358,15 @@ start_over:
         case LWJSON_STREAM_STATE_PARSING_STRING: {
             lwjson_stream_type_t type = prv_stack_get_top(jsp);
 
-            /* 
-             * Quote character may trigger end of string, 
-             * or if backslasled before - it is part of string
-             * 
-             * TODO: Handle backslash
+            /*
+             * If previous character was an unescaped backslash,
+             * current character is part of an escape sequence.
+             * Clear the flag and fall through to store it normally.
              */
-            if (chr == '"' && jsp->prev_c != '\\') {
+            if (jsp->is_escaped) {
+                jsp->is_escaped = 0;
+            } else if (chr == '"') {
+                /* Unescaped quote terminates the string */
 #if defined(LWJSON_DEV)
                 if (type == LWJSON_STREAM_TYPE_OBJECT) {
                     LWJSON_DEBUG(jsp, "End of string parsing - object key name: \"%s\"\r\n", jsp->data.str.buff);
@@ -405,24 +410,28 @@ start_over:
                     SEND_EVT(jsp, LWJSON_STREAM_TYPE_STRING);
                     jsp->stack[jsp->stack_pos - 1].meta.index++;
                 }
-            } else {
-                /* TODO: Check other backslash elements */
-                jsp->data.str.buff[jsp->data.str.buff_pos++] = chr;
-                jsp->data.str.buff_total_pos++;
+                break;
+            } else if (chr == '\\') {
+                /* Backslash starts an escape sequence */
+                jsp->is_escaped = 1;
+            }
 
-                /* Handle buffer "overflow" */
-                if (jsp->data.str.buff_pos >= (LWJSON_CFG_STREAM_STRING_MAX_LEN - 1)) {
-                    jsp->data.str.buff[jsp->data.str.buff_pos] = '\0';
+            /* Store character in buffer (escaped chars, backslash, and normal chars) */
+            jsp->data.str.buff[jsp->data.str.buff_pos++] = chr;
+            jsp->data.str.buff_total_pos++;
 
-                    /* 
-                     * - For array or key types - following one is always string
-                     * - For object type - character is key
-                     */
-                    SEND_EVT(jsp, (type == LWJSON_STREAM_TYPE_KEY || type == LWJSON_STREAM_TYPE_ARRAY)
-                                      ? LWJSON_STREAM_TYPE_STRING
-                                      : LWJSON_STREAM_TYPE_KEY);
-                    jsp->data.str.buff_pos = 0;
-                }
+            /* Handle buffer "overflow" */
+            if (jsp->data.str.buff_pos >= (sizeof(jsp->data.str.buff) - 1)) {
+                jsp->data.str.buff[jsp->data.str.buff_pos] = '\0';
+
+                /*
+                 * - For array or key types - following one is always string
+                 * - For object type - character is key
+                 */
+                SEND_EVT(jsp, (type == LWJSON_STREAM_TYPE_KEY || type == LWJSON_STREAM_TYPE_ARRAY)
+                                  ? LWJSON_STREAM_TYPE_STRING
+                                  : LWJSON_STREAM_TYPE_KEY);
+                jsp->data.str.buff_pos = 0;
             }
             break;
         }
@@ -496,6 +505,5 @@ start_over:
 
         default: break;
     }
-    jsp->prev_c = chr; /* Save current c as previous for next round */
     return lwjsonSTREAMINPROG;
 }

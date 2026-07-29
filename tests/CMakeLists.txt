@@ -20,7 +20,9 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
 )
 
 # Include file that can add more sources and prepare lib parameters
-include(${TEST_CMAKE_FILE_NAME})
+if(DEFINED TEST_CMAKE_FILE_NAME AND NOT "${TEST_CMAKE_FILE_NAME}" STREQUAL "")
+    include(${TEST_CMAKE_FILE_NAME})
+endif()
 
 # Add subdir with lwjson and link to project
 add_subdirectory("../lwjson" lwjson)

@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.8.1
+ * Version:         v1.9.0
  */
 #ifndef LWJSON_OPT_HDR_H
 #define LWJSON_OPT_HDR_H
@@ -83,7 +83,7 @@ extern "C" {
 
 /**
  * \brief           Memory set function
- * 
+ *
  * \note            Function footprint is the same as \ref memset
  */
 #ifndef LWJSON_MEMSET
@@ -92,7 +92,7 @@ extern "C" {
 
 /**
  * \brief           Memory copy function
- * 
+ *
  * \note            Function footprint is the same as \ref memcpy
  */
 #ifndef LWJSON_MEMCPY
@@ -107,7 +107,7 @@ extern "C" {
 
 /**
  * \brief           Max length of token key (object key name) to be available for stack storage
- * 
+ *
  */
 #ifndef LWJSON_CFG_STREAM_KEY_MAX_LEN
 #define LWJSON_CFG_STREAM_KEY_MAX_LEN 32
@@ -115,7 +115,7 @@ extern "C" {
 
 /**
  * \brief           Max stack size (depth) in units of \ref lwjson_stream_stack_t structure
- * 
+ *
  */
 #ifndef LWJSON_CFG_STREAM_STACK_SIZE
 #define LWJSON_CFG_STREAM_STACK_SIZE 16
@@ -123,7 +123,7 @@ extern "C" {
 
 /**
  * \brief           Max size of string for single parsing in units of bytes
- * 
+ *
  */
 #ifndef LWJSON_CFG_STREAM_STRING_MAX_LEN
 #define LWJSON_CFG_STREAM_STRING_MAX_LEN 256
@@ -131,11 +131,28 @@ extern "C" {
 
 /**
  * \brief           Max number of bytes used to parse primitive.
- * 
+ *
  * Primitives are all numbers and logical values (null, true, false)
  */
 #ifndef LWJSON_CFG_STREAM_PRIMITIVE_MAX_LEN
 #define LWJSON_CFG_STREAM_PRIMITIVE_MAX_LEN 32
+#endif
+
+/**
+ * \}
+ */
+
+/**
+ * \defgroup        LWJSON_OPT_SERIALIZER JSON serializer
+ * \brief           JSON serialization configuration
+ * \{
+ */
+
+/**
+ * \brief           Maximum depth for nested objects and arrays
+ */
+#ifndef LWJSON_CFG_SERIALIZER_MAX_STACK_DEPTH
+#define LWJSON_CFG_SERIALIZER_MAX_STACK_DEPTH 8
 #endif
 
 /**

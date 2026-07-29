@@ -92,8 +92,7 @@ static const event_data_t expected_events[] = {
         {LWJSON_STREAM_TYPE_KEY, 1},
             {LWJSON_STREAM_TYPE_NUMBER, 2},
         {LWJSON_STREAM_TYPE_KEY, 1},
-            // 8 calls to transfer 107 characters in chunks of 15
-            {LWJSON_STREAM_TYPE_STRING, 2},
+            // 7 calls to transfer 107 characters in chunks of 16
             {LWJSON_STREAM_TYPE_STRING, 2},
             {LWJSON_STREAM_TYPE_STRING, 2},
             {LWJSON_STREAM_TYPE_STRING, 2},
@@ -123,9 +122,9 @@ prv_parser_callback(struct lwjson_stream_parser* jsp, lwjson_stream_type_t type)
         if (parsed_data.event_counter < num_expected_events) {
             event_data_t expected_event = expected_events[parsed_data.event_counter];
             if (type != expected_event.type || jsp->stack_pos != expected_event.stack_pos) {
-                printf("ERROR for event #%lu: Expected %s with stack_pos %lu, got %s with stack_pos %lu\n",
-                       parsed_data.event_counter + 1, lwjson_type_strings[expected_event.type],
-                       expected_event.stack_pos, lwjson_type_strings[type], jsp->stack_pos);
+                printf("ERROR for event #%u: Expected %s with stack_pos %u, got %s with stack_pos %u\n",
+                       (unsigned)(parsed_data.event_counter + 1), lwjson_type_strings[expected_event.type],
+                       (unsigned)expected_event.stack_pos, lwjson_type_strings[type], (unsigned)jsp->stack_pos);
                 parsed_data.event_error = true;
             }
         } else {
@@ -232,6 +231,29 @@ test_run(void) {
     /* Check event types */
     RUN_TEST(parsed_data.event_counter == num_expected_events);
     RUN_TEST(!parsed_data.event_error);
+
+    /*
+     * Verify strings ending with escaped backslash parse correctly
+     * and do not cause the parser to miss the closing quote.
+     */
+    {
+        static const char* escaped_bs_tests[] = {
+            "{\"a\":\"\\\\\"}", /* {"a":"\\"} - string is single backslash */
+            "{\"a\":\"\\\\\\\\\"}", /* {"a":"\\\\"} - string is two backslashes */
+            "{\"a\":\"\\\\\\\"\"}", /* {"a":"\\\"} - escaped bs then escaped quote */
+            "{\"a\":\"hello\\\\\"}", /* {"a":"hello\\"} */
+            NULL,
+        };
+        for (const char** tc = escaped_bs_tests; *tc != NULL; ++tc) {
+            lwjson_stream_init(&parser, prv_parser_callback);
+            const char* p = *tc;
+            lwjsonr_t res = lwjsonSTREAMINPROG;
+            while (*p && res == lwjsonSTREAMINPROG) {
+                res = lwjson_stream_parse(&parser, *p++);
+            }
+            RUN_TEST(res == lwjsonSTREAMDONE);
+        }
+    }
 
     return test_failed > 0 ? -1 : 0;
 }

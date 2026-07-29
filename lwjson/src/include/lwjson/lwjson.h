@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.8.1
+ * Version:         v1.9.0
  */
 #ifndef LWJSON_HDR_H
 #define LWJSON_HDR_H
@@ -120,6 +120,11 @@ typedef enum {
     lwjsonSTREAMDONE,          /*!< Streaming parser is done,
                                     closing character matched the stream opening one */
     lwjsonSTREAMINPROG,        /*!< Stream parsing is still in progress */
+
+    lwjsonERRNULL,  /*!< NULL pointer provided as parameter */
+    lwjsonERRINVAL, /*!< Invalid input parameter, other than NULL */
+    lwjsonERRBUF,   /*!< Output buffer is too small */
+    lwjsonERRESC,   /*!< Invalid escape sequence in string */
 } lwjsonr_t;
 
 /**
@@ -190,7 +195,7 @@ struct lwjson_stream_parser;
 
 /**
  * \brief           Callback function for various events
- * 
+ *
  */
 typedef void (*lwjson_stream_parser_callback_fn)(struct lwjson_stream_parser* jsp, lwjson_stream_type_t type);
 
@@ -227,7 +232,7 @@ typedef struct lwjson_stream_parser {
         /* Todo: Add other types */
     } data; /*!< Data union used to parse various */
 
-    char prev_c; /*!< History of characters */
+    uint8_t is_escaped; /*!< Set to 1 when backslash escape is active in string parsing */
 } lwjson_stream_parser_t;
 
 lwjsonr_t lwjson_stream_init(lwjson_stream_parser_t* jsp, lwjson_stream_parser_callback_fn evt_fn);
@@ -343,7 +348,7 @@ lwjson_string_compare_n(const lwjson_token_t* token, const char* str, size_t len
  * \note            This applies only to one sequence element. Other macros, starting with
  *                      `lwjson_stack_seq_X` (where X is the sequence length), provide
  *                      more parameters for longer sequences.
- * 
+ *
  * \param[in]       jsp: LwJSON stream instance
  * \param[in]       start_num: Start number in the stack. Typically starts with `0`, but user may choose another
  *                      number, if intention is to check partial sequence only

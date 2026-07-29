@@ -24,6 +24,7 @@ Features
 * Zero-copy, no ``malloc`` or ``free`` functions used
 * Supports streaming parsing as secondary option
 * Optional support for inline comments with `/* comment... */` syntax between any *blank* region of input string
+* JSON serializer separate module
 * Advanced find algorithm for tokens
 * Tests coverage is available
 * User friendly MIT license

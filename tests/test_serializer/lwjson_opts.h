@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2025 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -40,5 +40,9 @@
  * Open "include/lwjson/lwjson_opt.h" and
  * copy & replace here settings you want to change values
  */
+#define LWJSON_CFG_JSON5                 1
+#define LWJSON_CFG_COMMENTS              1
+
+#define LWJSON_CFG_STREAM_STRING_MAX_LEN 16
 
 #endif /* LWJSON_OPTS_HDR_H */

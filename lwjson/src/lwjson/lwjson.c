@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.8.1
+ * Version:         v1.9.0
  */
 #include <string.h>
 #include "lwjson/lwjson.h"
@@ -495,7 +495,7 @@ lwjson_init(lwjson_t* lwobj, lwjson_token_t* tokens, size_t tokens_len) {
  * JSON format must be complete and must comply with RFC4627
  * \param[in,out]   lwobj: LwJSON instance
  * \param[in]       json_data: JSON string to parse
- * \param[in]       jsonČlen: JSON data length
+ * \param[in]       json_len: JSON data length
  * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
  */
 lwjsonr_t
