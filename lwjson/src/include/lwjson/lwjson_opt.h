@@ -156,6 +156,16 @@ extern "C" {
 #endif
 
 /**
+ * \brief           Enables `1` or disables `0` 64-bit integer serializer APIs
+ *
+ * Set to `0` on targets without 64-bit integer support. In that mode,
+ * serializer integer APIs use `int32_t` and `uint32_t`.
+ */
+#ifndef LWJSON_CFG_SERIALIZER_USE_64BIT
+#define LWJSON_CFG_SERIALIZER_USE_64BIT 1
+#endif
+
+/**
  * \}
  */
 
