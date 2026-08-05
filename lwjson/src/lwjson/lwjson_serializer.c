@@ -465,12 +465,17 @@ lwjson_serializer_add_string(lwjson_serializer_t* serializer, const char* key, s
  * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
  */
 lwjsonr_t
-lwjson_serializer_add_uint(lwjson_serializer_t* serializer, const char* key, size_t key_len, uint64_t value) {
-    char number_str[32]; /* Large enough for uint64_t */
+lwjson_serializer_add_uint(lwjson_serializer_t* serializer, const char* key, size_t key_len,
+                           lwjson_serializer_uint_t value) {
+    char number_str[32]; /* Large enough for a 64-bit unsigned integer */
     int32_t num_len;
 
     /* Convert number to string */
+#if LWJSON_CFG_SERIALIZER_USE_64BIT
     num_len = snprintf(number_str, sizeof(number_str), "%" PRIu64, value);
+#else
+    num_len = snprintf(number_str, sizeof(number_str), "%" PRIu32, value);
+#endif
     if (num_len < 0) {
         return lwjsonERRINVAL;
     }
@@ -491,12 +496,17 @@ lwjson_serializer_add_uint(lwjson_serializer_t* serializer, const char* key, siz
  * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
  */
 lwjsonr_t
-lwjson_serializer_add_int(lwjson_serializer_t* serializer, const char* key, size_t key_len, int64_t value) {
-    char number_str[32]; /* Large enough for int64_t */
+lwjson_serializer_add_int(lwjson_serializer_t* serializer, const char* key, size_t key_len,
+                          lwjson_serializer_int_t value) {
+    char number_str[32]; /* Large enough for a 64-bit signed integer */
     int32_t num_len;
 
     /* Convert number to string */
+#if LWJSON_CFG_SERIALIZER_USE_64BIT
     num_len = snprintf(number_str, sizeof(number_str), "%" PRId64, value);
+#else
+    num_len = snprintf(number_str, sizeof(number_str), "%" PRId32, value);
+#endif
     if (num_len < 0) {
         return lwjsonERRINVAL;
     }
