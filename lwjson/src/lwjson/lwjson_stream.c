@@ -366,7 +366,10 @@ start_over:
             if (jsp->is_escaped) {
                 jsp->is_escaped = 0;
             } else if (chr == '"') {
-                /* Unescaped quote terminates the string */
+                /* Unescaped quote terminates the string.
+                    Add termination before calling the user function */
+                jsp->data.str.buff[jsp->data.str.buff_pos] = '\0';
+
 #if defined(LWJSON_DEV)
                 if (type == LWJSON_STREAM_TYPE_OBJECT) {
                     LWJSON_DEBUG(jsp, "End of string parsing - object key name: \"%s\"\r\n", jsp->data.str.buff);

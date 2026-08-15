@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Fix stream parser: NUL-terminate string buffer before invoking user callback, preventing any stale value
+
 ## 1.9.0
 
 - Added the JSON serialized new feature
