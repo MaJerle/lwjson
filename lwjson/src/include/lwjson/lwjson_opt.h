@@ -108,6 +108,17 @@ extern "C" {
 /**
  * \brief           Max length of token key (object key name) to be available for stack storage
  *
+ * \note            Key names longer than this value are not correctly captured during the parsing
+ *                  No error is returned in either case:
+ *                      - If the key still fits in a single \ref LWJSON_CFG_STREAM_STRING_MAX_LEN
+ *                        chunk (buffer used during parsing), the name is silently truncated to its first
+ *                        \ref LWJSON_CFG_STREAM_KEY_MAX_LEN characters. This is done during copy to stack
+ * 
+ *                      - If the key is longer to span more than one chunk of stream string max length,
+ *                          the stored name ends up holding only the last chunk - not a valid prefix of the key.
+ * 
+ *                  Size this value (and keep it `<=` \ref LWJSON_CFG_STREAM_STRING_MAX_LEN) large
+ *                  enough for every key name you expect to receive.
  */
 #ifndef LWJSON_CFG_STREAM_KEY_MAX_LEN
 #define LWJSON_CFG_STREAM_KEY_MAX_LEN 32
