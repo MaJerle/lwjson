@@ -393,10 +393,23 @@ start_over:
                 jsp->parse_state = LWJSON_STREAM_STATE_EXPECTING_COMMA_OR_END;
                 if (type == LWJSON_STREAM_TYPE_OBJECT) {
                     SEND_EVT(jsp, LWJSON_STREAM_TYPE_KEY);
+
+                    /*
+                     * The key parsing buffer is the general string buffer,
+                     * while after the push, we copy the string buffer to the meta buffer size.
+                     * 
+                     * We simply cap the string. The user is in charge to define
+                     * the options in a way to hold the full string of the key.
+                     * 
+                     * It may therefore happen that user gets correct key on callback (called above)
+                     * but later when one scans the stack, value is no longer the same.
+                     */
                     if (prv_stack_push(jsp, LWJSON_STREAM_TYPE_KEY)) {
                         size_t len = jsp->data.str.buff_pos;
                         if (len > (sizeof(jsp->stack[0].meta.name) - 1)) {
                             len = sizeof(jsp->stack[0].meta.name) - 1;
+
+                            /* TODO: Do we do warning here? */
                         }
                         LWJSON_MEMCPY(jsp->stack[jsp->stack_pos - 1].meta.name, jsp->data.str.buff, len);
                         jsp->stack[jsp->stack_pos - 1].meta.name[len] = '\0';
