@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2025 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -53,8 +53,8 @@ extern "C" {
 
 lwjsonr_t lwjson_utils_escape_string(const char* input, size_t input_len, char* output, size_t output_capacity,
                                      size_t* bytes_written);
-lwjsonr_t lwjson_utils_escape_string_cb(const char* input, size_t input_len, lwjson_serializer_callback_fn callback,
-                                        void* ctx);
+lwjsonr_t
+lwjson_utils_escape_string_cb(const char* input, size_t input_len, lwjson_serializer_callback_fn callback, void* ctx);
 lwjsonr_t lwjson_utils_unescape_string(const char* input, size_t input_len, char* output, size_t output_capacity,
                                        size_t* bytes_written);
 

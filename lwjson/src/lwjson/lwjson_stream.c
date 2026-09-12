@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -67,7 +67,7 @@ const char* const lwjson_type_strings[] = {
 
 /**
  * \brief           Sends an event to user for further processing
- * 
+ *
  */
 #define SEND_EVT(jsp, type)                                                                                            \
     if ((jsp) != NULL && (jsp)->evt_fn != NULL) {                                                                      \
@@ -102,7 +102,7 @@ prv_stack_push(lwjson_stream_parser_t* jsp, lwjson_stream_type_t type) {
 /**
  * \brief           Pop value from stack (remove it) and return its value
  * \param           jsp: JSON stream parser instance
- * \return          Member of \ref lwjson_stream_type_t enumeration 
+ * \return          Member of \ref lwjson_stream_type_t enumeration
  */
 static lwjson_stream_type_t
 prv_stack_pop(lwjson_stream_parser_t* jsp) {
@@ -124,7 +124,7 @@ prv_stack_pop(lwjson_stream_parser_t* jsp) {
 /**
  * \brief           Get top type value currently on the stack
  * \param           jsp: JSON stream parser instance
- * \return          Member of \ref lwjson_stream_type_t enumeration 
+ * \return          Member of \ref lwjson_stream_type_t enumeration
  */
 static lwjson_stream_type_t
 prv_stack_get_top(lwjson_stream_parser_t* jsp) {
@@ -136,7 +136,7 @@ prv_stack_get_top(lwjson_stream_parser_t* jsp) {
 
 /**
  * \brief           Initialize LwJSON stream object before parsing takes place
- * \param[in,out]   jsp: Stream JSON structure 
+ * \param[in,out]   jsp: Stream JSON structure
  * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
  */
 lwjsonr_t
@@ -150,7 +150,7 @@ lwjson_stream_init(lwjson_stream_parser_t* jsp, lwjson_stream_parser_callback_fn
 
 /**
  * \brief           Reset LwJSON stream structure
- * 
+ *
  * \param[in,out]   jsp: LwJSON stream parser
  * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
  */
@@ -164,7 +164,7 @@ lwjson_stream_reset(lwjson_stream_parser_t* jsp) {
 
 /**
  * \brief           Set user_data in stream parser
- * 
+ *
  * \param[in,out]   jsp: LwJSON stream parser
  * \param[in]       user_data: user data
  * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
@@ -177,7 +177,7 @@ lwjson_stream_set_user_data(lwjson_stream_parser_t* jsp, void* user_data) {
 
 /**
  * \brief           Get user_data in stream parser
- * 
+ *
  * \param[in]       jsp: LwJSON stream parser
  * \return          pointer to user data
  */
@@ -188,9 +188,10 @@ lwjson_stream_get_user_data(lwjson_stream_parser_t* jsp) {
 
 /**
  * \brief           Parse JSON string in streaming mode
- * \param[in,out]   jsp: Stream JSON structure 
+ * \param[in,out]   jsp: Stream JSON structure
  * \param[in]       chr: Character to parse
- * \return          \ref lwjsonSTREAMWAITFIRSTCHAR when stream did not start parsing since no valid start character has been received
+ * \return          \ref lwjsonSTREAMWAITFIRSTCHAR when stream did not start parsing since no valid start character has
+ * been received
  * \return          \ref lwjsonSTREAMINPROG if parsing is in progress and no hard error detected
  * \return          \ref lwjsonSTREAMDONE when valid JSON was detected and stack level reached back `0` level
  * \return          \ref One of enumeration otherwise
@@ -230,7 +231,7 @@ start_over:
             } else if (chr == '}' || chr == ']') {
                 lwjson_stream_type_t type = prv_stack_get_top(jsp);
 
-                /* 
+                /*
                  * If it is a key last entry on closing area,
                  * it is an error - an example: {"key":}
                  */
@@ -260,7 +261,7 @@ start_over:
                 /*
                  * Check if above is a key type
                  * and remove it too as we finished with processing of potential case.
-                 * 
+                 *
                  * {"key":{"abc":1}} - remove "key" part
                  */
                 if (prv_stack_get_top(jsp) == LWJSON_STREAM_TYPE_KEY) {
@@ -287,8 +288,8 @@ start_over:
                 if (type == LWJSON_STREAM_TYPE_OBJECT) {
                     LWJSON_DEBUG(jsp, "Start of string parsing - expected key name in an object\r\n");
                 } else if (type == LWJSON_STREAM_TYPE_KEY) {
-                    LWJSON_DEBUG(jsp,
-                                 "Start of string parsing - string value associated to previous key in an object\r\n");
+                    LWJSON_DEBUG(jsp, "Start of string parsing - string value associated to previous key in an "
+                                      "object\r\n");
                 } else if (type == LWJSON_STREAM_TYPE_ARRAY) {
                     LWJSON_DEBUG(jsp, "Start of string parsing - string entry in an array\r\n");
                 }
@@ -374,9 +375,10 @@ start_over:
                 if (type == LWJSON_STREAM_TYPE_OBJECT) {
                     LWJSON_DEBUG(jsp, "End of string parsing - object key name: \"%s\"\r\n", jsp->data.str.buff);
                 } else if (type == LWJSON_STREAM_TYPE_KEY) {
-                    LWJSON_DEBUG(
-                        jsp, "End of string parsing - string value associated to previous key in an object: \"%s\"\r\n",
-                        jsp->data.str.buff);
+                    LWJSON_DEBUG(jsp,
+                                 "End of string parsing - string value associated to previous key in an object: "
+                                 "\"%s\"\r\n",
+                                 jsp->data.str.buff);
                 } else if (type == LWJSON_STREAM_TYPE_ARRAY) {
                     LWJSON_DEBUG(jsp, "End of string parsing - an array string entry: \"%s\"\r\n", jsp->data.str.buff);
                 }
@@ -397,10 +399,10 @@ start_over:
                     /*
                      * The key parsing buffer is the general string buffer,
                      * while after the push, we copy the string buffer to the meta buffer size.
-                     * 
+                     *
                      * We simply cap the string. The user is in charge to define
                      * the options in a way to hold the full string of the key.
-                     * 
+                     *
                      * It may therefore happen that user gets correct key on callback (called above)
                      * but later when one scans the stack, value is no longer the same.
                      */
@@ -471,10 +473,10 @@ start_over:
 
 #if defined(LWJSON_DEV)
                 if (type == LWJSON_STREAM_TYPE_KEY) {
-                    LWJSON_DEBUG(
-                        jsp,
-                        "End of primitive parsing - string value associated to previous key in an object: \"%s\"\r\n",
-                        jsp->data.prim.buff);
+                    LWJSON_DEBUG(jsp,
+                                 "End of primitive parsing - string value associated to previous key in an object: "
+                                 "\"%s\"\r\n",
+                                 jsp->data.prim.buff);
                 } else if (type == LWJSON_STREAM_TYPE_ARRAY) {
                     LWJSON_DEBUG(jsp, "End of primitive parsing - an array string entry: \"%s\"\r\n",
                                  jsp->data.prim.buff);
@@ -510,7 +512,7 @@ start_over:
                     jsp->stack[jsp->stack_pos - 1].meta.index++;
                 }
 
-                /* 
+                /*
                  * Received character is not part of the primitive and must be processed again
                  */
                 jsp->parse_state = LWJSON_STREAM_STATE_EXPECTING_COMMA_OR_END;

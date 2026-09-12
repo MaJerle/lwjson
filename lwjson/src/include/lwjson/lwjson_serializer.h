@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2025 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -109,8 +109,8 @@ typedef int32_t lwjson_serializer_int_t;
 
 lwjsonr_t lwjson_serializer_init(lwjson_serializer_t* serializer, char* user_buffer, size_t buffer_size);
 lwjsonr_t lwjson_serializer_finalize(lwjson_serializer_t* serializer, size_t* total_length);
-lwjsonr_t lwjson_serializer_init_callback(lwjson_serializer_t* serializer, lwjson_serializer_callback_fn callback,
-                                          void* ctx);
+lwjsonr_t
+lwjson_serializer_init_callback(lwjson_serializer_t* serializer, lwjson_serializer_callback_fn callback, void* ctx);
 lwjsonr_t lwjson_serializer_start_object(lwjson_serializer_t* serializer, const char* key, size_t key_len);
 lwjsonr_t lwjson_serializer_start_array(lwjson_serializer_t* serializer, const char* key, size_t key_len);
 lwjsonr_t lwjson_serializer_end_object(lwjson_serializer_t* serializer);

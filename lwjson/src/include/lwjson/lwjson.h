@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -95,9 +95,9 @@ typedef struct lwjson_token {
     union {
         struct {
             const char* token_value; /*!< Pointer to the beginning of the string */
-            size_t
-                token_value_len; /*!< Length of token value (this is needed to support const input strings to parse) */
-        } str;                   /*!< String data */
+            size_t token_value_len;  /*!< Length of token value (this is needed to support const input strings to parse)
+                                      */
+        } str;                       /*!< String data */
 
         lwjson_real_t num_real;           /*!< Real number format */
         lwjson_int_t num_int;             /*!< Int number format */
@@ -175,17 +175,18 @@ typedef struct {
     lwjson_stream_type_t type; /*!< Streaming type - current value */
 
     union {
-        char name[LWJSON_CFG_STREAM_KEY_MAX_LEN
-                  + 1]; /*!< Last known key name, used only for \ref LWJSON_STREAM_TYPE_KEY type */
-        uint16_t index; /*!< Current index when type is an array */
-    } meta;             /*!< Meta information */
+        char name[LWJSON_CFG_STREAM_KEY_MAX_LEN + 1]; /*!< Last known key name, used only for \ref
+                                                         LWJSON_STREAM_TYPE_KEY type */
+        uint16_t index;                               /*!< Current index when type is an array */
+    } meta;                                           /*!< Meta information */
 } lwjson_stream_stack_t;
 
 typedef enum {
     LWJSON_STREAM_STATE_WAITINGFIRSTCHAR = 0x00, /*!< State to wait for very first opening character */
-    LWJSON_STREAM_STATE_PARSING,        /*!< In parsing of the first char state - detecting next character state */
-    LWJSON_STREAM_STATE_PARSING_STRING, /*!< Parse string primitive */
-    LWJSON_STREAM_STATE_PARSING_PRIMITIVE, /*!< Parse any primitive that is non-string, either "true", "false", "null" or a number */
+    LWJSON_STREAM_STATE_PARSING,           /*!< In parsing of the first char state - detecting next character state */
+    LWJSON_STREAM_STATE_PARSING_STRING,    /*!< Parse string primitive */
+    LWJSON_STREAM_STATE_PARSING_PRIMITIVE, /*!< Parse any primitive that is non-string, either "true", "false", "null"
+                                              or a number */
     LWJSON_STREAM_STATE_EXPECTING_COMMA_OR_END, /*!< Expecting ',', '}' or ']' */
     LWJSON_STREAM_STATE_EXPECTING_COLON,        /*!< Expecting ':' */
 } lwjson_stream_state_t;
@@ -203,9 +204,9 @@ typedef void (*lwjson_stream_parser_callback_fn)(struct lwjson_stream_parser* js
  * \brief           LwJSON streaming structure
  */
 typedef struct lwjson_stream_parser {
-    lwjson_stream_stack_t
-        stack[LWJSON_CFG_STREAM_STACK_SIZE]; /*!< Stack used for parsing. TODO: Add conditional compilation flag */
-    size_t stack_pos;                        /*!< Current stack position */
+    lwjson_stream_stack_t stack[LWJSON_CFG_STREAM_STACK_SIZE]; /*!< Stack used for parsing. TODO: Add conditional
+                                                                  compilation flag */
+    size_t stack_pos;                                          /*!< Current stack position */
 
     lwjson_stream_state_t parse_state; /*!< Parser state */
 
@@ -216,8 +217,8 @@ typedef struct lwjson_stream_parser {
     /* State */
     union {
         struct {
-            char buff[LWJSON_CFG_STREAM_STRING_MAX_LEN
-                      + 1];        /*!< Buffer to write temporary data. TODO: Size to be variable with define */
+            char buff[LWJSON_CFG_STREAM_STRING_MAX_LEN + 1]; /*!< Buffer to write temporary data. TODO: Size to be
+                                                                variable with define */
             size_t buff_pos;       /*!< Buffer position for next write (length of bytes in buffer) */
             size_t buff_total_pos; /*!< Total buffer position used up to now (in several data chunks) */
             uint8_t is_last;       /*!< Status indicates if this is the last part of the string */

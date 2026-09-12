@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -113,10 +113,10 @@ extern "C" {
  *                      - If the key still fits in a single \ref LWJSON_CFG_STREAM_STRING_MAX_LEN
  *                        chunk (buffer used during parsing), the name is silently truncated to its first
  *                        \ref LWJSON_CFG_STREAM_KEY_MAX_LEN characters. This is done during copy to stack
- * 
+ *
  *                      - If the key is longer to span more than one chunk of stream string max length,
  *                          the stored name ends up holding only the last chunk - not a valid prefix of the key.
- * 
+ *
  *                  Size this value (and keep it `<=` \ref LWJSON_CFG_STREAM_STRING_MAX_LEN) large
  *                  enough for every key name you expect to receive.
  */

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -263,8 +263,8 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
 
         type = LWJSON_TYPE_NUM_REAL; /* Format is real */
         ++pobj->p;                   /* Ignore comma character */
-        if ((size_t)(pobj->p - pobj->start) >= pobj->len || *pobj->p < '0'
-            || *pobj->p > '9') { /* Must be followed by number characters */
+        if ((size_t)(pobj->p - pobj->start) >= pobj->len || *pobj->p < '0' || *pobj->p > '9') { /* Must be followed by
+                                                                                                   number characters */
             return lwjsonERRJSON;
         }
 
@@ -278,8 +278,9 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
         /* Add decimal part to number */
         real_num += (lwjson_real_t)dec_num / exp;
     }
-    if (pobj->p != NULL && (size_t)(pobj->p - pobj->start) < pobj->len
-        && (*pobj->p == 'e' || *pobj->p == 'E')) { /* Engineering mode */
+    if (pobj->p != NULL && (size_t)(pobj->p - pobj->start) < pobj->len && (*pobj->p == 'e' || *pobj->p == 'E')) { /* Engineering
+                                                                                                                     mode
+                                                                                                                   */
         uint8_t is_minus_exp;
         lwjson_int_t exp_cnt;
 
@@ -292,8 +293,8 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
         if ((size_t)(pobj->p - pobj->start) < pobj->len && *pobj->p == '+') { /* Optional '+' is possible too */
             ++pobj->p;
         }
-        if ((size_t)(pobj->p - pobj->start) >= pobj->len || *pobj->p < '0'
-            || *pobj->p > '9') { /* Must be followed by number characters */
+        if ((size_t)(pobj->p - pobj->start) >= pobj->len || *pobj->p < '0' || *pobj->p > '9') { /* Must be followed by
+                                                                                                   number characters */
             return lwjsonERRJSON;
         }
 
