@@ -8,7 +8,7 @@ First one being optimized for ultra small microcontrollers, second one being rea
 
 ## Features
 
-* Written in C (C11), compatible with ``stdint.h`` for size data types
+* Written in C (C11), compatible with `stdint.h` data types
 * RFC 4627 and RFC 8259 compliant
 * Based on static token allocation with optional application dynamic pre-allocation
 * No recursion during parse operation
