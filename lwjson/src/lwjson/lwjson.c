@@ -65,7 +65,7 @@ prv_alloc_token(lwjson_t* lwobj) {
 static lwjsonr_t
 prv_skip_blank(lwjson_int_str_t* pobj) {
     while (pobj->p != NULL && (size_t)(pobj->p - pobj->start) < pobj->len && *pobj->p != '\0') {
-        if (*pobj->p == ' ' || *pobj->p == '\t' || *pobj->p == '\r' || *pobj->p == '\n' || *pobj->p == '\f') {
+        if (*pobj->p == ' ' || *pobj->p == '\t' || *pobj->p == '\r' || *pobj->p == '\n') {
             ++pobj->p;
 #if LWJSON_CFG_COMMENTS
             /* Check for comments and remove them */
