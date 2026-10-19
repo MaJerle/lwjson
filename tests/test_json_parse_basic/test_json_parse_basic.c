@@ -108,6 +108,7 @@ test_run(void) {
     RUN_TEST(lwjsonERRJSON, "{\"k\"1}");      /* Missing separator */
     RUN_TEST(lwjsonERRJSON, "{k:1}");         /* Property name must be string */
     RUN_TEST(lwjsonERRJSON, "{k:0.}");        /* Wrong number format */
+    RUN_TEST(lwjsonERRJSON, "{\f}");          /* Form feed is not JSON whitespace */
 
     /* Tests with custom len */
     RUN_TEST_EX(lwjsonOK, "[1,2,3,4]abc", 9);   /* Limit input len to JSON-only */

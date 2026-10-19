@@ -75,11 +75,11 @@ const char* const lwjson_type_strings[] = {
     }
 
 /**
- * \brief           Check if character is a space character (with extended chars)
+ * \brief           Check if character is a JSON whitespace character
  * \param[in]       c: Character to check
- * \return          `1` if considered extended space, `0` otherwise
+ * \return          `1` if considered JSON whitespace, `0` otherwise
  */
-#define prv_is_space_char_ext(c) ((c) == ' ' || (c) == '\t' || (c) == '\r' || (c) == '\n' || (c) == '\f')
+#define prv_is_json_space_char(c) ((c) == ' ' || (c) == '\t' || (c) == '\r' || (c) == '\n')
 
 /**
  * \brief           Push "parent" state to the artificial stack
@@ -200,7 +200,7 @@ lwjsonr_t
 lwjson_stream_parse(lwjson_stream_parser_t* jsp, char chr) {
     /* Get first character first */
     if (jsp->parse_state == LWJSON_STREAM_STATE_WAITINGFIRSTCHAR && chr != '{' && chr != '[') {
-        return prv_is_space_char_ext(chr) ? lwjsonSTREAMWAITFIRSTCHAR : lwjsonERRJSON;
+        return prv_is_json_space_char(chr) ? lwjsonSTREAMWAITFIRSTCHAR : lwjsonERRJSON;
     }
 
 start_over:
@@ -215,7 +215,7 @@ start_over:
         case LWJSON_STREAM_STATE_EXPECTING_COMMA_OR_END:
         case LWJSON_STREAM_STATE_PARSING: {
             /* Ignore whitespace chars */
-            if (prv_is_space_char_ext(chr)) {
+            if (prv_is_json_space_char(chr)) {
                 break;
 
                 /* Determine value separator */
@@ -341,7 +341,7 @@ start_over:
         /* Check for end of key character i.e. name separator ':' */
         case LWJSON_STREAM_STATE_EXPECTING_COLON:
             /* Ignore whitespace chars */
-            if (prv_is_space_char_ext(chr)) {
+            if (prv_is_json_space_char(chr)) {
                 break;
             } else if (chr == ':') {
                 jsp->parse_state = LWJSON_STREAM_STATE_PARSING;
@@ -461,7 +461,7 @@ start_over:
          */
         case LWJSON_STREAM_STATE_PARSING_PRIMITIVE: {
             /* Any character except space, comma, or end of array/object are valid */
-            if (!prv_is_space_char_ext(chr) && chr != ',' && chr != ']' && chr != '}') {
+            if (!prv_is_json_space_char(chr) && chr != ',' && chr != ']' && chr != '}') {
                 if (jsp->data.prim.buff_pos < sizeof(jsp->data.prim.buff) - 1) {
                     jsp->data.prim.buff[jsp->data.prim.buff_pos++] = chr;
                 } else {
