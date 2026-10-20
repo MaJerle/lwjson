@@ -69,20 +69,17 @@ prv_skip_blank(lwjson_int_str_t* pobj) {
             ++pobj->p;
 #if LWJSON_CFG_COMMENTS
             /* Check for comments and remove them */
-        } else if (*pobj->p == '/') {
-            ++pobj->p;
-            if (pobj->p != NULL && (size_t)(pobj->p - pobj->start) < pobj->len && *pobj->p == '*') {
-                ++pobj->p;
-                while (pobj->p != NULL && (size_t)(pobj->p - pobj->start) < pobj->len && *pobj->p != '\0') {
-                    if (*pobj->p == '*') {
-                        ++pobj->p;
-                        if ((size_t)(pobj->p - pobj->start) < pobj->len && *pobj->p == '/') {
-                            ++pobj->p;
-                            break;
-                        }
-                    }
+        } else if (*pobj->p == '/' && (size_t)(pobj->p + 1 - pobj->start) < pobj->len && pobj->p[1] == '*') {
+            pobj->p += 2;
+            while (pobj->p != NULL && (size_t)(pobj->p - pobj->start) < pobj->len && *pobj->p != '\0') {
+                if (*pobj->p == '*') {
                     ++pobj->p;
+                    if ((size_t)(pobj->p - pobj->start) < pobj->len && *pobj->p == '/') {
+                        ++pobj->p;
+                        break;
+                    }
                 }
+                ++pobj->p;
             }
 #endif /* LWJSON_CFG_COMMENTS */
         } else {
