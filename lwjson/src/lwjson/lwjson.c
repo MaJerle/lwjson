@@ -38,9 +38,9 @@
  * \brief           Internal string object
  */
 typedef struct {
-    const char* start; /*!< Original pointer to beginning of JSON object */
-    const char* end;   /*!< Pointer to one past the last character of input json string */
-    const char* cptr;  /*!< Current char pointer */
+    const char* const start; /*!< Original pointer to beginning of JSON object */
+    const char* const end;   /*!< Pointer to one past the last character of input json string */
+    const char* cptr;        /*!< Current char pointer */
 } lwjson_int_str_t;
 
 /**
@@ -501,16 +501,17 @@ lwjsonr_t
 lwjson_parse_ex(lwjson_t* lwobj, const void* json_data, size_t json_len) {
     lwjsonr_t res = lwjsonOK;
     lwjson_token_t *t, *to;
-    lwjson_int_str_t pobj;
+    lwjson_int_str_t pobj = {
+        .start = json_data,
+        .end = (json_data != NULL) ? ((const char*)json_data + json_len) : NULL,
+        .cptr = json_data,
+    };
 
     /* Check input parameters */
     if (lwobj == NULL || json_data == NULL || json_len == 0) {
         res = lwjsonERRPAR;
         goto ret;
     }
-    pobj.start = json_data;
-    pobj.end = pobj.start + json_len;
-    pobj.cptr = pobj.start;
 
     /* set first token */
     to = &lwobj->first_token;
@@ -555,7 +556,7 @@ lwjson_parse_ex(lwjson_t* lwobj, const void* json_data, size_t json_len) {
             continue;
         }
 
-        /* Check if end of object or array*/
+        /* Check if end of an object or an array */
         if (*pobj.cptr == (to->type == LWJSON_TYPE_OBJECT ? '}' : ']')) {
             lwjson_token_t* parent = to->next;
             to->next = NULL;
