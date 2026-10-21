@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.9.0
+ * Version:         v1.10.0
  */
 #include <string.h>
 #include "lwjson/lwjson.h"
@@ -286,7 +286,8 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
     }
     is_minus = *pobj->cptr == '-' ? (++pobj->cptr, 1) : 0;
     if (!prv_is_digit(prv_peek(pobj)) /* End of input or character outside number range */
-        || (*pobj->cptr == '0' && prv_has(pobj, 2) && prv_is_digit(pobj->cptr[1]))) { /* Number starts with 0 but not followed by dot */
+        || (*pobj->cptr == '0' && prv_has(pobj, 2) && prv_is_digit(pobj->cptr[1]))) { /* Number starts with 0 but not
+                                                                                         followed by dot */
         return lwjsonERRJSON;
     }
 
@@ -303,8 +304,8 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
 
         real_num = (lwjson_real_t)int_num;
 
-        type = LWJSON_TYPE_NUM_REAL;                        /* Format is real */
-        ++pobj->cptr;                                       /* Ignore comma character */
+        type = LWJSON_TYPE_NUM_REAL;         /* Format is real */
+        ++pobj->cptr;                        /* Ignore comma character */
         if (!prv_is_digit(prv_peek(pobj))) { /* Must be followed by number characters */
             return lwjsonERRJSON;
         }
@@ -504,8 +505,8 @@ prv_check_valid_char_after_open_bracket(lwjson_int_str_t* pobj, lwjson_token_t* 
     chr = prv_peek(pobj);
     if (chr == '\0' || (tkn->type == LWJSON_TYPE_OBJECT && (chr != '"' && chr != '}'))
         || (tkn->type == LWJSON_TYPE_ARRAY
-            && (chr != '"' && chr != ']' && chr != '[' && chr != '{' && chr != '-' && !prv_is_digit(chr)
-                && chr != 't' && chr != 'n' && chr != 'f'))) {
+            && (chr != '"' && chr != ']' && chr != '[' && chr != '{' && chr != '-' && !prv_is_digit(chr) && chr != 't'
+                && chr != 'n' && chr != 'f'))) {
         res = lwjsonERRJSON;
     }
     return res;

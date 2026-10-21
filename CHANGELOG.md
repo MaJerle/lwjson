@@ -2,7 +2,11 @@
 
 ## Develop
 
+## 1.10.0
+
 - Fix stream parser: NUL-terminate string buffer before invoking user callback, preventing any stale value
+- Refactor the code, add helper functions to reduce code repetition
+- Improve the parsing of the comments for JSON with comments
 
 ## 1.9.0
 
@@ -57,7 +61,7 @@
 ## v1.2.0
 
 - Added `lwjson_find_ex` function to accept token pointer as starting reference
-- Update of the docs for *find*
+- Update of the docs for _find_
 - Remove unused reset and add free function for future dynamic allocation support
 
 ## v1.1.0
