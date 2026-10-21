@@ -44,6 +44,42 @@ typedef struct {
 } lwjson_int_str_t;
 
 /**
+ * \brief           Calculate end pointer of input data
+ * \param[in]       data: Input data
+ * \param[in]       len: Input data length
+ * \return          Pointer to one past the last character,
+ *                  or `NULL` if `data` is `NULL` or `data + len` would overflow
+ */
+static inline const char*
+prv_get_end_ptr(const void* data, size_t len) {
+    if (data == NULL || len > (UINTPTR_MAX - (uintptr_t)data)) {
+        return NULL;
+    }
+    return (const char*)data + len;
+}
+
+/**
+ * \brief           Get current character without advancing
+ * \param[in]       pobj: Pointer to text
+ * \return          Current character, or `'\0'` when at end of input
+ */
+static inline char
+prv_peek(const lwjson_int_str_t* pobj) {
+    return pobj->cptr < pobj->end ? *pobj->cptr : '\0';
+}
+
+/**
+ * \brief           Check if at least `n` characters remain in the input
+ * \param[in]       pobj: Pointer to text
+ * \param[in]       n: Number of characters required
+ * \return          `1` if available, `0` otherwise
+ */
+static inline uint8_t
+prv_has(const lwjson_int_str_t* pobj, size_t n) {
+    return (size_t)(pobj->end - pobj->cptr) >= n;
+}
+
+/**
  * \brief           Allocate new token for JSON block
  * \param[in]       lwobj: LwJSON instance
  * \return          Pointer to new token
@@ -64,17 +100,17 @@ prv_alloc_token(lwjson_t* lwobj) {
  */
 static lwjsonr_t
 prv_skip_blank(lwjson_int_str_t* pobj) {
-    while (pobj->cptr != NULL && pobj->cptr < pobj->end && *pobj->cptr != '\0') {
+    while (prv_peek(pobj) != '\0') {
         if (*pobj->cptr == ' ' || *pobj->cptr == '\t' || *pobj->cptr == '\r' || *pobj->cptr == '\n') {
             ++pobj->cptr;
 #if LWJSON_CFG_COMMENTS
             /* Check for comments and remove them */
-        } else if (*pobj->cptr == '/' && (size_t)(pobj->end - pobj->cptr) > 1 && pobj->cptr[1] == '*') {
+        } else if (*pobj->cptr == '/' && prv_has(pobj, 2) && pobj->cptr[1] == '*') {
             pobj->cptr += 2;
-            while (pobj->cptr != NULL && pobj->cptr < pobj->end && *pobj->cptr != '\0') {
+            while (prv_peek(pobj) != '\0') {
                 if (*pobj->cptr == '*') {
                     ++pobj->cptr;
-                    if (pobj->cptr < pobj->end && *pobj->cptr == '/') {
+                    if (prv_peek(pobj) == '/') {
                         ++pobj->cptr;
                         break;
                     }
@@ -86,7 +122,7 @@ prv_skip_blank(lwjson_int_str_t* pobj) {
             break;
         }
     }
-    if (pobj->cptr != NULL && pobj->cptr < pobj->end && *pobj->cptr != '\0') {
+    if (prv_peek(pobj) != '\0') {
         return lwjsonOK;
     }
     return lwjsonERRJSON;
@@ -109,13 +145,14 @@ prv_parse_string(lwjson_int_str_t* pobj, const char** pout, size_t* poutlen) {
     if (res != lwjsonOK) {
         return res;
     }
-    if (pobj->cptr < pobj->end && *pobj->cptr++ != '"') {
+    if (prv_peek(pobj) != '"') {
         return lwjsonERRJSON;
     }
+    ++pobj->cptr;
     *pout = pobj->cptr;
     /* Parse string but take care of escape characters */
     for (;; ++pobj->cptr, ++len) {
-        if (pobj->cptr == NULL || pobj->cptr >= pobj->end || *pobj->cptr == '\0') {
+        if (prv_peek(pobj) == '\0') {
             return lwjsonERRJSON;
         }
         /* Check special characters */
@@ -123,7 +160,7 @@ prv_parse_string(lwjson_int_str_t* pobj, const char** pout, size_t* poutlen) {
             ++pobj->cptr;
             ++len;
 
-            if (pobj->cptr >= pobj->end) {
+            if (prv_peek(pobj) == '\0') {
                 return lwjsonERRJSON;
             }
 
@@ -139,10 +176,9 @@ prv_parse_string(lwjson_int_str_t* pobj, const char** pout, size_t* poutlen) {
                 case 'u':
                     ++pobj->cptr;
                     for (size_t i = 0; i < 4; ++i, ++len) {
-                        if (!((pobj->cptr < pobj->end)
-                              && ((*pobj->cptr >= '0' && *pobj->cptr <= '9')
-                                  || (*pobj->cptr >= 'a' && *pobj->cptr <= 'f')
-                                  || (*pobj->cptr >= 'A' && *pobj->cptr <= 'F')))) {
+                        const char c = prv_peek(pobj);
+
+                        if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))) {
                             return lwjsonERRJSON;
                         }
                         if (i < 3) {
@@ -503,12 +539,12 @@ lwjson_parse_ex(lwjson_t* lwobj, const void* json_data, size_t json_len) {
     lwjson_token_t *t, *to;
     lwjson_int_str_t pobj = {
         .start = json_data,
-        .end = (json_data != NULL) ? ((const char*)json_data + json_len) : NULL,
+        .end = prv_get_end_ptr(json_data, json_len),
         .cptr = json_data,
     };
 
-    /* Check input parameters */
-    if (lwobj == NULL || json_data == NULL || json_len == 0) {
+    /* Check input parameters, end is NULL when data is NULL or length overflows */
+    if (lwobj == NULL || pobj.end == NULL || json_len == 0) {
         res = lwjsonERRPAR;
         goto ret;
     }
