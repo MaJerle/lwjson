@@ -80,6 +80,16 @@ prv_has(const lwjson_int_str_t* pobj, size_t cnt) {
 }
 
 /**
+ * \brief           Check if character is decimal digit
+ * \param[in]       chr: Character to check
+ * \return          `1` if digit, `0` otherwise
+ */
+static inline uint8_t
+prv_is_digit(char chr) {
+    return chr >= '0' && chr <= '9';
+}
+
+/**
  * \brief           Allocate new token for JSON block
  * \param[in]       lwobj: LwJSON instance
  * \return          Pointer to new token
@@ -178,7 +188,7 @@ prv_parse_string(lwjson_int_str_t* pobj, const char** pout, size_t* poutlen) {
                     for (size_t idx = 0; idx < 4; ++idx, ++len) {
                         const char chr = prv_peek(pobj);
 
-                        if (!((chr >= '0' && chr <= '9') || (chr >= 'a' && chr <= 'f') || (chr >= 'A' && chr <= 'F'))) {
+                        if (!(prv_is_digit(chr) || (chr >= 'a' && chr <= 'f') || (chr >= 'A' && chr <= 'F'))) {
                             return lwjsonERRJSON;
                         }
                         if (idx < 3) {
@@ -275,17 +285,13 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
         return lwjsonERRJSON;
     }
     is_minus = *pobj->cptr == '-' ? (++pobj->cptr, 1) : 0;
-    if (prv_peek(pobj) < '0' || prv_peek(pobj) > '9' /* End of input or character outside number range */
-        || (*pobj->cptr == '0' && prv_has(pobj, 2) && (pobj->cptr[1] >= '0' && pobj->cptr[1] <= '9'))) { /* Number
-                                                                                                            starts with
-                                                                                                            0 but not
-                                                                                                            followed by
-                                                                                                            dot */
+    if (!prv_is_digit(prv_peek(pobj)) /* End of input or character outside number range */
+        || (*pobj->cptr == '0' && prv_has(pobj, 2) && prv_is_digit(pobj->cptr[1]))) { /* Number starts with 0 but not followed by dot */
         return lwjsonERRJSON;
     }
 
     /* Parse number */
-    for (int_num = 0; prv_peek(pobj) >= '0' && prv_peek(pobj) <= '9'; ++pobj->cptr) {
+    for (int_num = 0; prv_is_digit(prv_peek(pobj)); ++pobj->cptr) {
         int_num = int_num * (lwjson_int_t)10 + (*pobj->cptr - '0');
     }
 
@@ -299,12 +305,12 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
 
         type = LWJSON_TYPE_NUM_REAL;                        /* Format is real */
         ++pobj->cptr;                                       /* Ignore comma character */
-        if (prv_peek(pobj) < '0' || prv_peek(pobj) > '9') { /* Must be followed by number characters */
+        if (!prv_is_digit(prv_peek(pobj))) { /* Must be followed by number characters */
             return lwjsonERRJSON;
         }
 
         /* Get number after decimal point */
-        for (exp = (lwjson_real_t)1, dec_num = 0; prv_peek(pobj) >= '0' && prv_peek(pobj) <= '9';
+        for (exp = (lwjson_real_t)1, dec_num = 0; prv_is_digit(prv_peek(pobj));
              ++pobj->cptr, exp *= (lwjson_real_t)10) {
             dec_num = dec_num * (lwjson_int_t)10 + (lwjson_int_t)(*pobj->cptr - '0');
         }
@@ -325,12 +331,12 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
         if (prv_peek(pobj) == '+') {                               /* Optional '+' is possible too */
             ++pobj->cptr;
         }
-        if (prv_peek(pobj) < '0' || prv_peek(pobj) > '9') { /* Must be followed by number characters */
+        if (!prv_is_digit(prv_peek(pobj))) { /* Must be followed by number characters */
             return lwjsonERRJSON;
         }
 
         /* Parse exponent number */
-        for (exp_cnt = 0; prv_peek(pobj) >= '0' && prv_peek(pobj) <= '9'; ++pobj->cptr) {
+        for (exp_cnt = 0; prv_is_digit(prv_peek(pobj)); ++pobj->cptr) {
             exp_cnt = exp_cnt * (lwjson_int_t)10 + (lwjson_int_t)(*pobj->cptr - '0');
         }
 
@@ -432,7 +438,7 @@ prv_find(const lwjson_token_t* parent, const char* path) {
 
                 /* Parse number */
                 for (size_t idx = 1; idx < segment_len; ++idx) {
-                    if (segment[idx] < '0' || segment[idx] > '9') {
+                    if (!prv_is_digit(segment[idx])) {
                         return NULL;
                     } else {
                         index = index * 10 + (segment[idx] - '0');
@@ -498,7 +504,7 @@ prv_check_valid_char_after_open_bracket(lwjson_int_str_t* pobj, lwjson_token_t* 
     chr = prv_peek(pobj);
     if (chr == '\0' || (tkn->type == LWJSON_TYPE_OBJECT && (chr != '"' && chr != '}'))
         || (tkn->type == LWJSON_TYPE_ARRAY
-            && (chr != '"' && chr != ']' && chr != '[' && chr != '{' && chr != '-' && (chr < '0' || chr > '9')
+            && (chr != '"' && chr != ']' && chr != '[' && chr != '{' && chr != '-' && !prv_is_digit(chr)
                 && chr != 't' && chr != 'n' && chr != 'f'))) {
         res = lwjsonERRJSON;
     }
@@ -686,7 +692,7 @@ lwjson_parse_ex(lwjson_t* lwobj, const void* json_data, size_t json_len) {
                 }
                 break;
             default:
-                if (*pobj.cptr == '-' || (*pobj.cptr >= '0' && *pobj.cptr <= '9')) {
+                if (*pobj.cptr == '-' || prv_is_digit(*pobj.cptr)) {
                     if (prv_parse_number(&pobj, &tkn->type, &tkn->u.num_real, &tkn->u.num_int) != lwjsonOK) {
                         res = lwjsonERRJSON;
                         goto ret;
