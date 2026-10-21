@@ -140,7 +140,8 @@ prv_parse_string(lwjson_int_str_t* pobj, const char** pout, size_t* poutlen) {
                     ++pobj->cptr;
                     for (size_t i = 0; i < 4; ++i, ++len) {
                         if (!((pobj->cptr < pobj->end)
-                              && ((*pobj->cptr >= '0' && *pobj->cptr <= '9') || (*pobj->cptr >= 'a' && *pobj->cptr <= 'f')
+                              && ((*pobj->cptr >= '0' && *pobj->cptr <= '9')
+                                  || (*pobj->cptr >= 'a' && *pobj->cptr <= 'f')
                                   || (*pobj->cptr >= 'A' && *pobj->cptr <= 'F')))) {
                             return lwjsonERRJSON;
                         }
@@ -237,9 +238,9 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
         return lwjsonERRJSON;
     }
     is_minus = *pobj->cptr == '-' ? (++pobj->cptr, 1) : 0;
-    if (pobj->cptr >= pobj->end /* End of json input */
-        || *pobj->cptr == '\0'                          /* Invalid string */
-        || *pobj->cptr < '0' || *pobj->cptr > '9'          /* Character outside number range */
+    if (pobj->cptr >= pobj->end                   /* End of json input */
+        || *pobj->cptr == '\0'                    /* Invalid string */
+        || *pobj->cptr < '0' || *pobj->cptr > '9' /* Character outside number range */
         || (*pobj->cptr == '0' && (size_t)(pobj->end - pobj->cptr) > 1
             && (pobj->cptr[1] >= '0' && pobj->cptr[1] <= '9'))) { /* Number starts with 0 but not followed by dot */
         return lwjsonERRJSON;
@@ -258,16 +259,15 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
 
         real_num = (lwjson_real_t)int_num;
 
-        type = LWJSON_TYPE_NUM_REAL; /* Format is real */
-        ++pobj->cptr;                   /* Ignore comma character */
+        type = LWJSON_TYPE_NUM_REAL;                                             /* Format is real */
+        ++pobj->cptr;                                                            /* Ignore comma character */
         if (pobj->cptr >= pobj->end || *pobj->cptr < '0' || *pobj->cptr > '9') { /* Must be followed by
                                                                                                    number characters */
             return lwjsonERRJSON;
         }
 
         /* Get number after decimal point */
-        for (exp = (lwjson_real_t)1, dec_num = 0;
-             pobj->cptr < pobj->end && *pobj->cptr >= '0' && *pobj->cptr <= '9';
+        for (exp = (lwjson_real_t)1, dec_num = 0; pobj->cptr < pobj->end && *pobj->cptr >= '0' && *pobj->cptr <= '9';
              ++pobj->cptr, exp *= (lwjson_real_t)10) {
             dec_num = dec_num * (lwjson_int_t)10 + (lwjson_int_t)(*pobj->cptr - '0');
         }
@@ -275,19 +275,20 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
         /* Add decimal part to number */
         real_num += (lwjson_real_t)dec_num / exp;
     }
-    if (pobj->cptr != NULL && pobj->cptr < pobj->end && (*pobj->cptr == 'e' || *pobj->cptr == 'E')) { /* Engineering
-                                                                                                                     mode
-                                                                                                                   */
+    if (pobj->cptr != NULL && pobj->cptr < pobj->end
+        && (*pobj->cptr == 'e' || *pobj->cptr == 'E')) { /* Engineering
+                                                                        mode
+                                                                      */
         uint8_t is_minus_exp;
         lwjson_int_t exp_cnt;
 
         type = LWJSON_TYPE_NUM_REAL; /* Format is real */
-        ++pobj->cptr;                   /* Ignore enginnering sing part */
+        ++pobj->cptr;                /* Ignore enginnering sing part */
         if (pobj->cptr >= pobj->end) {
             return lwjsonERRJSON;
         }
-        is_minus_exp = *pobj->cptr == '-' ? (++pobj->cptr, 1) : 0;                  /* Check if negative */
-        if (pobj->cptr < pobj->end && *pobj->cptr == '+') { /* Optional '+' is possible too */
+        is_minus_exp = *pobj->cptr == '-' ? (++pobj->cptr, 1) : 0; /* Check if negative */
+        if (pobj->cptr < pobj->end && *pobj->cptr == '+') {        /* Optional '+' is possible too */
             ++pobj->cptr;
         }
         if (pobj->cptr >= pobj->end || *pobj->cptr < '0' || *pobj->cptr > '9') { /* Must be followed by
@@ -296,8 +297,7 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
         }
 
         /* Parse exponent number */
-        for (exp_cnt = 0; pobj->cptr < pobj->end && *pobj->cptr >= '0' && *pobj->cptr <= '9';
-             ++pobj->cptr) {
+        for (exp_cnt = 0; pobj->cptr < pobj->end && *pobj->cptr >= '0' && *pobj->cptr <= '9'; ++pobj->cptr) {
             exp_cnt = exp_cnt * (lwjson_int_t)10 + (lwjson_int_t)(*pobj->cptr - '0');
         }
 
@@ -464,8 +464,9 @@ prv_check_valid_char_after_open_bracket(lwjson_int_str_t* pobj, lwjson_token_t* 
     if (pobj->cptr >= pobj->end || *pobj->cptr == '\0'
         || (t->type == LWJSON_TYPE_OBJECT && (*pobj->cptr != '"' && *pobj->cptr != '}'))
         || (t->type == LWJSON_TYPE_ARRAY
-            && (*pobj->cptr != '"' && *pobj->cptr != ']' && *pobj->cptr != '[' && *pobj->cptr != '{' && *pobj->cptr != '-'
-                && (*pobj->cptr < '0' || *pobj->cptr > '9') && *pobj->cptr != 't' && *pobj->cptr != 'n' && *pobj->cptr != 'f'))) {
+            && (*pobj->cptr != '"' && *pobj->cptr != ']' && *pobj->cptr != '[' && *pobj->cptr != '{'
+                && *pobj->cptr != '-' && (*pobj->cptr < '0' || *pobj->cptr > '9') && *pobj->cptr != 't'
+                && *pobj->cptr != 'n' && *pobj->cptr != 'f'))) {
         res = lwjsonERRJSON;
     }
     return res;
@@ -564,8 +565,7 @@ lwjson_parse_ex(lwjson_t* lwobj, const void* json_data, size_t json_len) {
             to = parent;
             if (to == NULL) {
                 prv_skip_blank(&pobj);
-                res = (pobj.cptr == NULL || pobj.cptr >= pobj.end || *pobj.cptr == '\0') ? lwjsonOK
-                                                                                                       : lwjsonERR;
+                res = (pobj.cptr == NULL || pobj.cptr >= pobj.end || *pobj.cptr == '\0') ? lwjsonOK : lwjsonERR;
                 goto ret;
             }
             continue;
