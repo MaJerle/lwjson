@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.9.0
+ * Version:         v1.10.0
  */
 #ifndef LWJSON_OPT_HDR_H
 #define LWJSON_OPT_HDR_H
@@ -108,6 +108,17 @@ extern "C" {
 /**
  * \brief           Max length of token key (object key name) to be available for stack storage
  *
+ * \note            Key names longer than this value are not correctly captured during the parsing
+ *                  No error is returned in either case:
+ *                      - If the key still fits in a single \ref LWJSON_CFG_STREAM_STRING_MAX_LEN
+ *                        chunk (buffer used during parsing), the name is silently truncated to its first
+ *                        \ref LWJSON_CFG_STREAM_KEY_MAX_LEN characters. This is done during copy to stack
+ *
+ *                      - If the key is longer to span more than one chunk of stream string max length,
+ *                          the stored name ends up holding only the last chunk - not a valid prefix of the key.
+ *
+ *                  Size this value (and keep it `<=` \ref LWJSON_CFG_STREAM_STRING_MAX_LEN) large
+ *                  enough for every key name you expect to receive.
  */
 #ifndef LWJSON_CFG_STREAM_KEY_MAX_LEN
 #define LWJSON_CFG_STREAM_KEY_MAX_LEN 32
@@ -153,6 +164,16 @@ extern "C" {
  */
 #ifndef LWJSON_CFG_SERIALIZER_MAX_STACK_DEPTH
 #define LWJSON_CFG_SERIALIZER_MAX_STACK_DEPTH 8
+#endif
+
+/**
+ * \brief           Enables `1` or disables `0` 64-bit integer serializer APIs
+ *
+ * Set to `0` on targets without 64-bit integer support. In that mode,
+ * serializer integer APIs use `int32_t` and `uint32_t`.
+ */
+#ifndef LWJSON_CFG_SERIALIZER_USE_64BIT
+#define LWJSON_CFG_SERIALIZER_USE_64BIT 1
 #endif
 
 /**

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2025 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -29,7 +29,7 @@
  * This file is part of LwJSON - Lightweight JSON format parser.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.9.0
+ * Version:         v1.10.0
  */
 /* Include lwjson headers */
 #include "lwjson/lwjson_utils.h"

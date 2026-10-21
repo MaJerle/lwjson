@@ -59,6 +59,7 @@ test_run(void) {
     RUN_TEST(lwjsonOK, "{\"k\":null}");
     RUN_TEST(lwjsonOK, "{\"k\" :null}");
     RUN_TEST(lwjsonOK, "{\"k\" : null}");
+    RUN_TEST(lwjsonOK, "{\"key\":/* Comment */\"value\"}");
     RUN_TEST(lwjsonOK, "{ \"k\": null }");
     RUN_TEST(lwjsonOK, "{ \"k\": null }");
     RUN_TEST(lwjsonOK, "{\"k\":\"Stringgg\"}");
@@ -108,6 +109,9 @@ test_run(void) {
     RUN_TEST(lwjsonERRJSON, "{\"k\"1}");      /* Missing separator */
     RUN_TEST(lwjsonERRJSON, "{k:1}");         /* Property name must be string */
     RUN_TEST(lwjsonERRJSON, "{k:0.}");        /* Wrong number format */
+    RUN_TEST(lwjsonERRJSON, "{\f}");          /* Form feed is not JSON whitespace */
+    RUN_TEST(lwjsonERRJSON, "{\"k\":/true}"); /* A slash outside a comment is invalid */
+    RUN_TEST(lwjsonERRJSON, "[/1]");          /* A slash outside a comment is invalid */
 
     /* Tests with custom len */
     RUN_TEST_EX(lwjsonOK, "[1,2,3,4]abc", 9);   /* Limit input len to JSON-only */

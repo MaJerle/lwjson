@@ -255,5 +255,13 @@ test_run(void) {
         }
     }
 
+    /* Form feed is not one of the four whitespace characters allowed by JSON. */
+    {
+        static const char* form_feed_json = "{\f}";
+        lwjson_stream_init(&parser, NULL);
+        RUN_TEST(lwjson_stream_parse(&parser, *form_feed_json++) == lwjsonSTREAMINPROG);
+        RUN_TEST(lwjson_stream_parse(&parser, *form_feed_json) == lwjsonERRJSON);
+    }
+
     return test_failed > 0 ? -1 : 0;
 }
