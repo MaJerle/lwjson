@@ -69,14 +69,14 @@ prv_peek(const lwjson_int_str_t* pobj) {
 }
 
 /**
- * \brief           Check if at least `n` characters remain in the input
+ * \brief           Check if at least `cnt` characters remain in the input
  * \param[in]       pobj: Pointer to text
- * \param[in]       n: Number of characters required
+ * \param[in]       cnt: Number of characters required
  * \return          `1` if available, `0` otherwise
  */
 static inline uint8_t
-prv_has(const lwjson_int_str_t* pobj, size_t n) {
-    return (size_t)(pobj->end - pobj->cptr) >= n;
+prv_has(const lwjson_int_str_t* pobj, size_t cnt) {
+    return (size_t)(pobj->end - pobj->cptr) >= cnt;
 }
 
 /**
@@ -175,13 +175,13 @@ prv_parse_string(lwjson_int_str_t* pobj, const char** pout, size_t* poutlen) {
                 case 't': break;
                 case 'u':
                     ++pobj->cptr;
-                    for (size_t i = 0; i < 4; ++i, ++len) {
-                        const char c = prv_peek(pobj);
+                    for (size_t idx = 0; idx < 4; ++idx, ++len) {
+                        const char chr = prv_peek(pobj);
 
-                        if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))) {
+                        if (!((chr >= '0' && chr <= '9') || (chr >= 'a' && chr <= 'f') || (chr >= 'A' && chr <= 'F'))) {
                             return lwjsonERRJSON;
                         }
-                        if (i < 3) {
+                        if (idx < 3) {
                             ++pobj->cptr;
                         }
                     }
@@ -201,15 +201,15 @@ prv_parse_string(lwjson_int_str_t* pobj, const char** pout, size_t* poutlen) {
  * \brief           Parse property name that must comply with JSON string format as in RFC4627
  * Property string must be followed by colon character ":"
  * \param[in,out]   pobj: Pointer to text that is modified on success
- * \param[out]      t: Token instance to write property name to
+ * \param[out]      tkn: Token instance to write property name to
  * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
  */
 static lwjsonr_t
-prv_parse_property_name(lwjson_int_str_t* pobj, lwjson_token_t* t) {
+prv_parse_property_name(lwjson_int_str_t* pobj, lwjson_token_t* tkn) {
     lwjsonr_t res;
 
     /* Parse property string first */
-    res = prv_parse_string(pobj, &t->token_name, &t->token_name_len);
+    res = prv_parse_string(pobj, &tkn->token_name, &tkn->token_name_len);
     if (res != lwjsonOK) {
         return res;
     }
@@ -219,9 +219,10 @@ prv_parse_property_name(lwjson_int_str_t* pobj, lwjson_token_t* t) {
         return res;
     }
     /* Must continue with colon */
-    if (pobj->cptr >= pobj->end || *pobj->cptr++ != ':') {
+    if (prv_peek(pobj) != ':') {
         return lwjsonERRJSON;
     }
+    ++pobj->cptr;
     /* Skip any spaces */
     res = prv_skip_blank(pobj);
     if (res != lwjsonOK) {
@@ -270,40 +271,40 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
     if (res != lwjsonOK) {
         return res;
     }
-    if (pobj->cptr >= pobj->end || *pobj->cptr == '\0') {
+    if (prv_peek(pobj) == '\0') {
         return lwjsonERRJSON;
     }
     is_minus = *pobj->cptr == '-' ? (++pobj->cptr, 1) : 0;
-    if (pobj->cptr >= pobj->end                   /* End of json input */
-        || *pobj->cptr == '\0'                    /* Invalid string */
-        || *pobj->cptr < '0' || *pobj->cptr > '9' /* Character outside number range */
-        || (*pobj->cptr == '0' && (size_t)(pobj->end - pobj->cptr) > 1
-            && (pobj->cptr[1] >= '0' && pobj->cptr[1] <= '9'))) { /* Number starts with 0 but not followed by dot */
+    if (prv_peek(pobj) < '0' || prv_peek(pobj) > '9' /* End of input or character outside number range */
+        || (*pobj->cptr == '0' && prv_has(pobj, 2) && (pobj->cptr[1] >= '0' && pobj->cptr[1] <= '9'))) { /* Number
+                                                                                                            starts with
+                                                                                                            0 but not
+                                                                                                            followed by
+                                                                                                            dot */
         return lwjsonERRJSON;
     }
 
     /* Parse number */
-    for (int_num = 0; pobj->cptr < pobj->end && *pobj->cptr >= '0' && *pobj->cptr <= '9'; ++pobj->cptr) {
+    for (int_num = 0; prv_peek(pobj) >= '0' && prv_peek(pobj) <= '9'; ++pobj->cptr) {
         int_num = int_num * (lwjson_int_t)10 + (*pobj->cptr - '0');
     }
 
     real_num = (lwjson_real_t)int_num;
 
-    if (pobj->cptr != NULL && pobj->cptr < pobj->end && *pobj->cptr == '.') { /* Number has exponent */
+    if (prv_peek(pobj) == '.') { /* Number has exponent */
         lwjson_real_t exp;
         lwjson_int_t dec_num;
 
         real_num = (lwjson_real_t)int_num;
 
-        type = LWJSON_TYPE_NUM_REAL;                                             /* Format is real */
-        ++pobj->cptr;                                                            /* Ignore comma character */
-        if (pobj->cptr >= pobj->end || *pobj->cptr < '0' || *pobj->cptr > '9') { /* Must be followed by
-                                                                                                   number characters */
+        type = LWJSON_TYPE_NUM_REAL;                        /* Format is real */
+        ++pobj->cptr;                                       /* Ignore comma character */
+        if (prv_peek(pobj) < '0' || prv_peek(pobj) > '9') { /* Must be followed by number characters */
             return lwjsonERRJSON;
         }
 
         /* Get number after decimal point */
-        for (exp = (lwjson_real_t)1, dec_num = 0; pobj->cptr < pobj->end && *pobj->cptr >= '0' && *pobj->cptr <= '9';
+        for (exp = (lwjson_real_t)1, dec_num = 0; prv_peek(pobj) >= '0' && prv_peek(pobj) <= '9';
              ++pobj->cptr, exp *= (lwjson_real_t)10) {
             dec_num = dec_num * (lwjson_int_t)10 + (lwjson_int_t)(*pobj->cptr - '0');
         }
@@ -311,29 +312,25 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
         /* Add decimal part to number */
         real_num += (lwjson_real_t)dec_num / exp;
     }
-    if (pobj->cptr != NULL && pobj->cptr < pobj->end
-        && (*pobj->cptr == 'e' || *pobj->cptr == 'E')) { /* Engineering
-                                                                        mode
-                                                                      */
+    if (prv_peek(pobj) == 'e' || prv_peek(pobj) == 'E') { /* Engineering mode */
         uint8_t is_minus_exp;
         lwjson_int_t exp_cnt;
 
         type = LWJSON_TYPE_NUM_REAL; /* Format is real */
         ++pobj->cptr;                /* Ignore enginnering sing part */
-        if (pobj->cptr >= pobj->end) {
+        if (prv_peek(pobj) == '\0') {
             return lwjsonERRJSON;
         }
         is_minus_exp = *pobj->cptr == '-' ? (++pobj->cptr, 1) : 0; /* Check if negative */
-        if (pobj->cptr < pobj->end && *pobj->cptr == '+') {        /* Optional '+' is possible too */
+        if (prv_peek(pobj) == '+') {                               /* Optional '+' is possible too */
             ++pobj->cptr;
         }
-        if (pobj->cptr >= pobj->end || *pobj->cptr < '0' || *pobj->cptr > '9') { /* Must be followed by
-                                                                                                   number characters */
+        if (prv_peek(pobj) < '0' || prv_peek(pobj) > '9') { /* Must be followed by number characters */
             return lwjsonERRJSON;
         }
 
         /* Parse exponent number */
-        for (exp_cnt = 0; pobj->cptr < pobj->end && *pobj->cptr >= '0' && *pobj->cptr <= '9'; ++pobj->cptr) {
+        for (exp_cnt = 0; prv_peek(pobj) >= '0' && prv_peek(pobj) <= '9'; ++pobj->cptr) {
             exp_cnt = exp_cnt * (lwjson_int_t)10 + (lwjson_int_t)(*pobj->cptr - '0');
         }
 
@@ -434,11 +431,11 @@ prv_find(const lwjson_token_t* parent, const char* path) {
                 size_t index = 0;
 
                 /* Parse number */
-                for (size_t i = 1; i < segment_len; ++i) {
-                    if (segment[i] < '0' || segment[i] > '9') {
+                for (size_t idx = 1; idx < segment_len; ++idx) {
+                    if (segment[idx] < '0' || segment[idx] > '9') {
                         return NULL;
                     } else {
-                        index = index * 10 + (segment[i] - '0');
+                        index = index * 10 + (segment[idx] - '0');
                     }
                 }
 
@@ -485,24 +482,24 @@ prv_find(const lwjson_token_t* parent, const char* path) {
 /**
  * \brief           Check for character after opening bracket of array or object
  * \param[in,out]   pobj: JSON string
- * \param[in]       t: Token to check for type
+ * \param[in]       tkn: Token to check for type
  * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
  */
 static inline lwjsonr_t
-prv_check_valid_char_after_open_bracket(lwjson_int_str_t* pobj, lwjson_token_t* t) {
+prv_check_valid_char_after_open_bracket(lwjson_int_str_t* pobj, lwjson_token_t* tkn) {
     lwjsonr_t res;
+    char chr;
 
     /* Check next character after object open */
     res = prv_skip_blank(pobj);
     if (res != lwjsonOK) {
         return res;
     }
-    if (pobj->cptr >= pobj->end || *pobj->cptr == '\0'
-        || (t->type == LWJSON_TYPE_OBJECT && (*pobj->cptr != '"' && *pobj->cptr != '}'))
-        || (t->type == LWJSON_TYPE_ARRAY
-            && (*pobj->cptr != '"' && *pobj->cptr != ']' && *pobj->cptr != '[' && *pobj->cptr != '{'
-                && *pobj->cptr != '-' && (*pobj->cptr < '0' || *pobj->cptr > '9') && *pobj->cptr != 't'
-                && *pobj->cptr != 'n' && *pobj->cptr != 'f'))) {
+    chr = prv_peek(pobj);
+    if (chr == '\0' || (tkn->type == LWJSON_TYPE_OBJECT && (chr != '"' && chr != '}'))
+        || (tkn->type == LWJSON_TYPE_ARRAY
+            && (chr != '"' && chr != ']' && chr != '[' && chr != '{' && chr != '-' && (chr < '0' || chr > '9')
+                && chr != 't' && chr != 'n' && chr != 'f'))) {
         res = lwjsonERRJSON;
     }
     return res;
@@ -536,7 +533,7 @@ lwjson_init(lwjson_t* lwobj, lwjson_token_t* tokens, size_t tokens_len) {
 lwjsonr_t
 lwjson_parse_ex(lwjson_t* lwobj, const void* json_data, size_t json_len) {
     lwjsonr_t res = lwjsonOK;
-    lwjson_token_t *t, *to;
+    lwjson_token_t *tkn, *tkn_obj;
     lwjson_int_str_t pobj = {
         .start = json_data,
         .end = prv_get_end_ptr(json_data, json_len),
@@ -550,38 +547,38 @@ lwjson_parse_ex(lwjson_t* lwobj, const void* json_data, size_t json_len) {
     }
 
     /* set first token */
-    to = &lwobj->first_token;
+    tkn_obj = &lwobj->first_token;
 
     /* values from very beginning */
     lwobj->flags.parsed = 0;
     lwobj->next_free_token_pos = 0;
-    LWJSON_MEMSET(to, 0x00, sizeof(*to));
+    LWJSON_MEMSET(tkn_obj, 0x00, sizeof(*tkn_obj));
 
     /* First parse */
     res = prv_skip_blank(&pobj);
     if (res != lwjsonOK) {
         goto ret;
     }
-    if (pobj.cptr >= pobj.end) {
+    if (prv_peek(&pobj) == '\0') {
         res = lwjsonERRJSON;
         goto ret;
     }
     if (*pobj.cptr == '{') {
-        to->type = LWJSON_TYPE_OBJECT;
+        tkn_obj->type = LWJSON_TYPE_OBJECT;
     } else if (*pobj.cptr == '[') {
-        to->type = LWJSON_TYPE_ARRAY;
+        tkn_obj->type = LWJSON_TYPE_ARRAY;
     } else {
         res = lwjsonERRJSON;
         goto ret;
     }
     ++pobj.cptr;
-    res = prv_check_valid_char_after_open_bracket(&pobj, to);
+    res = prv_check_valid_char_after_open_bracket(&pobj, tkn_obj);
     if (res != lwjsonOK) {
         goto ret;
     }
 
     /* Process all characters as indicated by input user */
-    while (pobj.cptr != NULL && pobj.cptr < pobj.end && *pobj.cptr != '\0') {
+    while (prv_peek(&pobj) != '\0') {
         /* Filter out blanks */
         res = prv_skip_blank(&pobj);
         if (res != lwjsonOK) {
@@ -593,75 +590,75 @@ lwjson_parse_ex(lwjson_t* lwobj, const void* json_data, size_t json_len) {
         }
 
         /* Check if end of an object or an array */
-        if (*pobj.cptr == (to->type == LWJSON_TYPE_OBJECT ? '}' : ']')) {
-            lwjson_token_t* parent = to->next;
-            to->next = NULL;
+        if (*pobj.cptr == (tkn_obj->type == LWJSON_TYPE_OBJECT ? '}' : ']')) {
+            lwjson_token_t* parent = tkn_obj->next;
+            tkn_obj->next = NULL;
             ++pobj.cptr;
 
-            /* End of string if to == NULL (no parent), check if properly terminated */
-            to = parent;
-            if (to == NULL) {
+            /* End of string if tkn_obj == NULL (no parent), check if properly terminated */
+            tkn_obj = parent;
+            if (tkn_obj == NULL) {
                 prv_skip_blank(&pobj);
-                res = (pobj.cptr == NULL || pobj.cptr >= pobj.end || *pobj.cptr == '\0') ? lwjsonOK : lwjsonERR;
+                res = prv_peek(&pobj) == '\0' ? lwjsonOK : lwjsonERR;
                 goto ret;
             }
             continue;
         }
 
         /* Allocate new token */
-        t = prv_alloc_token(lwobj);
-        if (t == NULL) {
+        tkn = prv_alloc_token(lwobj);
+        if (tkn == NULL) {
             res = lwjsonERRMEM;
             goto ret;
         }
 
         /* If object type is not array, first thing is property that starts with quotes */
-        if (to->type != LWJSON_TYPE_ARRAY) {
+        if (tkn_obj->type != LWJSON_TYPE_ARRAY) {
             if (*pobj.cptr != '"') {
                 res = lwjsonERRJSON;
                 goto ret;
             }
-            res = prv_parse_property_name(&pobj, t);
+            res = prv_parse_property_name(&pobj, tkn);
             if (res != lwjsonOK) {
                 goto ret;
             }
         }
 
         /* Add element to linked list */
-        if (to->u.first_child == NULL) {
-            to->u.first_child = t;
+        if (tkn_obj->u.first_child == NULL) {
+            tkn_obj->u.first_child = tkn;
         } else {
-            lwjson_token_t* c;
-            for (c = to->u.first_child; c->next != NULL; c = c->next) {}
-            c->next = t;
+            lwjson_token_t* tkn_child;
+            for (tkn_child = tkn_obj->u.first_child; tkn_child->next != NULL; tkn_child = tkn_child->next) {}
+            tkn_child->next = tkn;
         }
 
         /* Check next character to process */
         switch (*pobj.cptr) {
             case '{':
             case '[':
-                t->type = *pobj.cptr == '{' ? LWJSON_TYPE_OBJECT : LWJSON_TYPE_ARRAY;
+                tkn->type = *pobj.cptr == '{' ? LWJSON_TYPE_OBJECT : LWJSON_TYPE_ARRAY;
                 ++pobj.cptr;
 
-                res = prv_check_valid_char_after_open_bracket(&pobj, t);
+                res = prv_check_valid_char_after_open_bracket(&pobj, tkn);
                 if (res != lwjsonOK) {
                     goto ret;
                 }
-                t->next = to; /* Temporary saved as parent object */
-                to = t;
+                tkn->next = tkn_obj; /* Temporary saved as parent object */
+                tkn_obj = tkn;
                 break;
             case '"':
-                res = prv_parse_string(&pobj, &t->u.str.token_value, &t->u.str.token_value_len);
+                res = prv_parse_string(&pobj, &tkn->u.str.token_value, &tkn->u.str.token_value_len);
                 if (res == lwjsonOK) {
-                    t->type = LWJSON_TYPE_STRING;
+                    tkn->type = LWJSON_TYPE_STRING;
                 } else {
                     goto ret;
                 }
                 break;
             case 't':
                 /* RFC4627 is lower-case only */
-                if ((size_t)(pobj.end - pobj.cptr) > 3 && strncmp(pobj.cptr, "true", 4) == 0) {
-                    t->type = LWJSON_TYPE_TRUE;
+                if (prv_has(&pobj, 4) && strncmp(pobj.cptr, "true", 4) == 0) {
+                    tkn->type = LWJSON_TYPE_TRUE;
                     pobj.cptr += 4;
                 } else {
                     res = lwjsonERRJSON;
@@ -670,8 +667,8 @@ lwjson_parse_ex(lwjson_t* lwobj, const void* json_data, size_t json_len) {
                 break;
             case 'f':
                 /* RFC4627 is lower-case only */
-                if ((size_t)(pobj.end - pobj.cptr) > 4 && strncmp(pobj.cptr, "false", 5) == 0) {
-                    t->type = LWJSON_TYPE_FALSE;
+                if (prv_has(&pobj, 5) && strncmp(pobj.cptr, "false", 5) == 0) {
+                    tkn->type = LWJSON_TYPE_FALSE;
                     pobj.cptr += 5;
                 } else {
                     res = lwjsonERRJSON;
@@ -680,8 +677,8 @@ lwjson_parse_ex(lwjson_t* lwobj, const void* json_data, size_t json_len) {
                 break;
             case 'n':
                 /* RFC4627 is lower-case only */
-                if ((size_t)(pobj.end - pobj.cptr) > 3 && strncmp(pobj.cptr, "null", 4) == 0) {
-                    t->type = LWJSON_TYPE_NULL;
+                if (prv_has(&pobj, 4) && strncmp(pobj.cptr, "null", 4) == 0) {
+                    tkn->type = LWJSON_TYPE_NULL;
                     pobj.cptr += 4;
                 } else {
                     res = lwjsonERRJSON;
@@ -690,7 +687,7 @@ lwjson_parse_ex(lwjson_t* lwobj, const void* json_data, size_t json_len) {
                 break;
             default:
                 if (*pobj.cptr == '-' || (*pobj.cptr >= '0' && *pobj.cptr <= '9')) {
-                    if (prv_parse_number(&pobj, &t->type, &t->u.num_real, &t->u.num_int) != lwjsonOK) {
+                    if (prv_parse_number(&pobj, &tkn->type, &tkn->u.num_real, &tkn->u.num_int) != lwjsonOK) {
                         res = lwjsonERRJSON;
                         goto ret;
                     }
@@ -702,7 +699,7 @@ lwjson_parse_ex(lwjson_t* lwobj, const void* json_data, size_t json_len) {
         }
 
         /* Below code is used to check characters after valid tokens */
-        if (t->type == LWJSON_TYPE_ARRAY || t->type == LWJSON_TYPE_OBJECT) {
+        if (tkn->type == LWJSON_TYPE_ARRAY || tkn->type == LWJSON_TYPE_OBJECT) {
             continue;
         }
 
@@ -720,24 +717,23 @@ lwjson_parse_ex(lwjson_t* lwobj, const void* json_data, size_t json_len) {
             goto ret;
         }
         /* Check if valid string is availabe after */
-        if (pobj.cptr == NULL || pobj.cptr >= pobj.end || *pobj.cptr == '\0'
-            || (*pobj.cptr != ',' && *pobj.cptr != ']' && *pobj.cptr != '}')) {
+        if (prv_peek(&pobj) == '\0' || (*pobj.cptr != ',' && *pobj.cptr != ']' && *pobj.cptr != '}')) {
             res = lwjsonERRJSON;
             goto ret;
         } else if (*pobj.cptr == ',') { /* Check to advance to next token immediately */
             ++pobj.cptr;
         }
     }
-    if (to != &lwobj->first_token || (to != NULL && to->next != NULL)) {
+    if (tkn_obj != &lwobj->first_token || (tkn_obj != NULL && tkn_obj->next != NULL)) {
         res = lwjsonERRJSON;
-        to = NULL;
+        tkn_obj = NULL;
     }
-    if (to != NULL) {
-        if (to->type != LWJSON_TYPE_ARRAY && to->type != LWJSON_TYPE_OBJECT) {
+    if (tkn_obj != NULL) {
+        if (tkn_obj->type != LWJSON_TYPE_ARRAY && tkn_obj->type != LWJSON_TYPE_OBJECT) {
             res = lwjsonERRJSON;
         }
-        to->token_name = NULL;
-        to->token_name_len = 0;
+        tkn_obj->token_name = NULL;
+        tkn_obj->token_name_len = 0;
     }
 ret:
     if (res == lwjsonOK) {
