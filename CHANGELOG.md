@@ -2,6 +2,8 @@
 
 ## Develop
 
+## 1.10.1
+
 - Fix parsing invalid JSON ending
 
 ## 1.10.0
