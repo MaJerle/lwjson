@@ -731,17 +731,11 @@ lwjson_parse_ex(lwjson_t* lwobj, const void* json_data, size_t json_len) {
             ++pobj.cptr;
         }
     }
-    if (tkn_obj != &lwobj->first_token || (tkn_obj != NULL && tkn_obj->next != NULL)) {
-        res = lwjsonERRJSON;
-        tkn_obj = NULL;
-    }
-    if (tkn_obj != NULL) {
-        if (tkn_obj->type != LWJSON_TYPE_ARRAY && tkn_obj->type != LWJSON_TYPE_OBJECT) {
-            res = lwjsonERRJSON;
-        }
-        tkn_obj->token_name = NULL;
-        tkn_obj->token_name_len = 0;
-    }
+    /*
+     * Successful parse returns immediately when root object or array gets closed.
+     * Reaching end of input here means at least root (`tkn_obj` stack) is still open.
+     */
+    res = lwjsonERRJSON;
 ret:
     if (res == lwjsonOK) {
         lwobj->flags.parsed = 1;
