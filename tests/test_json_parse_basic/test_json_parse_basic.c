@@ -113,6 +113,32 @@ test_run(void) {
     RUN_TEST(lwjsonERRJSON, "{\"k\":/true}"); /* A slash outside a comment is invalid */
     RUN_TEST(lwjsonERRJSON, "[/1]");          /* A slash outside a comment is invalid */
 
+    /* Unclosed root, issue #36 */
+    RUN_TEST(lwjsonERRJSON, "{");
+    RUN_TEST(lwjsonERRJSON, "{ ");
+    RUN_TEST(lwjsonERRJSON, "{\"v\":1");
+    RUN_TEST(lwjsonERRJSON, "{\"v\":1,");
+    RUN_TEST(lwjsonERRJSON, "{\"v\":[1]");
+    RUN_TEST(lwjsonERRJSON, "{\"v\":[1] ");
+    RUN_TEST(lwjsonERRJSON, "{\"v\":[1],");
+    RUN_TEST(lwjsonERRJSON, "{\"v\":[]");
+    RUN_TEST(lwjsonERRJSON, "{\"v\":{}");
+    RUN_TEST(lwjsonERRJSON, "{\"v\":{\"a\":1}");
+    RUN_TEST(lwjsonERRJSON, "{\"v\":{\"a\":1}\r\n");
+    RUN_TEST(lwjsonERRJSON, "{\"v\":{\"a\":{\"b\":[1,2]}}");
+    RUN_TEST(lwjsonERRJSON, "[[1]");
+    RUN_TEST(lwjsonERRJSON, "[{}");
+    RUN_TEST(lwjsonERRJSON, "[{\"a\":1}");
+    RUN_TEST(lwjsonERRJSON, "[[[1]]");
+    RUN_TEST(lwjsonERRJSON, "[1,[2]");
+    RUN_TEST(lwjsonERRJSON, "[\"a\"");
+    RUN_TEST_EX(lwjsonERRJSON, "{\"v\":[1]}", 8); /* Length cuts off the root closing bracket */
+    RUN_TEST_EX(lwjsonERRJSON, "[[1]]", 4);       /* Length cuts off the root closing bracket */
+    RUN_TEST(lwjsonOK, "{\"v\":[1]}");             /* Closed counterparts must still succeed */
+    RUN_TEST(lwjsonOK, "{\"v\":{\"a\":1}}");
+    RUN_TEST(lwjsonOK, "[[1]]");
+    RUN_TEST(lwjsonOK, "[{\"a\":1}]");
+
     /* Tests with custom len */
     RUN_TEST_EX(lwjsonOK, "[1,2,3,4]abc", 9);   /* Limit input len to JSON-only */
     RUN_TEST_EX(lwjsonERR, "[1,2,3,4]abc", 10); /* Too long input for JSON string.. */

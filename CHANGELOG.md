@@ -2,6 +2,10 @@
 
 ## Develop
 
+## 1.10.1
+
+- Fix parsing invalid JSON ending
+
 ## 1.10.0
 
 - Fix stream parser: NUL-terminate string buffer before invoking user callback, preventing any stale value
