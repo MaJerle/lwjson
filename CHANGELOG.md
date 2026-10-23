@@ -2,6 +2,15 @@
 
 ## Develop
 
+- Stream parser: decode escape sequences in strings and keys, including unicode `\uXXXX` to UTF-8
+- Stream parser: return error on invalid escape sequence
+- Parser: `lwjson_find` matches unescaped key names
+- Parser: validate unicode surrogate pairs in strings
+- Utils: `lwjson_utils_unescape_string` decodes unicode escape sequences to UTF-8, and returns error on incomplete escape sequence
+- Utils: add `lwjson_utils_unescape_seq` and `lwjson_utils_utf8_encode` functions
+- Docs: describe string escape handling and stream key name limitations
+- Add escape sequence test for parser and stream parser
+
 ## 1.10.1
 
 - Fix parsing invalid JSON ending

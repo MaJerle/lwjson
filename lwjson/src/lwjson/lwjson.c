@@ -33,6 +33,7 @@
  */
 #include <string.h>
 #include "lwjson/lwjson.h"
+#include "lwjson/lwjson_utils.h"
 
 /**
  * \brief           Internal string object
@@ -140,7 +141,7 @@ prv_skip_blank(lwjson_int_str_t* pobj) {
 
 /**
  * \brief           Parse JSON string that must start end end with double quotes `"` character
- * It just parses length of characters and does not perform any decode operation
+ * It validates escape sequences and parses length of characters, but does not perform any decode operation
  * \param[in,out]   pobj: Pointer to text that is modified on success
  * \param[out]      pout: Pointer to pointer to string that is set where string starts
  * \param[out]      poutlen: Length of string in units of characters is stored here
@@ -167,37 +168,17 @@ prv_parse_string(lwjson_int_str_t* pobj, const char** pout, size_t* poutlen) {
         }
         /* Check special characters */
         if (*pobj->cptr == '\\') {
-            ++pobj->cptr;
-            ++len;
+            char seq_out[4];
+            size_t consumed, written;
 
-            if (prv_peek(pobj) == '\0') {
+            /* Validate escape sequence, string is not decoded here */
+            if (lwjson_utils_unescape_seq(pobj->cptr, (size_t)(pobj->end - pobj->cptr), seq_out, &consumed, &written)
+                != lwjsonOK) {
                 return lwjsonERRJSON;
             }
-
-            switch (*pobj->cptr) {
-                case '"':  /* fallthrough */
-                case '\\': /* fallthrough */
-                case '/':  /* fallthrough */
-                case 'b':  /* fallthrough */
-                case 'f':  /* fallthrough */
-                case 'n':  /* fallthrough */
-                case 'r':  /* fallthrough */
-                case 't': break;
-                case 'u':
-                    ++pobj->cptr;
-                    for (size_t idx = 0; idx < 4; ++idx, ++len) {
-                        const char chr = prv_peek(pobj);
-
-                        if (!(prv_is_digit(chr) || (chr >= 'a' && chr <= 'f') || (chr >= 'A' && chr <= 'F'))) {
-                            return lwjsonERRJSON;
-                        }
-                        if (idx < 3) {
-                            ++pobj->cptr;
-                        }
-                    }
-                    break;
-                default: return lwjsonERRJSON;
-            }
+            /* Loop increments for the last character of the sequence */
+            pobj->cptr += consumed - 1;
+            len += consumed - 1;
         } else if (*pobj->cptr == '"') {
             ++pobj->cptr;
             break;
@@ -358,6 +339,39 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
 }
 
 /**
+ * \brief           Compare escaped JSON string with unescaped user string
+ * \param[in]       escaped: Escaped string, as it appears in JSON input
+ * \param[in]       escaped_len: Length of escaped string
+ * \param[in]       str: Unescaped string to compare with
+ * \param[in]       str_len: Length of unescaped string
+ * \return          `1` if strings match after unescaping, `0` otherwise
+ */
+static uint8_t
+prv_escaped_string_equal(const char* escaped, size_t escaped_len, const char* str, size_t str_len) {
+    char seq_out[4];
+    size_t consumed, written;
+
+    for (size_t idx = 0; idx < escaped_len; idx += consumed) {
+        if (escaped[idx] == '\\') {
+            if (lwjson_utils_unescape_seq(&escaped[idx], escaped_len - idx, seq_out, &consumed, &written)
+                != lwjsonOK) {
+                return 0;
+            }
+        } else {
+            seq_out[0] = escaped[idx];
+            consumed = 1;
+            written = 1;
+        }
+        if (written > str_len || memcmp(seq_out, str, written) != 0) {
+            return 0;
+        }
+        str += written;
+        str_len -= written;
+    }
+    return str_len == 0;
+}
+
+/**
  * \brief           Create path segment from input path for search operation
  * \param[in,out]   ppath: Pointer to pointer to input path. Pointer is modified
  * \param[out]      opath: Pointer to pointer to write path segment
@@ -470,7 +484,7 @@ prv_find(const lwjson_token_t* parent, const char* path) {
                 return NULL;
             }
             for (const lwjson_token_t* tkn = parent->u.first_child; tkn != NULL; tkn = tkn->next) {
-                if (tkn->token_name_len == segment_len && !strncmp(tkn->token_name, segment, segment_len)) {
+                if (prv_escaped_string_equal(tkn->token_name, tkn->token_name_len, segment, segment_len)) {
                     const lwjson_token_t* tmp;
                     if (is_last) {
                         return tkn;

@@ -79,7 +79,7 @@ const char* const lwjson_type_strings[] = {
  * \param[in]       c: Character to check
  * \return          `1` if considered JSON whitespace, `0` otherwise
  */
-#define prv_is_json_space_char(c) ((c) == ' ' || (c) == '\t' || (c) == '\r' || (c) == '\n')
+#define prv_is_json_space_char(chr) ((chr) == ' ' || (chr) == '\t' || (chr) == '\r' || (chr) == '\n')
 
 /**
  * \brief           Push "parent" state to the artificial stack
@@ -135,6 +135,98 @@ prv_stack_get_top(lwjson_stream_parser_t* jsp) {
 }
 
 /**
+ * \brief           Check if character is hexadecimal digit
+ * \param[in]       c: Character to check
+ * \return          `1` if hexadecimal digit, `0` otherwise
+ */
+#define prv_is_hex_char(chr)                                                                                           \
+    (((chr) >= '0' && (chr) <= '9') || ((chr) >= 'a' && (chr) <= 'f') || ((chr) >= 'A' && (chr) <= 'F'))
+
+/**
+ * \brief           Store decoded string characters and notify user when string buffer is full
+ * \param           jsp: JSON stream parser instance
+ * \param[in]       data: Decoded characters to store
+ * \param[in]       len: Number of characters to store
+ */
+static void
+prv_string_store(lwjson_stream_parser_t* jsp, const char* data, size_t len) {
+    lwjson_stream_type_t type = prv_stack_get_top(jsp);
+
+    for (size_t idx = 0; idx < len; ++idx) {
+        jsp->data.str.buff[jsp->data.str.buff_pos++] = data[idx];
+        jsp->data.str.buff_total_pos++;
+
+        /* Handle buffer "overflow" */
+        if (jsp->data.str.buff_pos >= (sizeof(jsp->data.str.buff) - 1)) {
+            jsp->data.str.buff[jsp->data.str.buff_pos] = '\0';
+
+            /*
+             * - For array or key types - following one is always string
+             * - For object type - character is key
+             */
+            SEND_EVT(jsp, (type == LWJSON_STREAM_TYPE_KEY || type == LWJSON_STREAM_TYPE_ARRAY)
+                              ? LWJSON_STREAM_TYPE_STRING
+                              : LWJSON_STREAM_TYPE_KEY);
+            jsp->data.str.buff_pos = 0;
+        }
+    }
+}
+
+/**
+ * \brief           Check if escape sequence buffer holds high surrogate `\uD800` - `\uDBFF`
+ * \param           jsp: JSON stream parser instance
+ * \return          `1` if high surrogate, `0` otherwise
+ */
+static uint8_t
+prv_esc_is_high_surrogate(const lwjson_stream_parser_t* jsp) {
+    const char chr = jsp->esc_buff[3];
+
+    return (jsp->esc_buff[2] == 'd' || jsp->esc_buff[2] == 'D')
+           && (chr == '8' || chr == '9' || chr == 'a' || chr == 'b' || chr == 'A' || chr == 'B');
+}
+
+/**
+ * \brief           Process character that is part of an escape sequence in a string
+ *
+ * Characters are collected until escape sequence is complete, then decoded and stored.
+ * Unicode escape `\uXXXX` must be followed by another one when first one is high surrogate.
+ *
+ * \param           jsp: JSON stream parser instance
+ * \param[in]       chr: Character to process
+ * \return          \ref lwjsonOK on success, \ref lwjsonERRJSON for invalid escape sequence
+ */
+static lwjsonr_t
+prv_string_escape(lwjson_stream_parser_t* jsp, char chr) {
+    char seq_out[4];
+    size_t consumed, written;
+    const uint8_t pos = jsp->esc_len;
+
+    /* Check unicode sequence format early, positions 6 and 7 are "\u" of low surrogate */
+    if (pos >= 2 && jsp->esc_buff[1] == 'u') {
+        if ((pos == 6 && chr != '\\') || (pos == 7 && chr != 'u') || (pos != 6 && pos != 7 && !prv_is_hex_char(chr))) {
+            return lwjsonERRJSON;
+        }
+    }
+    jsp->esc_buff[jsp->esc_len++] = chr;
+
+    /* Wait for complete unicode sequence */
+    if (jsp->esc_buff[1] == 'u'
+        && (jsp->esc_len < 6 || (jsp->esc_len == 6 && prv_esc_is_high_surrogate(jsp))
+            || (jsp->esc_len > 6 && jsp->esc_len < 12))) {
+        return lwjsonOK;
+    }
+
+    /* Sequence is complete - decode it */
+    if (lwjson_utils_unescape_seq(jsp->esc_buff, jsp->esc_len, seq_out, &consumed, &written) != lwjsonOK) {
+        return lwjsonERRJSON;
+    }
+    jsp->is_escaped = 0;
+    jsp->esc_len = 0;
+    prv_string_store(jsp, seq_out, written);
+    return lwjsonOK;
+}
+
+/**
  * \brief           Initialize LwJSON stream object before parsing takes place
  * \param[in,out]   jsp: Stream JSON structure
  * \return          \ref lwjsonOK on success, member of \ref lwjsonr_t otherwise
@@ -159,6 +251,7 @@ lwjson_stream_reset(lwjson_stream_parser_t* jsp) {
     jsp->parse_state = LWJSON_STREAM_STATE_WAITINGFIRSTCHAR;
     jsp->stack_pos = 0;
     jsp->is_escaped = 0;
+    jsp->esc_len = 0;
     return lwjsonOK;
 }
 
@@ -296,6 +389,7 @@ start_over:
 #endif /* defined(LWJSON_DEV) */
                 jsp->parse_state = LWJSON_STREAM_STATE_PARSING_STRING;
                 jsp->is_escaped = 0;
+                jsp->esc_len = 0;
                 LWJSON_MEMSET(&jsp->data.str, 0x00, sizeof(jsp->data.str));
 
             } else if (prv_stack_get_top(jsp) == LWJSON_STREAM_TYPE_OBJECT) {
@@ -362,10 +456,14 @@ start_over:
             /*
              * If previous character was an unescaped backslash,
              * current character is part of an escape sequence.
-             * Clear the flag and fall through to store it normally.
+             * Sequence is decoded and stored once complete.
              */
             if (jsp->is_escaped) {
-                jsp->is_escaped = 0;
+                if (prv_string_escape(jsp, chr) != lwjsonOK) {
+                    LWJSON_DEBUG(jsp, "ERROR - invalid escape sequence\r\n");
+                    return lwjsonERRJSON;
+                }
+                break;
             } else if (chr == '"') {
                 /* Unescaped quote terminates the string.
                     Add termination before calling the user function */
@@ -432,25 +530,13 @@ start_over:
             } else if (chr == '\\') {
                 /* Backslash starts an escape sequence */
                 jsp->is_escaped = 1;
+                jsp->esc_buff[0] = chr;
+                jsp->esc_len = 1;
+                break;
             }
 
-            /* Store character in buffer (escaped chars, backslash, and normal chars) */
-            jsp->data.str.buff[jsp->data.str.buff_pos++] = chr;
-            jsp->data.str.buff_total_pos++;
-
-            /* Handle buffer "overflow" */
-            if (jsp->data.str.buff_pos >= (sizeof(jsp->data.str.buff) - 1)) {
-                jsp->data.str.buff[jsp->data.str.buff_pos] = '\0';
-
-                /*
-                 * - For array or key types - following one is always string
-                 * - For object type - character is key
-                 */
-                SEND_EVT(jsp, (type == LWJSON_STREAM_TYPE_KEY || type == LWJSON_STREAM_TYPE_ARRAY)
-                                  ? LWJSON_STREAM_TYPE_STRING
-                                  : LWJSON_STREAM_TYPE_KEY);
-                jsp->data.str.buff_pos = 0;
-            }
+            /* Store regular character in buffer */
+            prv_string_store(jsp, &chr, 1);
             break;
         }
 

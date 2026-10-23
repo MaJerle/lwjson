@@ -69,8 +69,8 @@ prv_print_token(lwjson_token_print_t* prt, const lwjson_token_t* token) {
             if (token->u.first_child != NULL) {
                 printf("\n");
                 ++prt->indent;
-                for (const lwjson_token_t* t = lwjson_get_first_child(token); t != NULL; t = t->next) {
-                    prv_print_token(prt, t);
+                for (const lwjson_token_t* tkn = lwjson_get_first_child(token); tkn != NULL; tkn = tkn->next) {
+                    prv_print_token(prt, tkn);
                 }
                 --prt->indent;
                 print_indent();

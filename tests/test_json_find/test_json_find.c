@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include "lwjson/lwjson.h"
 
-#define RUN_TEST(c)                                                                                                    \
-    if ((c)) {                                                                                                         \
+#define RUN_TEST(exp_res_must_be_true)                                                                                 \
+    if ((exp_res_must_be_true)) {                                                                                      \
         ++test_passed;                                                                                                 \
     } else {                                                                                                           \
         printf("Test failed on line %d\r\n", __LINE__);                                                                \
@@ -84,9 +84,9 @@ test_run(void) {
     RUN_TEST((token = lwjson_find(&lwjson, "my_arr.#3.#")) == NULL);
 
     /* Use EX version to search for tokens */
-    RUN_TEST((token = lwjson_find_ex(&lwjson, NULL, "my_obj")) != NULL /* First search for my_obj in root JSON */
-             && (token = lwjson_find_ex(&lwjson, token, "key_true"))
-                    != NULL /* Use token for relative search and search for key_true only */
+    RUN_TEST((token = lwjson_find_ex(&lwjson, NULL, "my_obj")) != NULL       /* First search for my_obj in root JSON */
+             && (token = lwjson_find_ex(&lwjson, token, "key_true")) != NULL /* Use token for relative search and search
+                                                                                for key_true only */
              && token->type == LWJSON_TYPE_TRUE);
 
     /* Deep search */

@@ -13,21 +13,21 @@ example_traverse_run(void) {
 
     /* Try to parse input string */
     if (lwjson_parse(&lwjson, "{\"mykey\":\"myvalue\",\"num\":1,\"obj\":{},\"arr\":[1,2,3,4]}") == lwjsonOK) {
-        lwjson_token_t* t;
+        lwjson_token_t* root;
         printf("JSON parsed..\r\n");
 
         /* Get very first token as top object */
-        t = lwjson_get_first_token(&lwjson);
-        if (t->type == LWJSON_TYPE_ARRAY) {
+        root = lwjson_get_first_token(&lwjson);
+        if (root->type == LWJSON_TYPE_ARRAY) {
             printf("JSON starts with array..\r\n");
-        } else if (t->type == LWJSON_TYPE_OBJECT) {
+        } else if (root->type == LWJSON_TYPE_OBJECT) {
             printf("JSON starts with object..\r\n");
         } else {
             printf("This should never happen..\r\n");
         }
 
         /* Now print all keys in the object */
-        for (const lwjson_token_t* tkn = lwjson_get_first_child(t); tkn != NULL; tkn = tkn->next) {
+        for (const lwjson_token_t* tkn = lwjson_get_first_child(root); tkn != NULL; tkn = tkn->next) {
             printf("Token: %.*s", (int)tkn->token_name_len, tkn->token_name);
             if (tkn->type == LWJSON_TYPE_ARRAY || tkn->type == LWJSON_TYPE_OBJECT) {
                 printf(": Token is array or object...check children tokens if any, in recursive mode..");

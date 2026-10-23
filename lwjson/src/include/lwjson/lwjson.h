@@ -234,13 +234,15 @@ typedef struct lwjson_stream_parser {
     } data; /*!< Data union used to parse various */
 
     uint8_t is_escaped; /*!< Set to 1 when backslash escape is active in string parsing */
+    char esc_buff[12];  /*!< Escape sequence being parsed, up to `\uXXXX\uXXXX` for surrogate pairs */
+    uint8_t esc_len;    /*!< Number of characters in escape sequence buffer */
 } lwjson_stream_parser_t;
 
 lwjsonr_t lwjson_stream_init(lwjson_stream_parser_t* jsp, lwjson_stream_parser_callback_fn evt_fn);
 lwjsonr_t lwjson_stream_set_user_data(lwjson_stream_parser_t* jsp, void* user_data);
 void* lwjson_stream_get_user_data(lwjson_stream_parser_t* jsp);
 lwjsonr_t lwjson_stream_reset(lwjson_stream_parser_t* jsp);
-lwjsonr_t lwjson_stream_parse(lwjson_stream_parser_t* jsp, char c);
+lwjsonr_t lwjson_stream_parse(lwjson_stream_parser_t* jsp, char chr);
 
 /**
  * \brief           Get number of tokens used to parse JSON

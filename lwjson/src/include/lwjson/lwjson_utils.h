@@ -57,6 +57,9 @@ lwjsonr_t
 lwjson_utils_escape_string_cb(const char* input, size_t input_len, lwjson_serializer_callback_fn callback, void* ctx);
 lwjsonr_t lwjson_utils_unescape_string(const char* input, size_t input_len, char* output, size_t output_capacity,
                                        size_t* bytes_written);
+lwjsonr_t
+lwjson_utils_unescape_seq(const char* input, size_t input_len, char* output, size_t* consumed, size_t* written);
+uint8_t lwjson_utils_utf8_encode(uint32_t code_point, char* output);
 
 /**
  * \}

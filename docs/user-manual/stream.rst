@@ -43,6 +43,26 @@ During parsing procedure, at some point of time, these events will occur:
 
 Each of these events is reported to user in the callback function.
 
+Strings and keys
+****************
+
+Strings and keys are delivered through the ``jsp->data.str`` buffer, with escape sequences already decoded.
+``\n`` is delivered as new line character, unicode escape sequences ``\uXXXX`` (including surrogate pairs) are decoded to *UTF-8*.
+Invalid escape sequence stops parsing with an error.
+
+When string is longer than ``LWJSON_CFG_STREAM_STRING_MAX_LEN``, it is delivered in multiple chunks,
+with multiple callback calls. ``jsp->data.str.is_last`` is set to ``1`` for the last chunk.
+Multi-byte *UTF-8* character may be split between two chunks.
+
+.. warning::
+    Key name on the stack (``jsp->stack[x].meta.name``) is copied from the string buffer
+    once the key is fully parsed. It therefore only holds the **last chunk** of the key,
+    and is additionally limited to ``LWJSON_CFG_STREAM_KEY_MAX_LEN`` characters.
+
+    Application must ensure that ``LWJSON_CFG_STREAM_STRING_MAX_LEN`` and ``LWJSON_CFG_STREAM_KEY_MAX_LEN``
+    are large enough to hold the longest key in the expected JSON input,
+    otherwise key comparison in the callback, based on the stack, will fail.
+
 An example of the stream parsing:
 
 .. literalinclude:: ../../examples/example_stream.c

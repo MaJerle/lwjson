@@ -22,10 +22,12 @@
  */
 typedef struct {
     int numbers_array[3];
+
     struct {
         int num1;
         int num2;
     } numbers_obj;
+
     int numbers_array_array[2][3];
     lwjson_real_t number_real;
     char long_string[128];
@@ -33,20 +35,12 @@ typedef struct {
 } test_data_t;
 
 /* Test data to serialize */
-static test_data_t test_data = {
-    .numbers_array = {123, -123, 987},
-    .numbers_obj = {
-        .num1 = 123,
-        .num2 = 456
-    },
-    .numbers_array_array = {
-        {1, 2, 3},
-        {4, 5, 6}
-    },
-    .number_real = 3.5f,
-    .long_string = "this is a test string for serialization",
-    .bool_value = 1
-};
+static test_data_t test_data = {.numbers_array = {123, -123, 987},
+                                .numbers_obj = {.num1 = 123, .num2 = 456},
+                                .numbers_array_array = {{1, 2, 3}, {4, 5, 6}},
+                                .number_real = 3.5f,
+                                .long_string = "this is a test string for serialization",
+                                .bool_value = 1};
 
 /**
  * \brief           Serialize test data to JSON string using lwjson_serializer
@@ -81,10 +75,10 @@ serialize_test_data(char* json_str, size_t max_len) {
         return -1;
     }
 
-    for (int i = 0; i < 3; i++) {
-        res = lwjson_serializer_add_int(&serializer, NULL, 0, test_data.numbers_array[i]);
+    for (int idx = 0; idx < 3; idx++) {
+        res = lwjson_serializer_add_int(&serializer, NULL, 0, test_data.numbers_array[idx]);
         if (res != lwjsonOK) {
-            printf("Failed to add numbers_array[%d]: %d\r\n", i, res);
+            printf("Failed to add numbers_array[%d]: %d\r\n", idx, res);
             return -1;
         }
     }
@@ -127,24 +121,24 @@ serialize_test_data(char* json_str, size_t max_len) {
         return -1;
     }
 
-    for (int i = 0; i < 2; i++) {
+    for (int row = 0; row < 2; row++) {
         res = lwjson_serializer_start_array(&serializer, NULL, 0);
         if (res != lwjsonOK) {
-            printf("Failed to start inner array[%d]: %d\r\n", i, res);
+            printf("Failed to start inner array[%d]: %d\r\n", row, res);
             return -1;
         }
 
-        for (int j = 0; j < 3; j++) {
-            res = lwjson_serializer_add_int(&serializer, NULL, 0, test_data.numbers_array_array[i][j]);
+        for (int col = 0; col < 3; col++) {
+            res = lwjson_serializer_add_int(&serializer, NULL, 0, test_data.numbers_array_array[row][col]);
             if (res != lwjsonOK) {
-                printf("Failed to add numbers_array_array[%d][%d]: %d\r\n", i, j, res);
+                printf("Failed to add numbers_array_array[%d][%d]: %d\r\n", row, col, res);
                 return -1;
             }
         }
 
         res = lwjson_serializer_end_array(&serializer);
         if (res != lwjsonOK) {
-            printf("Failed to end inner array[%d]: %d\r\n", i, res);
+            printf("Failed to end inner array[%d]: %d\r\n", row, res);
             return -1;
         }
     }
@@ -163,7 +157,8 @@ serialize_test_data(char* json_str, size_t max_len) {
     }
 
     /* Serialize long_string */
-    res = lwjson_serializer_add_string(&serializer, "long_string", 11, test_data.long_string, strlen(test_data.long_string));
+    res = lwjson_serializer_add_string(&serializer, "long_string", 11, test_data.long_string,
+                                       strlen(test_data.long_string));
     if (res != lwjsonOK) {
         printf("Failed to add long_string: %d\r\n", res);
         return -1;
@@ -259,18 +254,19 @@ test_run(void) {
             const char* input;
             const char* expected_utf8;
             const char* description;
-        } unicode_tests[] = {
-            {"\u20AC", "\xe2\x82\xac", "Euro sign"},
-            {"\u4E2D\u6587", "\xe4\xb8\xad\xe6\x96\x87", "Chinese: 中文"},
-            {"\u010C\u011E\u0160\u017E", "\xc4\x8c\xc4\x9e\xc5\xa0\xc5\xbe", "Czech: ČĚŠŽ"}
-        };
+        } unicode_tests[] = {{"\u20AC", "\xe2\x82\xac", "Euro sign"},
+                             {"\u4E2D\u6587", "\xe4\xb8\xad\xe6\x96\x87", "Chinese: 中文"},
+                             {"\u010C\u011E\u0160\u017E", "\xc4\x8c\xc4\x9e\xc5\xa0\xc5\xbe", "Czech: ČĚŠŽ"}};
+
         char outbuf[16];
         size_t outlen;
-        for (size_t i = 0; i < sizeof(unicode_tests)/sizeof(unicode_tests[0]); ++i) {
+        for (size_t idx = 0; idx < sizeof(unicode_tests) / sizeof(unicode_tests[0]); ++idx) {
             memset(outbuf, 0, sizeof(outbuf));
-            res = lwjson_utils_unescape_string(unicode_tests[i].input, strlen(unicode_tests[i].input), outbuf, sizeof(outbuf), &outlen);
-            int match = (res == lwjsonOK && outlen == strlen(unicode_tests[i].expected_utf8) && memcmp(outbuf, unicode_tests[i].expected_utf8, outlen) == 0);
-            printf("Unicode test '%s': %s\r\n", unicode_tests[i].description, match ? "PASSED" : "FAILED");
+            res = lwjson_utils_unescape_string(unicode_tests[idx].input, strlen(unicode_tests[idx].input), outbuf,
+                                               sizeof(outbuf), &outlen);
+            int match = (res == lwjsonOK && outlen == strlen(unicode_tests[idx].expected_utf8)
+                         && memcmp(outbuf, unicode_tests[idx].expected_utf8, outlen) == 0);
+            printf("Unicode test '%s': %s\r\n", unicode_tests[idx].description, match ? "PASSED" : "FAILED");
             RUN_TEST(match);
         }
     }

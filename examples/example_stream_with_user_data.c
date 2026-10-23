@@ -60,8 +60,8 @@ example_stream_run(void) {
     lwjson_stream_init(&stream_parser, prv_example_callback_func);
     lwjson_stream_set_user_data(&stream_parser, &data);
     /* Demonstrate as stream inputs */
-    for (const char* c = json_str; *c != '\0'; ++c) {
-        res = lwjson_stream_parse(&stream_parser, *c);
+    for (const char* chr = json_str; *chr != '\0'; ++chr) {
+        res = lwjson_stream_parse(&stream_parser, *chr);
         if (res == lwjsonSTREAMINPROG) {
         } else if (res == lwjsonSTREAMWAITFIRSTCHAR) {
             printf("Waiting first character\r\n");
@@ -74,8 +74,8 @@ example_stream_run(void) {
     }
     printf("Parsing completed\r\n");
     printf("data: k1 = '%s'\r\n", data.k1);
-    for (int i = 0; i < data.k2_pos; i++) {
-        printf("data: k2[%d] = %d\r\n", i, data.k2[i]);
+    for (int idx = 0; idx < data.k2_pos; idx++) {
+        printf("data: k2[%d] = %d\r\n", idx, data.k2[idx]);
     }
 }
 

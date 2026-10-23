@@ -30,8 +30,8 @@ example_stream_run(void) {
     lwjson_stream_init(&stream_parser, prv_example_callback_func);
 
     /* Demonstrate as stream inputs */
-    for (const char* c = json_str; *c != '\0'; ++c) {
-        res = lwjson_stream_parse(&stream_parser, *c);
+    for (const char* chr = json_str; *chr != '\0'; ++chr) {
+        res = lwjson_stream_parse(&stream_parser, *chr);
         if (res == lwjsonSTREAMINPROG) {
         } else if (res == lwjsonSTREAMWAITFIRSTCHAR) {
             printf("Waiting first character\r\n");

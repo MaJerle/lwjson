@@ -244,12 +244,12 @@ test_run(void) {
             "{\"a\":\"hello\\\\\"}", /* {"a":"hello\\"} */
             NULL,
         };
-        for (const char** tc = escaped_bs_tests; *tc != NULL; ++tc) {
+        for (const char** test_case = escaped_bs_tests; *test_case != NULL; ++test_case) {
             lwjson_stream_init(&parser, prv_parser_callback);
-            const char* p = *tc;
+            const char* ptr = *test_case;
             lwjsonr_t res = lwjsonSTREAMINPROG;
-            while (*p && res == lwjsonSTREAMINPROG) {
-                res = lwjson_stream_parse(&parser, *p++);
+            while (*ptr && res == lwjsonSTREAMINPROG) {
+                res = lwjson_stream_parse(&parser, *ptr++);
             }
             RUN_TEST(res == lwjsonSTREAMDONE);
         }

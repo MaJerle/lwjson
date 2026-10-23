@@ -123,5 +123,32 @@ To retrieve full object of the array, application may only apply ``#[0.9]+`` in 
     Passing path in format ``path.to.cars.#`` (hashtag as last element without index number) will always return ``NULL``
     as this is considered invalid path. To retrieve full array, pass path to array ``path.to.cars`` only, without trailling ``#``.
 
+String escape sequences
+***********************
+
+Tokens do not hold a copy of the string, they point directly to the input JSON data.
+:cpp:func:`lwjson_get_val_string` therefore returns string as it appears in the JSON input,
+with escape sequences still in place (``\n`` is returned as backslash followed by ``n``).
+
+Parser validates all escape sequences during parsing, and returns error for invalid ones.
+
+* Use :cpp:func:`lwjson_utils_unescape_string` to decode string value to application buffer.
+  Unicode escape sequences, including surrogate pairs, are decoded to *UTF-8*.
+* :cpp:func:`lwjson_find` compares the key names after decoding, the path must use unescaped names.
+  For an input key ``"k\tey"``, path is ``"k<TAB>ey"``, with real tab character in the path.
+
+.. code-block:: c
+
+    const lwjson_token_t* t;
+    char buff[64];
+    size_t len, buff_len;
+    const char* str;
+
+    if ((t = lwjson_find(&lwjson, "name")) != NULL
+        && (str = lwjson_get_val_string(t, &len)) != NULL
+        && lwjson_utils_unescape_string(str, len, buff, sizeof(buff), &buff_len) == lwjsonOK) {
+        printf("Name: %.*s\r\n", (int)buff_len, buff);
+    }
+
 .. toctree::
     :maxdepth: 2

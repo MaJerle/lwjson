@@ -58,8 +58,8 @@ test_run(void) {
     lwjson_stream_init(&parser, prv_parser_callback);
 
     lwjsonr_t res = lwjsonSTREAMINPROG;
-    for (const char* p = json_input; *p != '\0' && res == lwjsonSTREAMINPROG; ++p) {
-        res = lwjson_stream_parse(&parser, *p);
+    for (const char* ptr = json_input; *ptr != '\0' && res == lwjsonSTREAMINPROG; ++ptr) {
+        res = lwjson_stream_parse(&parser, *ptr);
     }
 
     TEST_ASSERT(res == lwjsonSTREAMDONE);

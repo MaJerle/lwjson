@@ -18,7 +18,7 @@ static lwjson_t lwjson;
  */
 int
 test_run(void) {
-    const lwjson_token_t* t;
+    const lwjson_token_t* tkn;
     size_t test_failed = 0, test_passed = 0;
 
     /* Input JSON string */
@@ -131,13 +131,13 @@ test_run(void) {
 
     /* Now that it is parsed, check all input keys */
     for (size_t idx = 0; idx < LWJSON_ARRAYSIZE(paths_types); ++idx) {
-        t = lwjson_find(&lwjson, paths_types[idx].path);
-        if (t == NULL) {
+        tkn = lwjson_find(&lwjson, paths_types[idx].path);
+        if (tkn == NULL) {
             printf("IDX = %u: Could not find entry for path \"%s\"\r\n", (unsigned)idx, paths_types[idx].path);
             ++test_failed;
             continue;
         }
-        if (t->type == paths_types[idx].type) {
+        if (tkn->type == paths_types[idx].type) {
             ++test_passed;
         } else {
             printf("IDX = %u: Type mismatch for path \"%s\"\r\n", (unsigned)idx, paths_types[idx].path);
