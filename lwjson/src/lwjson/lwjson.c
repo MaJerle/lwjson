@@ -353,8 +353,7 @@ prv_escaped_string_equal(const char* escaped, size_t escaped_len, const char* st
 
     for (size_t idx = 0; idx < escaped_len; idx += consumed) {
         if (escaped[idx] == '\\') {
-            if (lwjson_utils_unescape_seq(&escaped[idx], escaped_len - idx, seq_out, &consumed, &written)
-                != lwjsonOK) {
+            if (lwjson_utils_unescape_seq(&escaped[idx], escaped_len - idx, seq_out, &consumed, &written) != lwjsonOK) {
                 return 0;
             }
         } else {
