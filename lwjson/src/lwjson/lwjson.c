@@ -31,9 +31,13 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.10.1
  */
+#include <limits.h>
 #include <string.h>
 #include "lwjson/lwjson.h"
 #include "lwjson/lwjson_utils.h"
+
+/* Maximum value of configurable integer type, calculated without overflow */
+#define LWJSON_INT_MAX ((((lwjson_int_t)1 << (sizeof(lwjson_int_t) * CHAR_BIT - 2)) - 1) * 2 + 1)
 
 /**
  * \brief           Internal string object
@@ -272,18 +276,40 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
         return lwjsonERRJSON;
     }
 
-    /* Parse number */
+    /*
+     * Parse number
+     *
+     * Integer is accumulated as negative value, so that minimum value of the type fits too.
+     * When it does not fit the integer type, number continues as real.
+     */
     for (int_num = 0; prv_is_digit(prv_peek(pobj)); ++pobj->cptr) {
-        int_num = int_num * (lwjson_int_t)10 + (*pobj->cptr - '0');
-    }
+        const lwjson_int_t digit = (lwjson_int_t)(*pobj->cptr - '0');
 
-    real_num = (lwjson_real_t)int_num;
+        real_num = real_num * (lwjson_real_t)10 + (lwjson_real_t)digit;
+        if (int_num < (-LWJSON_INT_MAX - 1 + digit) / (lwjson_int_t)10) {
+            type = LWJSON_TYPE_NUM_REAL;
+        } else {
+            int_num = int_num * (lwjson_int_t)10 - digit;
+        }
+    }
+    if (!is_minus) {
+        if (int_num < -LWJSON_INT_MAX) {
+            type = LWJSON_TYPE_NUM_REAL;
+        } else {
+            int_num = -int_num;
+        }
+    }
+    if (type == LWJSON_TYPE_NUM_INT) {
+        /* Exact conversion while in integer range, real number keeps only the magnitude */
+        real_num = (lwjson_real_t)int_num;
+        if (real_num < 0) {
+            real_num = -real_num;
+        }
+    }
 
     if (prv_peek(pobj) == '.') { /* Number has exponent */
         lwjson_real_t exp;
         lwjson_int_t dec_num;
-
-        real_num = (lwjson_real_t)int_num;
 
         type = LWJSON_TYPE_NUM_REAL;         /* Format is real */
         ++pobj->cptr;                        /* Ignore comma character */
@@ -292,9 +318,12 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
         }
 
         /* Get number after decimal point */
-        for (exp = (lwjson_real_t)1, dec_num = 0; prv_is_digit(prv_peek(pobj));
-             ++pobj->cptr, exp *= (lwjson_real_t)10) {
-            dec_num = dec_num * (lwjson_int_t)10 + (lwjson_int_t)(*pobj->cptr - '0');
+        for (exp = (lwjson_real_t)1, dec_num = 0; prv_is_digit(prv_peek(pobj)); ++pobj->cptr) {
+            /* Digits that do not fit the integer type are below real precision, ignore them */
+            if (dec_num <= (LWJSON_INT_MAX - 9) / (lwjson_int_t)10) {
+                dec_num = dec_num * (lwjson_int_t)10 + (lwjson_int_t)(*pobj->cptr - '0');
+                exp *= (lwjson_real_t)10;
+            }
         }
 
         /* Add decimal part to number */
@@ -319,7 +348,10 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
 
         /* Parse exponent number */
         for (exp_cnt = 0; prv_is_digit(prv_peek(pobj)); ++pobj->cptr) {
-            exp_cnt = exp_cnt * (lwjson_int_t)10 + (lwjson_int_t)(*pobj->cptr - '0');
+            /* Saturate, result is already zero or infinity long before the limit */
+            if (exp_cnt <= (LWJSON_INT_MAX - 9) / (lwjson_int_t)10) {
+                exp_cnt = exp_cnt * (lwjson_int_t)10 + (lwjson_int_t)(*pobj->cptr - '0');
+            }
         }
 
         /* Calculate new value for exponent 10^exponent */
@@ -331,7 +363,7 @@ prv_parse_number(lwjson_int_str_t* pobj, lwjson_type_t* tout, lwjson_real_t* fou
         *tout = type;
     }
     if (type == LWJSON_TYPE_NUM_INT) {
-        *iout = is_minus ? -int_num : int_num;
+        *iout = int_num;
     } else {
         *fout = is_minus ? -real_num : real_num;
     }

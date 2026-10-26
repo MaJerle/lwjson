@@ -145,6 +145,49 @@ test_run(void) {
     RUN_TEST_EX(lwjsonOK, "[1,2,3,4]",
                 15); /* String ends earlier than what is input data len indicating = OK if JSON is valid */
 
+    /* Numbers at and beyond the integer limits, and with many digits */
+    {
+        static const struct {
+            const char* json_str;
+            lwjson_type_t type;
+            double value;
+        } num_tests[] = {
+            {"[-9223372036854775808]", LWJSON_TYPE_NUM_INT, -9223372036854775807.0 - 1.0},
+            {"[9223372036854775807]", LWJSON_TYPE_NUM_INT, 9223372036854775807.0},
+            {"[9223372036854775808]", LWJSON_TYPE_NUM_REAL, 9223372036854775808.0},
+            {"[-9223372036854775809]", LWJSON_TYPE_NUM_REAL, -9223372036854775809.0},
+            {"[20000000000000000000.5]", LWJSON_TYPE_NUM_REAL, 2e19},
+            {"[0.12345678901234567890123]", LWJSON_TYPE_NUM_REAL, 0.12345678901234567890123},
+            {"[-0.0]", LWJSON_TYPE_NUM_REAL, 0.0},
+            {"[1e-99999999999999999999]", LWJSON_TYPE_NUM_REAL, 0.0},
+        };
+
+        for (size_t idx = 0; idx < LWJSON_ARRAYSIZE(num_tests); ++idx) {
+            const lwjson_token_t* tkn;
+            double val, diff;
+
+            if (lwjson_parse(&lwjson, num_tests[idx].json_str) != lwjsonOK
+                || (tkn = lwjson_get_first_child(lwjson_get_first_token(&lwjson))) == NULL
+                || tkn->type != num_tests[idx].type) {
+                ++test_failed;
+                printf("Number test failed for input %s\r\n", num_tests[idx].json_str);
+                continue;
+            }
+            val = tkn->type == LWJSON_TYPE_NUM_INT ? (double)lwjson_get_val_int(tkn)
+                                                   : (double)lwjson_get_val_real(tkn);
+            diff = val - num_tests[idx].value;
+            if (diff < 0) {
+                diff = -diff;
+            }
+            if (diff > 1e-6 * (num_tests[idx].value < 0 ? -num_tests[idx].value : num_tests[idx].value)) {
+                ++test_failed;
+                printf("Number test failed for input %s, value %f\r\n", num_tests[idx].json_str, val);
+            } else {
+                ++test_passed;
+            }
+        }
+    }
+
     /* Print results */
     printf("JSON parse test result pass/fail: %d/%d\r\n\r\n", (int)test_passed, (int)test_failed);
     return test_failed > 0 ? -1 : 0;

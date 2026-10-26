@@ -10,6 +10,7 @@
 - Utils: add `lwjson_utils_unescape_seq` and `lwjson_utils_utf8_encode` functions
 - Docs: describe string escape handling and stream key name limitations
 - Add escape sequence test for parser and stream parser
+- Parser: fix signed overflow on long numbers; integers outside `lwjson_int_t` range are returned as real numbers
 
 ## 1.10.1
 
