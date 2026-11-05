@@ -82,6 +82,59 @@ const char* const lwjson_type_strings[] = {
 #define prv_is_json_space_char(chr) ((chr) == ' ' || (chr) == '\t' || (chr) == '\r' || (chr) == '\n')
 
 /**
+ * \brief           Validate a JSON number primitive
+ * \param[in]       str: Number string
+ * \param[in]       len: Number string length
+ * \return          `1` if valid, `0` otherwise
+ */
+static uint8_t
+prv_is_valid_number(const char* str, size_t len) {
+    size_t pos = 0;
+
+    if (pos < len && str[pos] == '-') {
+        ++pos;
+    }
+    if (pos >= len) {
+        return 0;
+    }
+
+    if (str[pos] == '0') {
+        ++pos;
+    } else if (str[pos] >= '1' && str[pos] <= '9') {
+        do {
+            ++pos;
+        } while (pos < len && str[pos] >= '0' && str[pos] <= '9');
+    } else {
+        return 0;
+    }
+
+    if (pos < len && str[pos] == '.') {
+        ++pos;
+        if (pos >= len || str[pos] < '0' || str[pos] > '9') {
+            return 0;
+        }
+        do {
+            ++pos;
+        } while (pos < len && str[pos] >= '0' && str[pos] <= '9');
+    }
+
+    if (pos < len && (str[pos] == 'e' || str[pos] == 'E')) {
+        ++pos;
+        if (pos < len && (str[pos] == '+' || str[pos] == '-')) {
+            ++pos;
+        }
+        if (pos >= len || str[pos] < '0' || str[pos] > '9') {
+            return 0;
+        }
+        do {
+            ++pos;
+        } while (pos < len && str[pos] >= '0' && str[pos] <= '9');
+    }
+
+    return pos == len;
+}
+
+/**
  * \brief           Push "parent" state to the artificial stack
  * \param           jsp: JSON stream parser instance
  * \param           type: Stream type to be pushed on stack
@@ -584,8 +637,7 @@ start_over:
                 } else if (jsp->data.prim.buff_pos == 5 && strncmp(jsp->data.prim.buff, "false", 5) == 0) {
                     LWJSON_DEBUG(jsp, "Primitive parsed as %s\r\n", "false");
                     SEND_EVT(jsp, LWJSON_STREAM_TYPE_FALSE);
-                } else if (jsp->data.prim.buff[0] == '-'
-                           || (jsp->data.prim.buff[0] >= '0' && jsp->data.prim.buff[0] <= '9')) {
+                } else if (prv_is_valid_number(jsp->data.prim.buff, jsp->data.prim.buff_pos)) {
                     LWJSON_DEBUG(jsp, "Primitive parsed - number\r\n");
                     SEND_EVT(jsp, LWJSON_STREAM_TYPE_NUMBER);
                 } else {
