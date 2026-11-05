@@ -263,5 +263,35 @@ test_run(void) {
         RUN_TEST(lwjson_stream_parse(&parser, *form_feed_json) == lwjsonERRJSON);
     }
 
+    /* Streaming and non-streaming parsers must apply the same JSON number grammar. */
+    {
+        static const char* valid_numbers[] = {
+            "[0]", "[-0]", "[123]", "[-123]", "[0.5]", "[-0.5]", "[1e3]", "[1E+3]", "[1e-3]", NULL,
+        };
+        static const char* invalid_numbers[] = {
+            "[01]", "[-]", "[1.]", "[1e]", "[1e+]", "[1abc]", "[--1]", NULL,
+        };
+
+        for (const char** test_case = valid_numbers; *test_case != NULL; ++test_case) {
+            lwjson_stream_init(&parser, NULL);
+            const char* ptr = *test_case;
+            lwjsonr_t res = lwjsonSTREAMINPROG;
+            while (*ptr && res == lwjsonSTREAMINPROG) {
+                res = lwjson_stream_parse(&parser, *ptr++);
+            }
+            RUN_TEST(res == lwjsonSTREAMDONE);
+        }
+
+        for (const char** test_case = invalid_numbers; *test_case != NULL; ++test_case) {
+            lwjson_stream_init(&parser, NULL);
+            const char* ptr = *test_case;
+            lwjsonr_t res = lwjsonSTREAMINPROG;
+            while (*ptr && res == lwjsonSTREAMINPROG) {
+                res = lwjson_stream_parse(&parser, *ptr++);
+            }
+            RUN_TEST(res == lwjsonERRJSON);
+        }
+    }
+
     return test_failed > 0 ? -1 : 0;
 }
