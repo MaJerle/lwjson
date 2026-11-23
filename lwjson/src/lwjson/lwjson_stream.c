@@ -513,6 +513,7 @@ start_over:
              */
             if (jsp->is_escaped) {
                 if (prv_string_escape(jsp, chr) != lwjsonOK) {
+                    jsp->is_escaped = 0;
                     LWJSON_DEBUG(jsp, "ERROR - invalid escape sequence\r\n");
                     return lwjsonERRJSON;
                 }
